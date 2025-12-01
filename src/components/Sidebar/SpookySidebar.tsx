@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { imgLogo } from "@/config/assets";
+import SpookyLogo from "@/components/SpookyLogo";
 import { createClient } from "@/config/supabase/client";
 import { useUIStore, useProfileStore, useThemeStore } from "@/lib/stores";
 import {
@@ -84,9 +85,8 @@ export default function SpookySidebar() {
         <>
             <button
                 onClick={() => setSidebarMobileOpen(true)}
-                className={`fixed top-4 left-4 z-50 md:hidden w-10 h-10 rounded-lg flex items-center justify-center shadow-lg ${
-                    isSpooky ? "bg-purple-600 text-white" : "bg-[#171d2b] text-white"
-                }`}
+                className={`fixed top-4 left-4 z-50 md:hidden w-10 h-10 rounded-lg flex items-center justify-center shadow-lg ${isSpooky ? "bg-purple-600 text-white" : "bg-[#171d2b] text-white"
+                    }`}
                 aria-label="Open menu"
             >
                 <Menu size={20} />
@@ -114,17 +114,16 @@ export default function SpookySidebar() {
                 <div className="p-4 flex items-center justify-between h-[64px]">
                     <div className="flex items-center gap-1">
                         <div className="w-[32px] h-[32px] flex items-center justify-center flex-shrink-0">
-                            {isSpooky ? (
-                                <Skull size={26} className="text-purple-400" />
-                            ) : (
-                                <div className="rotate-[292deg]">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <div>
+                                {isSpooky ? (
+                                    <SpookyLogo className="w-[26px] h-[26px] text-purple-500" />
+                                ) : (
                                     <img alt="Deepterm Logo" className="w-[26px] h-[26px]" src={imgLogo} />
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
                         <span className={`font-sora text-[20px] transition-opacity duration-300 whitespace-nowrap overflow-hidden ${textColor} ${sidebarPinned ? "md:opacity-100" : "md:opacity-0 md:group-hover:opacity-100"}`}>
-                            {isSpooky ? "darkterm" : "deepterm"}
+                            deepterm
                         </span>
                     </div>
                     <button
@@ -144,8 +143,8 @@ export default function SpookySidebar() {
                     <Link
                         href="/materials/create"
                         onClick={closeMobileMenu}
-                        className={`w-full h-[44px] rounded-xl flex items-center font-sans font-medium transition-all duration-300 overflow-hidden ${sidebarPinned ? "md:justify-start md:pl-4" : "md:justify-center md:pl-0 md:group-hover:justify-start md:group-hover:pl-4"} justify-start pl-4 ${pathname === "/materials/create" 
-                            ? `${activeBg} ${activeText}` 
+                        className={`w-full h-[44px] rounded-xl flex items-center font-sans font-medium transition-all duration-300 overflow-hidden ${sidebarPinned ? "md:justify-start md:pl-4" : "md:justify-center md:pl-0 md:group-hover:justify-start md:group-hover:pl-4"} justify-start pl-4 ${pathname === "/materials/create"
+                            ? `${activeBg} ${activeText}`
                             : `${textMuted} ${hoverBg} hover:${textColor}`}`}
                     >
                         <Plus size={20} className="flex-shrink-0" />
@@ -160,7 +159,7 @@ export default function SpookySidebar() {
                         const isActive = pathname === item.href;
                         const Icon = isSpooky ? item.spookyIcon : item.icon;
                         const label = isSpooky ? item.spookyLabel : item.label;
-                        
+
                         return (
                             <Link
                                 key={item.href}
@@ -209,9 +208,8 @@ export default function SpookySidebar() {
                                 className={`w-9 h-9 rounded-full flex-shrink-0 object-cover ${isSpooky ? "ring-2 ring-purple-500/30" : ""}`}
                             />
                         ) : (
-                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-sora text-sm flex-shrink-0 ${
-                                isSpooky ? "bg-gradient-to-br from-purple-600 to-purple-800" : "bg-gradient-to-br from-[#171d2b] to-[#2a3347]"
-                            }`}>
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-sora text-sm flex-shrink-0 ${isSpooky ? "bg-gradient-to-br from-purple-600 to-purple-800" : "bg-gradient-to-br from-[#171d2b] to-[#2a3347]"
+                                }`}>
                                 {getInitials(profile?.full_name ?? null)}
                             </div>
                         )}
@@ -223,23 +221,20 @@ export default function SpookySidebar() {
                     </button>
 
                     {profileMenuOpen && (
-                        <div className={`absolute bottom-full left-2 mb-2 border rounded-lg shadow-lg py-1 min-w-[160px] z-50 ${
-                            isSpooky ? "bg-[#151821] border-purple-500/20" : "bg-white border-[#171d2b]/10"
-                        }`}>
+                        <div className={`absolute bottom-full left-2 mb-2 border rounded-lg shadow-lg py-1 min-w-[160px] z-50 ${isSpooky ? "bg-[#151821] border-purple-500/20" : "bg-white border-[#171d2b]/10"
+                            }`}>
                             <Link
                                 href="/account"
                                 onClick={() => { setProfileMenuOpen(false); closeMobileMenu(); }}
-                                className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                                    isSpooky ? "text-purple-200 hover:bg-purple-500/10" : "text-[#171d2b]/70 hover:bg-[#171d2b]/5 hover:text-[#171d2b]"
-                                }`}
+                                className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${isSpooky ? "text-purple-200 hover:bg-purple-500/10" : "text-[#171d2b]/70 hover:bg-[#171d2b]/5 hover:text-[#171d2b]"
+                                    }`}
                             >
                                 <span className="font-sans text-[14px]">{isSpooky ? "Soul Settings" : "Account Settings"}</span>
                             </Link>
                             <button
                                 onClick={handleSignOut}
-                                className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                                    isSpooky ? "text-purple-200 hover:bg-red-900/20 hover:text-red-400" : "text-[#171d2b]/70 hover:bg-red-50 hover:text-red-600"
-                                }`}
+                                className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${isSpooky ? "text-purple-200 hover:bg-red-900/20 hover:text-red-400" : "text-[#171d2b]/70 hover:bg-red-50 hover:text-red-600"
+                                    }`}
                             >
                                 <LogOut size={18} />
                                 <span className="font-sans text-[14px]">{isSpooky ? "Banish" : "Sign Out"}</span>

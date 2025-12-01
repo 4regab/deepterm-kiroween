@@ -812,7 +812,7 @@ export default function CreatePage() {
                                             setReviewerResults([]);
                                             setTitle("");
                                         }}
-                                        className="flex-1 sm:flex-none py-2.5 px-4 rounded-xl border border-[#171d2b]/10 text-[#171d2b]/60 hover:bg-[#171d2b]/5 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                                        className={`flex-1 sm:flex-none py-2.5 px-4 rounded-xl border transition-colors text-sm font-medium flex items-center justify-center gap-2 ${isSpooky ? "border-purple-500/20 text-purple-300/60 hover:bg-purple-500/10" : "border-[#171d2b]/10 text-[#171d2b]/60 hover:bg-[#171d2b]/5"}`}
                                     >
                                         <RefreshCw size={16} />
                                         Extract Again
@@ -820,7 +820,7 @@ export default function CreatePage() {
                                     <button
                                         onClick={handleSaveReviewer}
                                         disabled={isSaving || !title.trim()}
-                                        className="flex-1 sm:flex-none py-2.5 px-6 rounded-xl bg-[#171d2b] text-white hover:bg-[#171d2b]/90 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                        className={`flex-1 sm:flex-none py-2.5 px-6 rounded-xl transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${isSpooky ? "bg-purple-600 text-white hover:bg-purple-500" : "bg-[#171d2b] text-white hover:bg-[#171d2b]/90"}`}
                                     >
                                         {isSaving ? (
                                             <>
@@ -940,14 +940,14 @@ export default function CreatePage() {
                     <div className="flex flex-col sm:flex-row gap-3 mt-6">
                         <button
                             onClick={() => router.back()}
-                            className="flex-1 py-3 rounded-xl border border-[#171d2b]/10 text-[#171d2b]/60 hover:bg-[#171d2b]/5 transition-colors text-sm font-medium"
+                            className={`flex-1 py-3 rounded-xl border transition-colors text-sm font-medium ${isSpooky ? "border-purple-500/20 text-purple-300/60 hover:bg-purple-500/10" : "border-[#171d2b]/10 text-[#171d2b]/60 hover:bg-[#171d2b]/5"}`}
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSave}
                             disabled={isSaving || !title.trim()}
-                            className="flex-1 py-3 rounded-xl bg-[#171d2b] text-white hover:bg-[#171d2b]/90 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className={`flex-1 py-3 rounded-xl transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${isSpooky ? "bg-purple-600 text-white hover:bg-purple-500" : "bg-[#171d2b] text-white hover:bg-[#171d2b]/90"}`}
                         >
                             {isSaving ? (
                                 <>

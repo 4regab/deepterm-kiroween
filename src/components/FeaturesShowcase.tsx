@@ -1,11 +1,20 @@
 "use client";
 
-import { useRef, useLayoutEffect } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useThemeStore } from "@/lib/stores";
-
-gsap.registerPlugin(ScrollTrigger);
+import {
+  Library,
+  BrainCircuit,
+  Copy,
+  FileText,
+  Gamepad2,
+  Upload,
+  Sparkles,
+  Clock,
+  ChevronRight,
+  RefreshCw
+} from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Feature {
   title: string;
@@ -17,147 +26,88 @@ interface Feature {
 
 const features: Feature[] = [
   {
-    title: "Reviewer Maker",
-    description: "Transform documents into organized notes with AI-extracted key terms and definitions.",
+    title: "Materials Hub",
+    description: "Centralize your knowledge. Upload lectures, essays, or notes, and watch them transform into organized study sets ready for action.",
     steps: [
-      "Upload PDF, DOCX, or paste text",
-      "AI extracts key terms and definitions",
-      "Choose mode: Full, Sentence, Keywords",
-      "Export to PDF or DOCX",
+      "Upload PDF, DOCX, or TXT files",
+      "Smart auto-organization",
+      "One-click study aid generation",
+      "Cloud synchronization",
     ],
-    icon: (
-      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-    cardTitle: "Reviewer Features",
+    icon: <Library className="w-4 h-4 text-white" />,
+    cardTitle: "Smart Library",
   },
   {
-    title: "Practice Test Maker",
-    description: "Create relevant questions from your study materials to reinforce knowledge through active recall.",
+    title: "Learn Mode",
+    description: "Your personal AI tutor. It breaks down complex topics into bite-sized concepts, quizzes you as you go, and adapts to your pace.",
     steps: [
-      "Upload materials or paste text",
-      "Choose question types or let AI decide",
-      "Fine-tune with manual creation",
-      "Save practice tests for later sessions",
+      "Smart concept breakdown",
+      "Interactive checkpoints",
+      "Confidence tracking",
+      "Personalized pacing",
     ],
-    icon: (
-      <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-      </svg>
-    ),
-    cardTitle: "Practice Test Features",
+    icon: <BrainCircuit className="w-4 h-4 text-white" />,
+    cardTitle: "Adaptive Learning",
   },
   {
-    title: "Flashcard Maker",
-    description: "Extract key terms and definitions to create flashcard sets for spaced repetition.",
+    title: "Flashcards",
+    description: "Master definitions with ease. Flip through AI-generated cards, track your confidence, and let spaced repetition handle the rest.",
     steps: [
-      "Process text, PDF, or DOCX files",
-      "AI identifies terms and definitions",
-      "Create custom flashcards manually",
-      "Save and organize flashcard sets",
+      "Auto-generated decks",
+      "Spaced repetition system",
+      "Performance analytics",
+      "Edit and customize",
     ],
-    icon: (
-      <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-      </svg>
-    ),
-    cardTitle: "Flashcard Features",
+    icon: <Copy className="w-4 h-4 text-white" />,
+    cardTitle: "Active Recall",
   },
   {
-    title: "Pomodoro Focus Timer",
-    description: "Customizable timers with streak tracking and task integration for deep focus.",
+    title: "Practice Tests",
+    description: "Simulate the real exam. Generate custom tests with multiple choice, true/false, or identification questions to prove you're ready.",
     steps: [
-      "Set custom focus and break lengths",
-      "Track daily streaks for consistency",
-      "Link sessions to specific tasks",
-      "Review session history",
+      "Multiple question types",
+      "Instant grading & feedback",
+      "Detailed explanations",
+      "Score history tracking",
     ],
-    icon: (
-      <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    cardTitle: "Pomodoro Features",
+    icon: <FileText className="w-4 h-4 text-white" />,
+    cardTitle: "Exam Simulation",
+  },
+  {
+    title: "Match Mode",
+    description: "Gamify your grind. Race against the clock to link terms and definitions. High scores mean high retention.",
+    steps: [
+      "High-speed matching",
+      "Score tracking",
+      "Visual feedback",
+      "Competitive focus",
+    ],
+    icon: <Gamepad2 className="w-4 h-4 text-white" />,
+    cardTitle: "Speed Challenge",
   },
 ];
 
-
 function FeatureCard({ feature, isSpooky }: { feature: Feature; isSpooky: boolean }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const visualRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: cardRef.current,
-          start: "top 85%",
-          end: "top 20%",
-          toggleActions: "play none none reverse",
-        },
-      });
-
-      tl.from(textRef.current, {
-        x: -60,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power3.out",
-      });
-
-      tl.from(
-        visualRef.current,
-        {
-          x: 60,
-          opacity: 0,
-          duration: 0.8,
-          ease: "power3.out",
-        },
-        "-=0.5"
-      );
-
-      tl.from(
-        textRef.current?.querySelectorAll("li") || [],
-        {
-          x: -20,
-          opacity: 0,
-          duration: 0.4,
-          stagger: 0.1,
-          ease: "power2.out",
-        },
-        "-=0.4"
-      );
-    }, cardRef);
-
-    return () => ctx.revert();
-  }, []);
-
   return (
     <div
-      ref={cardRef}
-      className={`flex flex-col lg:flex-row items-center gap-5 lg:gap-8 p-4 rounded-2xl transition-colors duration-300 ${
-        isSpooky ? "hover:bg-purple-500/10" : "hover:bg-white/50"
-      }`}
+      className={`flex flex-col lg:flex-row items-center gap-5 lg:gap-8 p-4 rounded-2xl transition-colors duration-300 ${isSpooky ? "hover:bg-purple-500/10" : "hover:bg-white/50"
+        }`}
     >
-      <div ref={textRef} className="flex-1 order-2 lg:order-1">
-        <h3 className={`font-sans font-semibold text-[17px] sm:text-[19px] mb-2 ${
-          isSpooky ? "text-purple-100" : "text-[#171d2b]"
-        }`}>
+      <div className="flex-1 order-2 lg:order-1">
+        <h3 className={`font-sans font-semibold text-[17px] sm:text-[19px] mb-2 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"
+          }`}>
           {feature.title}
         </h3>
-        <p className={`font-sans text-[13px] sm:text-[14px] leading-[1.5] mb-3 ${
-          isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"
-        }`}>
+        <p className={`font-sans text-[13px] sm:text-[14px] leading-[1.5] mb-3 ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"
+          }`}>
           {feature.description}
         </p>
         <ul className="space-y-1">
           {feature.steps.map((step, i) => (
             <li
               key={i}
-              className={`flex items-center gap-2 text-[12px] sm:text-[13px] ${
-                isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"
-              }`}
+              className={`flex items-center gap-2 text-[12px] sm:text-[13px] ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"
+                }`}
             >
               <span className={isSpooky ? "text-purple-400" : "text-[#171d2b]"}>→</span> {step}
             </li>
@@ -166,20 +116,16 @@ function FeatureCard({ feature, isSpooky }: { feature: Feature; isSpooky: boolea
       </div>
 
       <div
-        ref={visualRef}
-        className={`w-full lg:w-[340px] flex-shrink-0 rounded-[18px] p-4 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.1)] order-1 lg:order-2 ${
-          isSpooky ? "bg-purple-500/15 border border-purple-500/20" : "bg-[rgba(210,210,200,0.55)]"
-        }`}
+        className={`w-full lg:w-[340px] flex-shrink-0 rounded-[18px] p-4 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.1)] order-1 lg:order-2 ${isSpooky ? "bg-purple-500/15 border border-purple-500/20" : "bg-[rgba(210,210,200,0.55)]"
+          }`}
       >
         <div className="flex items-center gap-2 mb-4">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-            isSpooky ? "bg-purple-600" : "bg-[#171d2b]"
-          }`}>
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSpooky ? "bg-purple-600" : "bg-[#171d2b]"
+            }`}>
             {feature.icon}
           </div>
-          <span className={`font-sans font-medium text-[14px] sm:text-[15px] ${
-            isSpooky ? "text-purple-100" : "text-[#171d2b]"
-          }`}>
+          <span className={`font-sans font-medium text-[14px] sm:text-[15px] ${isSpooky ? "text-purple-100" : "text-[#171d2b]"
+            }`}>
             {feature.cardTitle}
           </span>
         </div>
@@ -194,140 +140,284 @@ function FeatureCardContent({ feature, isSpooky }: { feature: Feature; isSpooky:
   const textClass = isSpooky ? "text-purple-300/80" : "text-[#171d2b]/80";
   const bgClass = isSpooky ? "bg-purple-600" : "bg-[#171d2b]";
   const bgLightClass = isSpooky ? "bg-purple-600/70" : "bg-[#171d2b]/70";
-  const bgLighterClass = isSpooky ? "bg-purple-600/50" : "bg-[#171d2b]/50";
+  const buttonClass = isSpooky
+    ? "bg-purple-600 hover:bg-purple-500 text-white"
+    : "bg-[#171d2b] hover:bg-[#2a3347] text-white";
 
-  if (feature.title === "Reviewer Maker") {
+  // Materials Hub State
+  const [files, setFiles] = useState([
+    { name: "Lecture_Notes.pdf", status: "Processed" },
+    { name: "History_Essay.docx", status: "Ready" }
+  ]);
+  const handleProcess = (index: number) => {
+    const newFiles = [...files];
+    if (newFiles[index].status === "Ready") {
+      newFiles[index].status = "Processing...";
+      setTimeout(() => {
+        setFiles(prev => {
+          const updated = [...prev];
+          updated[index].status = "Processed";
+          return updated;
+        });
+      }, 1000);
+    }
+    setFiles(newFiles);
+  };
+
+  // Learn Mode State
+  const [progress, setProgress] = useState(65);
+  const handleLearnNext = () => {
+    setProgress(prev => prev >= 100 ? 0 : prev + 15);
+  };
+
+  // Flashcards State
+  const [showAnswer, setShowAnswer] = useState(false);
+  const cards = [
+    { q: "Powerhouse of the cell?", a: "Mitochondria" },
+    { q: "Capital of France?", a: "Paris" }
+  ];
+
+  // Practice Test State
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const correctOption = 2; // Index 2 is correct
+
+  // Match Mode State
+  const [matchedPairs, setMatchedPairs] = useState<string[]>([]);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const matchItems = [
+    { id: "t1", text: "Mitochondria", pair: "p1" },
+    { id: "d1", text: "Powerhouse", pair: "p1" },
+    { id: "t2", text: "DNA", pair: "p2" },
+    { id: "d2", text: "Genetic Code", pair: "p2" },
+  ];
+  const handleMatchClick = (id: string, pair: string) => {
+    if (matchedPairs.includes(id)) return;
+
+    if (!selectedItem) {
+      setSelectedItem(id);
+    } else {
+      const prevItem = matchItems.find(i => i.id === selectedItem);
+      if (prevItem && prevItem.pair === pair && prevItem.id !== id) {
+        setMatchedPairs(prev => [...prev, selectedItem, id]);
+      }
+      setSelectedItem(null);
+    }
+  };
+  const resetMatch = () => {
+    setMatchedPairs([]);
+    setSelectedItem(null);
+  };
+
+
+  if (feature.title === "Materials Hub") {
+    return (
+      <div className="space-y-2">
+        {files.map((file, idx) => (
+          <div
+            key={idx}
+            className={`flex items-center justify-between py-2 border-b ${borderClass} cursor-pointer hover:opacity-80 transition-opacity`}
+            onClick={() => handleProcess(idx)}
+          >
+            <div className="flex items-center gap-2">
+              {file.name.endsWith('pdf') ?
+                <Upload className={`w-3 h-3 ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`} /> :
+                <FileText className={`w-3 h-3 ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`} />
+              }
+              <span className={`font-sans text-[12px] sm:text-[13px] ${textClass}`}>{file.name}</span>
+            </div>
+            <div className={`px-1.5 py-0.5 text-[9px] rounded transition-colors duration-300 ${file.status === "Processed" ? bgClass + " text-white" :
+              file.status === "Processing..." ? "bg-yellow-500 text-white" :
+                bgLightClass + " text-white"
+              }`}>
+              {file.status}
+            </div>
+          </div>
+        ))}
+        <div className="flex items-center justify-between py-2">
+          <span className={`font-sans text-[11px] ${textClass}`}>Storage Used</span>
+          <div className={`w-24 h-1.5 ${isSpooky ? "bg-purple-900/50" : "bg-gray-200"} rounded-full overflow-hidden`}>
+            <div className={`h-full w-[45%] ${bgClass} rounded-full`} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (feature.title === "Learn Mode") {
     return (
       <div className="space-y-3">
-        <div className={`flex items-center justify-between py-2 border-b ${borderClass}`}>
-          <span className={`font-sans text-[12px] sm:text-[13px] ${textClass}`}>AI Term Extraction</span>
-          <div className={`w-9 h-5 ${bgClass} rounded-full relative`}><div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full" /></div>
+        <div className="flex items-center justify-between">
+          <span className={`font-sans text-[11px] ${textClass}`}>Concept Mastery</span>
+          <span className={`font-sans text-[11px] ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`}>{progress}%</span>
         </div>
-        <div className={`flex items-center justify-between py-2 border-b ${borderClass}`}>
-          <span className={`font-sans text-[12px] sm:text-[13px] ${textClass}`}>Category Grouping</span>
-          <div className={`w-9 h-5 ${bgClass} rounded-full relative`}><div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full" /></div>
+        <div className={`w-full h-2 ${isSpooky ? "bg-purple-900/50" : "bg-gray-200"} rounded-full overflow-hidden`}>
+          <motion.div
+            className={`h-full ${bgClass} rounded-full`}
+            initial={{ width: "65%" }}
+            animate={{ width: `${progress}%` }}
+          />
         </div>
-        <div className="flex items-center justify-between py-2">
-          <span className={`font-sans text-[12px] sm:text-[13px] ${textClass}`}>Mode:</span>
-          <div className="flex gap-1">
-            <span className={`px-2 py-0.5 ${bgClass} text-white text-[10px] sm:text-[11px] rounded`}>Full</span>
-            <span className={`px-2 py-0.5 ${bgLightClass} text-white text-[10px] sm:text-[11px] rounded`}>Sentence</span>
-            <span className={`px-2 py-0.5 ${bgLighterClass} text-white text-[10px] sm:text-[11px] rounded`}>Keywords</span>
+        <div className={`p-2 rounded-lg ${isSpooky ? "bg-purple-500/10" : "bg-white/50"} border ${borderClass}`}>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-start gap-2">
+              <Sparkles className={`w-3 h-3 mt-0.5 ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`} />
+              <div className="space-y-1">
+                <div className={`h-1.5 w-20 ${bgClass} rounded-full opacity-40`} />
+                <div className={`h-1.5 w-12 ${bgClass} rounded-full opacity-20`} />
+              </div>
+            </div>
+            <button
+              onClick={handleLearnNext}
+              className={`p-1 rounded-full ${buttonClass} transition-transform active:scale-95`}
+            >
+              <ChevronRight className="w-3 h-3" />
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
-  if (feature.title === "Practice Test Maker") {
+  if (feature.title === "Flashcards") {
+    return (
+      <div className="space-y-2">
+        <button
+          onClick={() => setShowAnswer(!showAnswer)}
+          className={`relative w-full p-3 rounded-lg border ${borderClass} ${isSpooky ? "bg-[#1a1525]" : "bg-white"} min-h-[80px] flex flex-col items-center justify-center text-center cursor-pointer hover:opacity-90 transition-opacity`}
+        >
+          <AnimatePresence mode="wait">
+            {showAnswer ? (
+              <motion.div
+                key="answer"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className={`font-sans font-medium text-[13px] ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}
+              >
+                {cards[0].a}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="question"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className={`font-sans text-[12px] ${textClass}`}
+              >
+                {cards[0].q}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </button>
+        <div className="flex justify-between gap-2">
+          <div className={`h-1 flex-1 ${bgClass} rounded-full`} />
+          <div className={`h-1 flex-1 ${bgClass} rounded-full opacity-30`} />
+        </div>
+      </div>
+    );
+  }
+
+  if (feature.title === "Practice Tests") {
     return (
       <div className="space-y-2">
         <div className={`flex items-center justify-between py-1.5 border-b ${borderClass}`}>
-          <span className={`font-sans text-[11px] sm:text-[12px] ${textClass}`}>Auto Question Count</span>
-          <div className={`w-8 h-4 ${bgClass} rounded-full relative`}><div className="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full" /></div>
+          <span className={`font-sans text-[11px] ${textClass}`}>Question 1/20</span>
+          <span className={`font-sans text-[10px] ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`}>Multiple Choice</span>
         </div>
-        <div className={`flex items-center justify-between py-1.5 border-b ${borderClass}`}>
-          <span className={`font-sans text-[11px] sm:text-[12px] ${textClass}`}>Verbatim Mode</span>
-          <div className={`w-8 h-4 ${bgClass} rounded-full relative`}><div className="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full" /></div>
-        </div>
-        <div className="flex items-center justify-between py-1.5">
-          <span className={`font-sans text-[11px] sm:text-[12px] ${textClass}`}>Input:</span>
-          <div className="flex gap-1">
-            <span className={`px-1.5 py-0.5 ${bgClass} text-white text-[9px] sm:text-[10px] rounded`}>Auto</span>
-            <span className={`px-1.5 py-0.5 ${bgLightClass} text-white text-[9px] sm:text-[10px] rounded`}>Manual</span>
-          </div>
+        <div className="space-y-1.5">
+          {[1, 2, 3].map((i) => {
+            const isSelected = selectedOption === i;
+            const isCorrect = i === correctOption;
+            let itemBg = "";
+            let borderColor = isSpooky ? "border-purple-400/30" : "border-[#171d2b]/20";
+
+            if (isSelected) {
+              if (isCorrect) {
+                itemBg = isSpooky ? "bg-green-500/20" : "bg-green-100";
+                borderColor = "border-green-500";
+              } else {
+                itemBg = isSpooky ? "bg-red-500/20" : "bg-red-100";
+                borderColor = "border-red-500";
+              }
+            }
+
+            return (
+              <div
+                key={i}
+                onClick={() => setSelectedOption(i)}
+                className={`flex items-center gap-2 p-1.5 rounded border ${borderColor} ${itemBg} cursor-pointer transition-colors`}
+              >
+                <div className={`w-3 h-3 rounded-full border flex items-center justify-center ${isSpooky ? "border-purple-400" : "border-[#171d2b]"}`}>
+                  {isSelected && <div className={`w-1.5 h-1.5 rounded-full ${isSpooky ? "bg-purple-400" : "bg-[#171d2b]"}`} />}
+                </div>
+                <div className={`h-1.5 w-24 ${bgClass} rounded-full opacity-20`} />
+              </div>
+            );
+          })}
         </div>
       </div>
     );
   }
 
-  if (feature.title === "Flashcard Maker") {
+  if (feature.title === "Match Mode") {
     return (
-      <div className="space-y-2">
-        <div className={`flex items-center justify-between py-1.5 border-b ${borderClass}`}>
-          <span className={`font-sans text-[11px] sm:text-[12px] ${textClass}`}>AI Term Extraction</span>
-          <div className={`w-8 h-4 ${bgClass} rounded-full relative`}><div className="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full" /></div>
+      <div className="relative">
+        <div className="grid grid-cols-2 gap-2">
+          {matchItems.map((item) => {
+            const isMatched = matchedPairs.includes(item.id);
+            const isSelected = selectedItem === item.id;
+
+            if (isMatched) return <div key={item.id} className="h-8" />; // Placeholder for matched items
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleMatchClick(item.id, item.pair)}
+                className={`h-8 rounded border flex items-center justify-center transition-all active:scale-95
+                  ${isSelected
+                    ? (isSpooky ? "bg-purple-500/40 border-purple-400" : "bg-[#171d2b]/20 border-[#171d2b]")
+                    : (isSpooky ? "bg-purple-500/10 border-purple-500/20 hover:bg-purple-500/20" : "bg-white border-[#171d2b]/10 hover:bg-gray-50")
+                  }
+                `}
+              >
+                <span className={`text-[10px] ${textClass}`}>{item.text}</span>
+              </button>
+            );
+          })}
         </div>
-        <div className={`flex items-center justify-between py-1.5 border-b ${borderClass}`}>
-          <span className={`font-sans text-[11px] sm:text-[12px] ${textClass}`}>Manual Card Creation</span>
-          <div className={`w-8 h-4 ${bgClass} rounded-full relative`}><div className="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full" /></div>
-        </div>
-        <div className="flex items-center justify-between py-1.5">
-          <span className={`font-sans text-[11px] sm:text-[12px] ${textClass}`}>Input:</span>
-          <div className="flex gap-1">
-            <span className={`px-1.5 py-0.5 ${bgClass} text-white text-[9px] sm:text-[10px] rounded`}>TXT</span>
-            <span className={`px-1.5 py-0.5 ${bgClass} text-white text-[9px] sm:text-[10px] rounded`}>PDF</span>
-            <span className={`px-1.5 py-0.5 ${bgClass} text-white text-[9px] sm:text-[10px] rounded`}>DOCX</span>
+        {matchedPairs.length === matchItems.length && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded backdrop-blur-sm">
+            <button onClick={resetMatch} className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] ${buttonClass}`}>
+              <RefreshCw className="w-3 h-3" /> Play Again
+            </button>
           </div>
+        )}
+        <div className="col-span-2 flex items-center justify-center gap-1 mt-2">
+          <Clock className={`w-3 h-3 ${textClass}`} />
+          <span className={`text-[10px] ${textClass}`}>00:45</span>
         </div>
       </div>
     );
   }
 
-  // Pomodoro Focus Timer
-  return (
-    <div className="space-y-2">
-      <div className={`flex items-center gap-2 py-1.5 border-b ${borderClass}`}>
-        <span className={`font-sans text-[11px] sm:text-[12px] ${textClass}`}>3-day streak</span>
-        <div className={`ml-auto w-12 h-1 ${bgClass} rounded-full`} />
-      </div>
-      <div className={`flex items-center justify-between py-1.5 border-b ${borderClass}`}>
-        <span className={`font-sans text-[11px] sm:text-[12px] ${textClass}`}>Timers</span>
-        <div className="flex gap-1">
-          <span className={`px-1.5 py-0.5 ${bgClass} text-white text-[9px] sm:text-[10px] rounded`}>25:00</span>
-          <span className={`px-1.5 py-0.5 ${bgLightClass} text-white text-[9px] sm:text-[10px] rounded`}>5:00</span>
-          <span className={`px-1.5 py-0.5 ${bgLighterClass} text-white text-[9px] sm:text-[10px] rounded`}>15:00</span>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 py-1.5">
-        <svg className={`w-3.5 h-3.5 ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span className={`font-sans text-[11px] sm:text-[12px] ${textClass}`}>Todo & Task Integration</span>
-      </div>
-    </div>
-  );
+  return null;
 }
 
 export default function FeaturesShowcase() {
   const theme = useThemeStore((state) => state.theme);
   const isSpooky = theme === "spooky";
-  const sectionRef = useRef<HTMLElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from(headerRef.current?.children || [], {
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: headerRef.current,
-          start: "top 85%",
-          toggleActions: "play none none reverse",
-        },
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
 
   return (
     <section
-      ref={sectionRef}
       className="relative z-10 px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-20"
     >
-      <div ref={headerRef}>
-        <h2 className={`font-serif text-[24px] sm:text-[32px] lg:text-[38px] text-center mb-2 sm:mb-3 ${
-          isSpooky ? "text-purple-100" : "text-[#171d2b]"
-        }`}>
+      <div>
+        <h2 className={`font-serif text-[24px] sm:text-[32px] lg:text-[38px] text-center mb-2 sm:mb-3 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"
+          }`}>
           Powerful Study Tools
         </h2>
-        <p className={`font-sans text-[13px] sm:text-[15px] lg:text-[16px] text-center mb-10 sm:mb-14 lg:mb-16 max-w-[600px] mx-auto px-2 ${
-          isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"
-        }`}>
+        <p className={`font-sans text-[13px] sm:text-[15px] lg:text-[16px] text-center mb-10 sm:mb-14 lg:mb-16 max-w-[600px] mx-auto px-2 ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"
+          }`}>
           AI-powered features to transform your study materials into effective
           learning resources, all tracked on your personal dashboard.
         </p>

@@ -584,7 +584,7 @@ function FAQAccordion({ faqs, isSpooky }: { faqs: FAQItem[]; isSpooky: boolean }
             onClick={() => setOpenIndex(openIndex === index ? null : index)}
             className={`w-full flex items-center justify-between p-4 text-left transition-colors ${isSpooky ? "hover:bg-purple-500/10" : "hover:bg-[#f0f0ea]/50"}`}
           >
-            <span className={`font-sans font-medium text-[14px] sm:text-[15px] ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+            <span className={`font-sans font-medium text-[14px] sm:text-[15px] ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
               {faq.question}
             </span>
             <ChevronDown
@@ -599,7 +599,7 @@ function FAQAccordion({ faqs, isSpooky }: { faqs: FAQItem[]; isSpooky: boolean }
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className={`px-4 pb-4 text-[13px] sm:text-[14px] leading-relaxed ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}`}>
+                <div className={`px-4 pb-4 text-[13px] sm:text-[14px] leading-relaxed ${isSpooky ? "text-white/80" : "text-[#171d2b]/70"}`}>
                   {faq.answer}
                 </div>
               </motion.div>
@@ -626,25 +626,25 @@ function CategoryDetail({ category, isSpooky }: { category: CategoryContent; isS
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isSpooky ? "bg-purple-600" : "bg-[#171d2b]"}`}>
           <IconComponent className="h-6 w-6 text-white" />
         </div>
-        <h2 className={`font-serif text-2xl sm:text-3xl ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+        <h2 className={`font-serif text-2xl sm:text-3xl ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
           {category.title}
         </h2>
       </div>
 
-      <p className={`font-sans text-[15px] leading-relaxed mb-8 ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}`}>
+      <p className={`font-sans text-[15px] leading-relaxed mb-8 ${isSpooky ? "text-white/80" : "text-[#171d2b]/70"}`}>
         {category.content}
       </p>
 
       {category.features && (
         <div className="mb-8">
-          <h3 className={`font-serif text-lg mb-4 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+          <h3 className={`font-serif text-lg mb-4 ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
             Key Features
           </h3>
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {category.features.map((feature, index) => (
               <li
                 key={index}
-                className={`flex items-start gap-2 text-[14px] ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}`}
+                className={`flex items-start gap-2 text-[14px] ${isSpooky ? "text-white/80" : "text-[#171d2b]/70"}`}
               >
                 <span className={`mt-0.5 ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`}>→</span>
                 {feature}
@@ -656,7 +656,7 @@ function CategoryDetail({ category, isSpooky }: { category: CategoryContent; isS
 
       {category.steps && (
         <div className="mb-8">
-          <h3 className={`font-serif text-lg mb-4 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+          <h3 className={`font-serif text-lg mb-4 ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
             How to Use
           </h3>
           <div className="space-y-4">
@@ -668,10 +668,10 @@ function CategoryDetail({ category, isSpooky }: { category: CategoryContent; isS
                   </span>
                 </div>
                 <div>
-                  <h4 className={`font-sans font-medium text-[15px] mb-1 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+                  <h4 className={`font-sans font-medium text-[15px] mb-1 ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
                     {step.title}
                   </h4>
-                  <p className={`font-sans text-[14px] ${isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}`}>
+                  <p className={`font-sans text-[14px] ${isSpooky ? "text-white/70" : "text-[#171d2b]/60"}`}>
                     {step.description}
                   </p>
                 </div>
@@ -682,7 +682,7 @@ function CategoryDetail({ category, isSpooky }: { category: CategoryContent; isS
       )}
 
       <div>
-        <h3 className={`font-serif text-lg mb-4 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+        <h3 className={`font-serif text-lg mb-4 ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
           Frequently Asked Questions
         </h3>
         <FAQAccordion faqs={category.faqs} isSpooky={isSpooky} />
@@ -701,11 +701,11 @@ export default function HelpPage() {
 
   const filteredCategories = searchQuery
     ? categories.filter(
-        (c) =>
-          c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.content.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      (c) =>
+        c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.content.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : categories;
 
   const theme = useThemeStore((state) => state.theme);
@@ -713,124 +713,124 @@ export default function HelpPage() {
 
   return (
     <PublicPageWrapper>
-    <div className={`min-h-screen flex flex-col ${isSpooky ? "bg-[#0d0f14]" : "bg-[#f0f0ea]"}`}>
-      <Header />
+      <div className={`min-h-screen flex flex-col ${isSpooky ? "bg-[#0d0f14]" : "bg-[#f0f0ea]"}`}>
+        <Header />
 
-      <main className="flex-grow">
-        {/* Hero Section */}
-        <section className="px-4 sm:px-6 py-12 sm:py-20 text-center max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h1 className={`font-serif text-[36px] sm:text-[48px] mb-4 leading-tight ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
-              {isSpooky ? "Knowledge Base" : "Help Center"}
-            </h1>
-            <p className={`font-sans text-[15px] sm:text-[16px] mb-8 max-w-lg mx-auto ${isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}`}>
-              {isSpooky ? "Everything you need to master the dark arts of studying." : "Everything you need to know about DeepTerm and how to make the most of your study sessions."}
-            </p>
+        <main className="flex-grow">
+          {/* Hero Section */}
+          <section className="px-4 sm:px-6 py-12 sm:py-20 text-center max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1 className={`font-serif text-[36px] sm:text-[48px] mb-4 leading-tight ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
+                {isSpooky ? "Knowledge Base" : "Help Center"}
+              </h1>
+              <p className={`font-sans text-[15px] sm:text-[16px] mb-8 max-w-lg mx-auto ${isSpooky ? "text-white/70" : "text-[#171d2b]/60"}`}>
+                {isSpooky ? "Everything you need to master the dark arts of studying." : "Everything you need to know about DeepTerm and how to make the most of your study sessions."}
+              </p>
 
-            {/* Search Bar */}
-            <div className="relative max-w-xl mx-auto group">
-              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <Search className={`h-5 w-5 transition-colors ${isSpooky ? "text-purple-400/40 group-focus-within:text-purple-400" : "text-[#171d2b]/40 group-focus-within:text-[#171d2b]"}`} />
+              {/* Search Bar */}
+              <div className="relative max-w-xl mx-auto group">
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                  <Search className={`h-5 w-5 transition-colors ${isSpooky ? "text-purple-400/40 group-focus-within:text-purple-400" : "text-[#171d2b]/40 group-focus-within:text-[#171d2b]"}`} />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setSelectedCategory(null);
+                  }}
+                  placeholder={isSpooky ? "Search the archives..." : "Search for help..."}
+                  className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 transition-all shadow-sm hover:shadow-md font-sans ${isSpooky ? "bg-[#151821] border-purple-500/20 text-white placeholder-white/40 focus:ring-purple-500/20 focus:border-purple-500/40" : "bg-white border-[#171d2b]/10 text-[#171d2b] placeholder-[#171d2b]/40 focus:ring-[#171d2b]/10 focus:border-[#171d2b]/30"}`}
+                />
               </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setSelectedCategory(null);
-                }}
-                placeholder={isSpooky ? "Search the archives..." : "Search for help..."}
-                className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 transition-all shadow-sm hover:shadow-md font-sans ${isSpooky ? "bg-[#151821] border-purple-500/20 text-purple-100 placeholder-purple-400/40 focus:ring-purple-500/20 focus:border-purple-500/40" : "bg-white border-[#171d2b]/10 text-[#171d2b] placeholder-[#171d2b]/40 focus:ring-[#171d2b]/10 focus:border-[#171d2b]/30"}`}
-              />
-            </div>
-          </motion.div>
-        </section>
+            </motion.div>
+          </section>
 
-        {/* Main Content */}
-        <section className="px-4 sm:px-6 pb-20 max-w-6xl mx-auto">
-          {selectedCategory ? (
-            <div>
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className={`flex items-center gap-2 transition-colors mb-6 font-sans text-[14px] ${isSpooky ? "text-purple-300/60 hover:text-purple-100" : "text-[#171d2b]/60 hover:text-[#171d2b]"}`}
-              >
-                <ArrowRight className="w-4 h-4 rotate-180" />
-                Back to all topics
-              </button>
-              {selectedCategoryData && (
-                <CategoryDetail category={selectedCategoryData} isSpooky={isSpooky} />
-              )}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCategories.map((category, index) => (
-                <motion.button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.4 }}
-                  className={`group p-6 rounded-2xl border transition-all duration-300 flex flex-col h-full text-left ${isSpooky ? "bg-[#151821] border-purple-500/20 hover:border-purple-500/40 hover:shadow-purple-500/10" : "bg-white border-[#171d2b]/10 hover:border-[#171d2b]/20"} hover:shadow-lg`}
+          {/* Main Content */}
+          <section className="px-4 sm:px-6 pb-20 max-w-6xl mx-auto">
+            {selectedCategory ? (
+              <div>
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className={`flex items-center gap-2 transition-colors mb-6 font-sans text-[14px] ${isSpooky ? "text-white/70 hover:text-white" : "text-[#171d2b]/60 hover:text-[#171d2b]"}`}
                 >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors duration-300 ${isSpooky ? "bg-purple-500/20 group-hover:bg-purple-600" : "bg-[#f0f0ea] group-hover:bg-[#171d2b]"}`}>
-                    <category.icon className={`h-6 w-6 transition-colors duration-300 ${isSpooky ? "text-purple-400 group-hover:text-white" : "text-[#171d2b] group-hover:text-white"}`} />
-                  </div>
-                  <h3 className={`font-serif text-xl mb-2 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
-                    {category.title}
-                  </h3>
-                  <p className={`font-sans text-sm leading-relaxed mb-4 flex-grow ${isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}`}>
-                    {category.description}
-                  </p>
-                  <div className={`flex items-center font-medium text-sm mt-auto opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`}>
-                    Learn more <ArrowRight className="ml-2 h-4 w-4" />
-                  </div>
-                </motion.button>
-              ))}
-            </div>
-          )}
+                  <ArrowRight className="w-4 h-4 rotate-180" />
+                  Back to all topics
+                </button>
+                {selectedCategoryData && (
+                  <CategoryDetail category={selectedCategoryData} isSpooky={isSpooky} />
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredCategories.map((category, index) => (
+                  <motion.button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.4 }}
+                    className={`group p-6 rounded-2xl border transition-all duration-300 flex flex-col h-full text-left ${isSpooky ? "bg-[#151821] border-purple-500/20 hover:border-purple-500/40 hover:shadow-purple-500/10" : "bg-white border-[#171d2b]/10 hover:border-[#171d2b]/20"} hover:shadow-lg`}
+                  >
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors duration-300 ${isSpooky ? "bg-purple-500/20 group-hover:bg-purple-600" : "bg-[#f0f0ea] group-hover:bg-[#171d2b]"}`}>
+                      <category.icon className={`h-6 w-6 transition-colors duration-300 ${isSpooky ? "text-purple-400 group-hover:text-white" : "text-[#171d2b] group-hover:text-white"}`} />
+                    </div>
+                    <h3 className={`font-serif text-xl mb-2 ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
+                      {category.title}
+                    </h3>
+                    <p className={`font-sans text-sm leading-relaxed mb-4 flex-grow ${isSpooky ? "text-white/70" : "text-[#171d2b]/60"}`}>
+                      {category.description}
+                    </p>
+                    <div className={`flex items-center font-medium text-sm mt-auto opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
+                      Learn more <ArrowRight className="ml-2 h-4 w-4" />
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            )}
 
-          {filteredCategories.length === 0 && (
-            <div className="text-center py-12">
-              <p className={`font-sans ${isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}`}>
-                No results found for &quot;{searchQuery}&quot;
-              </p>
-            </div>
-          )}
-        </section>
+            {filteredCategories.length === 0 && (
+              <div className="text-center py-12">
+                <p className={`font-sans ${isSpooky ? "text-white/70" : "text-[#171d2b]/60"}`}>
+                  No results found for &quot;{searchQuery}&quot;
+                </p>
+              </div>
+            )}
+          </section>
 
-        {/* Contact Section */}
-        <section className="px-4 sm:px-6 pb-20 max-w-4xl mx-auto text-center">
-          <div className={`rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden ${isSpooky ? "bg-gradient-to-br from-purple-900 to-purple-950" : "bg-[#171d2b]"}`}>
-            <div className="relative z-10">
-              <h2 className="font-serif text-2xl sm:text-3xl mb-4">
-                {isSpooky ? "Still stuck?" : "Still need help?"}
-              </h2>
-              <p className="font-sans text-white/70 mb-8 max-w-lg mx-auto">
-                {isSpooky ? "Can't figure it out? Hit us up." : "Can't find what you're looking for? Reach out to us directly."}
-              </p>
-              <a
-                href="mailto:deeptermai@gmail.com"
-                className={`inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-colors ${isSpooky ? "bg-purple-100 text-purple-900 hover:bg-white" : "bg-white text-[#171d2b] hover:bg-gray-100"}`}
-              >
-                <Mail className="mr-2 h-5 w-5" />
-                {isSpooky ? "Send Message" : "Contact Support"}
-              </a>
-            </div>
+          {/* Contact Section */}
+          <section className="px-4 sm:px-6 pb-20 max-w-4xl mx-auto text-center">
+            <div className={`rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden ${isSpooky ? "bg-gradient-to-br from-purple-900 to-purple-950" : "bg-[#171d2b]"}`}>
+              <div className="relative z-10">
+                <h2 className="font-serif text-2xl sm:text-3xl mb-4">
+                  {isSpooky ? "Still stuck?" : "Still need help?"}
+                </h2>
+                <p className="font-sans text-white/70 mb-8 max-w-lg mx-auto">
+                  {isSpooky ? "Can't figure it out? Hit us up." : "Can't find what you're looking for? Reach out to us directly."}
+                </p>
+                <a
+                  href="mailto:deeptermai@gmail.com"
+                  className={`inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-colors ${isSpooky ? "bg-purple-100 text-purple-900 hover:bg-white" : "bg-white text-[#171d2b] hover:bg-gray-100"}`}
+                >
+                  <Mail className="mr-2 h-5 w-5" />
+                  {isSpooky ? "Send Message" : "Contact Support"}
+                </a>
+              </div>
 
-            <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-              <div className={`absolute top-[-50%] left-[-20%] w-[500px] h-[500px] rounded-full blur-[100px] ${isSpooky ? "bg-purple-500" : "bg-white"}`} />
-              <div className={`absolute bottom-[-50%] right-[-20%] w-[500px] h-[500px] rounded-full blur-[100px] ${isSpooky ? "bg-purple-500" : "bg-white"}`} />
+              <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+                <div className={`absolute top-[-50%] left-[-20%] w-[500px] h-[500px] rounded-full blur-[100px] ${isSpooky ? "bg-purple-500" : "bg-white"}`} />
+                <div className={`absolute bottom-[-50%] right-[-20%] w-[500px] h-[500px] rounded-full blur-[100px] ${isSpooky ? "bg-purple-500" : "bg-white"}`} />
+              </div>
             </div>
-          </div>
-        </section>
-      </main>
+          </section>
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
     </PublicPageWrapper>
   );
 }

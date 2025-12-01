@@ -38,13 +38,13 @@ export const useXPStore = create<XPStore>()((set) => ({
 
   fetchXPStats: async () => {
     set({ loading: true, error: null })
-    
+
     try {
       const supabase = createClient()
       const { data, error } = await supabase.rpc('get_user_xp_stats')
-      
+
       if (error) throw error
-      
+
       if (data && data.length > 0) {
         const row = data[0]
         set({
@@ -71,17 +71,17 @@ export const useXPStore = create<XPStore>()((set) => ({
       return { leveledUp: false }
     }
     const safeAmount = Math.max(1, Math.min(Math.floor(amount), 1000))
-    
+
     try {
       const supabase = createClient()
       const { data, error } = await supabase.rpc('add_xp', { p_amount: safeAmount })
-      
+
       if (error) throw error
-      
+
       if (data && data.length > 0) {
         const row = data[0]
         const leveledUp = row.leveled_up || false
-        
+
         set({
           stats: {
             totalXp: row.new_total_xp,
@@ -91,10 +91,10 @@ export const useXPStore = create<XPStore>()((set) => ({
           },
           lastLevelUp: leveledUp,
         })
-        
+
         return { leveledUp }
       }
-      
+
       return { leveledUp: false }
     } catch (error) {
       console.error('Failed to add XP:', error)

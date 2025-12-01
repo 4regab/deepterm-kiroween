@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "Build, Test, and Lint",
+  "description": "Manually trigger to run npm build, tests, and ESLint on the src directory",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Run the following commands in sequence and report the results:\n1. npm run build\n2. npm test\n3. npx eslint src/\n\nRUN IT IN PARALLEL USING `controlPwshProcess` tool\n❌ NEVER USE: executePwsh\n\nthis tool enables parallel execution, non-blocking operations, and proper process management. \n\nIf any command fails, report the errors clearly. And fix issues you encounter. Conduct a deeper analysis of the flow and dependencies, stopping all changes until the root cause is identified with 100% certainty. Document what is failing, why it's failing, and any patterns or anomalies in the behavior. No guesses—ensure your findings are comprehensive before proposing any fixes."
+  },
+  "workspaceFolderName": "mcp",
+  "shortName": "run-build-test-lint"
+}
