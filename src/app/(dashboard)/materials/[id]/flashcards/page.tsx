@@ -1,0 +1,358 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import { motion } from "framer-motion";
+import { useRouter, useParams } from "next/navigation";
+import { RotateCcw, Check, X, Settings, Loader2 } from "lucide-react";
+import { EncouragementToast, AnimatedProgress } from "@/components/EmotionalAssets";
+import SessionResultPage from "@/components/SessionResultPage";
+import ExitPopup from "@/components/ExitPopup";
+import StudySettingsModal from "@/components/StudySettingsModal";
+import { createClient } from "@/config/supabase/client";
+import { logFlashcardReview, updateFlashcardStatus, addXP, XP_REWARDS } from "@/services/activity";
+import { useXPStore, useThemeStore, useStudySettingsStore } from "@/lib/stores";
+import type { StudySettings } from "@/lib/stores";
+import { DarkStudyMode } from "@/components/SpookyTheme/FlashlightEffect";
+
+interface Flashcard {
+    id: string;
+    term: string;
+    definition: string;
+    status: 'new' | 'learning' | 'review' | 'mastered';
+}
+
+function createInitialSession(cards: Flashcard[], settings: StudySettings) {
+    const sessionCards = [...cards].sort(() => Math.random() - 0.5).slice(0, settings.cardsPerRound);
+    return {
+        cards: sessionCards,
+        currentIndex: 0,
+        isFlipped: false,
+        stats: { correct: 0, incorrect: 0, xp: 0, startTime: Date.now() },
+        isComplete: false,
+        streak: 0
+    };
+}
+
+export default function FlashcardsPage() {
+    const router = useRouter();
+    const params = useParams();
+    const [allCards, setAllCards] = useState<Flashcard[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    
+    // Use Zustand store for settings - reactive updates
+    const settings = useStudySettingsStore((state) => state.studySettings);
+    const settingsVersion = useStudySettingsStore((state) => state.settingsVersion);
+    const [lastSettingsVersion, setLastSettingsVersion] = useState(settingsVersion);
+    
+    const [studySession, setStudySession] = useState<ReturnType<typeof createInitialSession> | null>(null);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [showExitPopup, setShowExitPopup] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+
+    const fetchCards = useCallback(async () => {
+        // Fetch XP stats for display
+        useXPStore.getState().fetchXPStats();
+        
+        const supabase = createClient();
+        const { data } = await supabase
+            .from("flashcards")
+            .select("id, front, back, status")
+            .eq("set_id", params.id)
+            .order("created_at");
+
+        if (data && data.length > 0) {
+            const cards: Flashcard[] = data.map(c => ({
+                id: c.id,
+                term: c.front,
+                definition: c.back,
+                status: (c.status || 'new') as Flashcard['status'],
+            }));
+            setAllCards(cards);
+            const currentSettings = useStudySettingsStore.getState().studySettings;
+            setStudySession(createInitialSession(cards, currentSettings));
+        }
+        setIsLoading(false);
+    }, [params.id]);
+
+    useState(() => { fetchCards(); });
+
+    // Get XP stats from store - must be called before any early returns
+    const xpStats = useXPStore((state) => state.stats);
+    const theme = useThemeStore((state) => state.theme);
+    const isSpooky = theme === "spooky";
+    
+    // Rebuild session when settings change (reactive)
+    if (settingsVersion !== lastSettingsVersion && allCards.length > 0 && studySession && !studySession.isComplete) {
+        setLastSettingsVersion(settingsVersion);
+        setStudySession(createInitialSession(allCards, settings));
+    }
+
+    // Settings are managed by store, this callback just closes modal
+    const handleSettingsSave = () => {
+        // Settings already saved to store by modal
+    };
+
+    // Theme colors
+    const bgColor = isSpooky ? "bg-[#0a0b0f]" : "bg-[#f0f0ea]";
+    const textColor = isSpooky ? "text-purple-100" : "text-[#171d2b]";
+    const textMuted = isSpooky ? "text-purple-300/40" : "text-[#171d2b]/40";
+    const cardBackBg = isSpooky ? "bg-purple-900" : "bg-[#171d2b]";
+
+    if (isLoading) {
+        return (
+            <div className={`min-h-screen ${bgColor} flex items-center justify-center`}>
+                <Loader2 size={32} className={`animate-spin ${isSpooky ? "text-purple-400" : "text-[#171d2b]/40"}`} />
+            </div>
+        );
+    }
+
+    if (!studySession || studySession.cards.length === 0) {
+        return (
+            <div className={`min-h-screen ${bgColor} flex items-center justify-center`}>
+                <p className={isSpooky ? "text-purple-300/50" : "text-[#171d2b]/50"}>
+                    {isSpooky ? "No spell cards found in the grimoire..." : "No flashcards found"}
+                </p>
+            </div>
+        );
+    }
+
+    if (studySession.isComplete) {
+        const resultItems = allCards.map(c => ({
+            id: c.id,
+            term: c.term,
+            definition: c.definition,
+            status: (c.status === 'review' ? 'almost_done' : c.status) as 'new' | 'learning' | 'almost_done' | 'mastered'
+        }));
+
+        return (
+            <SessionResultPage
+                level={xpStats?.currentLevel || 1}
+                currentXp={xpStats?.xpInLevel || 0}
+                requiredXp={xpStats?.xpForNext || 100}
+                xpEarned={studySession.stats.xp}
+                correctCount={studySession.stats.correct}
+                totalCount={studySession.cards.length}
+                items={resultItems}
+                onContinue={() => setStudySession(createInitialSession(allCards, settings))}
+                onExit={() => router.back()}
+                title="Great job on your flashcards!"
+                showPressAnyKey={false}
+            />
+        );
+    }
+
+    const currentCard = studySession.cards[studySession.currentIndex];
+    const frontContent = settings.frontSide === 'definition' ? currentCard.definition : currentCard.term;
+    const backContent = settings.frontSide === 'definition' ? currentCard.term : currentCard.definition;
+    const frontLabel = settings.frontSide === 'definition' ? 'Definition' : 'Term';
+    const backLabel = settings.frontSide === 'definition' ? 'Term' : 'Definition';
+
+    // Dynamic font size based on text length for mobile responsiveness
+    const getResponsiveFontSize = (text: string) => {
+        const len = text.length;
+        if (len < 50) return 'clamp(1.25rem, 5vw, 1.875rem)';
+        if (len < 100) return 'clamp(1rem, 4vw, 1.5rem)';
+        if (len < 200) return 'clamp(0.875rem, 3.5vw, 1.25rem)';
+        if (len < 400) return 'clamp(0.75rem, 3vw, 1rem)';
+        return 'clamp(0.625rem, 2.5vw, 0.875rem)';
+    };
+
+    const handleRate = async (correct: boolean) => {
+        if (!studySession) return;
+        
+        const currentCard = studySession.cards[studySession.currentIndex];
+        const isLast = studySession.currentIndex === studySession.cards.length - 1;
+        const newStreak = correct ? studySession.streak + 1 : 0;
+
+        // Update card status in database
+        const newStatus = correct 
+            ? (currentCard.status === 'new' ? 'learning' : currentCard.status === 'learning' ? 'review' : 'mastered')
+            : 'learning';
+        
+        await updateFlashcardStatus(currentCard.id, newStatus as 'new' | 'learning' | 'review' | 'mastered');
+
+        // Update local card status
+        const updatedCards = [...studySession.cards];
+        updatedCards[studySession.currentIndex] = { ...currentCard, status: newStatus as Flashcard['status'] };
+
+        if (correct && newStreak > 0 && newStreak % 3 === 0) {
+            setToastMessage(`${newStreak} in a row! You're on fire!`);
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 3000);
+        }
+
+        const xpGained = correct ? XP_REWARDS.FLASHCARD_CORRECT : 0;
+
+        if (isLast) {
+            const finalXp = studySession.stats.xp + xpGained;
+            
+            // Persist XP at moment of completion (not during render)
+            const persistResults = async () => {
+                const minutesStudied = Math.max(1, Math.round((Date.now() - studySession.stats.startTime) / 60000));
+                await logFlashcardReview(studySession.cards.length, minutesStudied);
+                if (finalXp > 0) {
+                    await addXP(finalXp);
+                    useXPStore.getState().fetchXPStats();
+                }
+            };
+            persistResults();
+            
+            setStudySession({
+                ...studySession,
+                cards: updatedCards,
+                stats: {
+                    ...studySession.stats,
+                    correct: studySession.stats.correct + (correct ? 1 : 0),
+                    incorrect: studySession.stats.incorrect + (correct ? 0 : 1),
+                    xp: finalXp
+                },
+                isComplete: true,
+                streak: newStreak
+            });
+        } else {
+            setStudySession({
+                ...studySession,
+                cards: updatedCards,
+                currentIndex: studySession.currentIndex + 1,
+                isFlipped: false,
+                stats: {
+                    ...studySession.stats,
+                    correct: studySession.stats.correct + (correct ? 1 : 0),
+                    incorrect: studySession.stats.incorrect + (correct ? 0 : 1),
+                    xp: studySession.stats.xp + xpGained
+                },
+                streak: newStreak
+            });
+        }
+    };
+
+    const content = (
+        <div className={`min-h-screen flex flex-col max-w-5xl mx-auto px-4 sm:px-8 py-8 ${bgColor}`}>
+            <EncouragementToast message={toastMessage} isVisible={showToast} onClose={() => setShowToast(false)} />
+            <ExitPopup
+                isOpen={showExitPopup}
+                onClose={() => setShowExitPopup(false)}
+                onExit={() => { setShowExitPopup(false); router.back(); }}
+                xpToLose={studySession.stats.xp}
+                currentLevel={xpStats?.currentLevel || 1}
+                currentXp={xpStats?.xpInLevel || 0}
+                maxXp={xpStats?.xpForNext || 100}
+                nextLevel={(xpStats?.currentLevel || 1) + 1}
+            />
+            <StudySettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} onSave={handleSettingsSave} />
+
+            {/* Header */}
+            <div className="flex justify-between items-center mb-8 pt-14 md:pt-0">
+                <button onClick={() => setShowExitPopup(true)} className={`p-2 rounded-full transition-colors ${isSpooky ? "hover:bg-purple-500/10 text-purple-300" : "hover:bg-[#171d2b]/5"}`}>
+                    <X size={24} />
+                </button>
+                <div className="flex flex-col items-center">
+                    <span className={`font-sora font-semibold ${textColor}`}>
+                        {isSpooky ? "Dark Incantations" : "Flashcards"}
+                    </span>
+                    <span className={`text-sm ${textMuted}`}>
+                        {isSpooky ? `Spell ${studySession.currentIndex + 1} of ${studySession.cards.length}` : `Card ${studySession.currentIndex + 1} of ${studySession.cards.length}`}
+                    </span>
+                </div>
+                <button onClick={() => setShowSettings(true)} className={`p-2 rounded-full transition-colors ${isSpooky ? "hover:bg-purple-500/10 text-purple-300" : "hover:bg-[#171d2b]/5"}`}>
+                    <Settings size={24} />
+                </button>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="w-full mb-12">
+                <AnimatedProgress value={studySession.currentIndex} total={studySession.cards.length} color={isSpooky ? "#a855f7" : "#171d2b"} />
+            </div>
+
+            {/* Card Area */}
+            <div className="flex-1 flex flex-col items-center justify-center min-h-[500px] perspective-1000">
+                <div
+                    className="relative w-full max-w-2xl aspect-[3/2] cursor-pointer group"
+                    onClick={() => studySession && setStudySession({ ...studySession, isFlipped: !studySession.isFlipped })}
+                >
+                    <motion.div
+                        className="w-full h-full relative preserve-3d"
+                        animate={{ rotateY: studySession.isFlipped ? 180 : 0 }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                        style={{ transformStyle: "preserve-3d" }}
+                    >
+                        {/* Front */}
+                        <div className={`absolute inset-0 backface-hidden rounded-3xl shadow-xl border flex flex-col items-center justify-center px-4 sm:px-8 pt-12 sm:pt-16 pb-10 sm:pb-12 text-center hover:shadow-2xl transition-shadow overflow-hidden ${
+                            isSpooky 
+                                ? "bg-[#151821] border-purple-500/20 shadow-purple-500/10" 
+                                : "bg-white border-[#171d2b]/5"
+                        }`}>
+                            <span className={`absolute top-4 sm:top-6 left-4 sm:left-6 text-xs font-bold uppercase tracking-widest ${isSpooky ? "text-purple-400/30" : "text-[#171d2b]/20"}`}>{frontLabel}</span>
+                            <div className="w-full h-full flex items-center justify-center overflow-y-auto">
+                                <p className={`font-sora font-medium leading-relaxed break-words ${textColor}`} style={{ fontSize: getResponsiveFontSize(frontContent) }}>{frontContent}</p>
+                            </div>
+                            <span className={`absolute bottom-4 sm:bottom-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity ${textMuted}`}>
+                                {isSpooky ? "Click to reveal the answer..." : "Click to flip"}
+                            </span>
+                        </div>
+
+                        {/* Back */}
+                        <div className={`absolute inset-0 backface-hidden rounded-3xl shadow-xl flex flex-col items-center justify-center px-4 sm:px-8 pt-12 sm:pt-16 pb-10 sm:pb-12 text-center overflow-hidden ${cardBackBg}`} style={{ transform: "rotateY(180deg)" }}>
+                            <span className="absolute top-4 sm:top-6 left-4 sm:left-6 text-xs font-bold text-white/20 uppercase tracking-widest">{backLabel}</span>
+                            <div className="w-full h-full flex items-center justify-center overflow-y-auto">
+                                <p className="font-sora font-medium text-white leading-relaxed break-words" style={{ fontSize: getResponsiveFontSize(backContent) }}>{backContent}</p>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+
+                {/* Controls */}
+                <div className="mt-12 h-24 flex items-center justify-center">
+                    {!studySession.isFlipped ? (
+                        <button
+                            onClick={() => studySession && setStudySession({ ...studySession, isFlipped: true })}
+                            className={`px-6 py-3 rounded-full font-sora font-medium shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 ${
+                                isSpooky 
+                                    ? "bg-purple-600 text-white hover:bg-purple-500" 
+                                    : "bg-[#171d2b] text-white hover:bg-[#2a3347]"
+                            }`}
+                        >
+                            <RotateCcw size={18} />
+                            {isSpooky ? "Reveal Incantation" : "Show Answer"}
+                        </button>
+                    ) : (
+                        <div className="flex gap-4">
+                            <button onClick={(e) => { e.stopPropagation(); handleRate(false); }} className="flex flex-col items-center gap-2 group">
+                                <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl border-2 border-transparent transition-all hover:scale-110 active:scale-95 ${
+                                    isSpooky 
+                                        ? "bg-red-900/30 text-red-400 group-hover:border-red-500/30" 
+                                        : "bg-red-100 text-red-600 group-hover:border-red-200"
+                                }`}>
+                                    <X />
+                                </div>
+                                <span className={`text-sm font-medium group-hover:text-red-500 ${isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}`}>
+                                    {isSpooky ? "Failed" : "Review"}
+                                </span>
+                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); handleRate(true); }} className="flex flex-col items-center gap-2 group">
+                                <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl border-2 border-transparent transition-all hover:scale-110 active:scale-95 ${
+                                    isSpooky 
+                                        ? "bg-green-900/30 text-green-400 group-hover:border-green-500/30" 
+                                        : "bg-green-100 text-green-600 group-hover:border-green-200"
+                                }`}>
+                                    <Check />
+                                </div>
+                                <span className={`text-sm font-medium group-hover:text-green-500 ${isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}`}>
+                                    {isSpooky ? "Mastered" : "Knew it"}
+                                </span>
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+
+    // Wrap with flashlight effect in spooky mode
+    return (
+        <DarkStudyMode enabled={isSpooky}>
+            {content}
+        </DarkStudyMode>
+    );
+}

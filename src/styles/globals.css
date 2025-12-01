@@ -1,0 +1,161 @@
+@import "tailwindcss";
+
+@theme inline {
+    --font-sans: var(--font-space-grotesk), sans-serif;
+    --font-serif: "Source Serif 4", serif;
+    --font-sora: var(--font-sora), sans-serif;
+}
+
+.source-serif-4 {
+    font-family: var(--font-source-serif), serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+body {
+    background-color: #f0f0ea;
+    color: var(--foreground);
+    overflow-x: hidden;
+    font-family: var(--font-sans);
+}
+
+/* ========================================
+   SPOOKY THEME - Kiroween Edition
+   Haunted Library + Necromancer's Grimoire
+   ======================================== */
+
+:root {
+    /* Normal theme colors (default) */
+    --bg-primary: #f0f0ea;
+    --bg-card: #ffffff;
+    --bg-accent: #f5e6c8;
+    --bg-muted: #f5f5f0;
+    --text-primary: #171d2b;
+    --text-secondary: rgba(23, 29, 43, 0.6);
+    --text-muted: rgba(23, 29, 43, 0.4);
+    --border-color: rgba(23, 29, 43, 0.1);
+    --accent-warm: #c4875a;
+    --accent-gold: #c4a574;
+    --progress-from: #c4a574;
+    --progress-to: #c4875a;
+}
+
+/* Spooky theme colors */
+[data-theme="spooky"] {
+    --bg-primary: #0d0f14;
+    --bg-card: #151821;
+    --bg-accent: #1a1525;
+    --bg-muted: #12141a;
+    --text-primary: #e8e4dc;
+    --text-secondary: rgba(232, 228, 220, 0.7);
+    --text-muted: rgba(232, 228, 220, 0.4);
+    --border-color: rgba(138, 100, 170, 0.2);
+    --accent-warm: #8b5cf6;
+    --accent-gold: #a78bfa;
+    --progress-from: #7c3aed;
+    --progress-to: #a855f7;
+    
+    /* Spooky-specific colors */
+    --spooky-glow: rgba(139, 92, 246, 0.3);
+    --spooky-ember: #f97316;
+    --spooky-blood: #dc2626;
+    --spooky-ghost: rgba(255, 255, 255, 0.1);
+    --spooky-candle: #fbbf24;
+}
+
+[data-theme="spooky"] body {
+    background-color: var(--bg-primary);
+}
+
+/* Spooky text glow effect */
+[data-theme="spooky"] .spooky-glow {
+    text-shadow: 0 0 10px var(--spooky-glow), 0 0 20px var(--spooky-glow);
+}
+
+/* Flickering candle animation */
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+    75% { opacity: 0.9; }
+    25% { opacity: 0.85; }
+}
+
+[data-theme="spooky"] .candle-flicker {
+    animation: flicker 3s ease-in-out infinite;
+}
+
+/* Flashlight flicker effect - subtle */
+@keyframes flashlight-flicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.8; }
+    94% { opacity: 1; }
+    96% { opacity: 0.9; }
+    97% { opacity: 1; }
+}
+
+.animate-flicker {
+    animation: flashlight-flicker 4s ease-in-out infinite;
+}
+
+/* Floating ghost animation */
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    25% { transform: translateY(-10px) rotate(2deg); }
+    50% { transform: translateY(-5px) rotate(-1deg); }
+    75% { transform: translateY(-15px) rotate(1deg); }
+}
+
+[data-theme="spooky"] .ghost-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Fog drift animation */
+@keyframes fogDrift {
+    0% { transform: translateX(-100%); opacity: 0; }
+    10% { opacity: 0.3; }
+    90% { opacity: 0.3; }
+    100% { transform: translateX(100%); opacity: 0; }
+}
+
+[data-theme="spooky"] .fog-layer {
+    animation: fogDrift 30s linear infinite;
+}
+
+/* Ember float animation */
+@keyframes emberFloat {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 1; transform: translateY(90vh) scale(1); }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) scale(0.5); opacity: 0; }
+}
+
+/* Pulse glow for achievements */
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 5px var(--spooky-glow); }
+    50% { box-shadow: 0 0 20px var(--spooky-glow), 0 0 30px var(--spooky-glow); }
+}
+
+[data-theme="spooky"] .achievement-unlocked {
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Spooky scrollbar */
+[data-theme="spooky"] ::-webkit-scrollbar {
+    width: 8px;
+}
+
+[data-theme="spooky"] ::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+[data-theme="spooky"] ::-webkit-scrollbar-thumb {
+    background: var(--accent-warm);
+    border-radius: 4px;
+}
+
+[data-theme="spooky"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-gold);
+}
+
