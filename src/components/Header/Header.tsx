@@ -59,7 +59,7 @@ function SessionAwareHeader({ user, isLoading, className }: { user: User | null;
         <>
             <header 
                 style={glassStyles}
-                className={`relative flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 transition-all duration-300 rounded-2xl mx-2 sm:mx-4 mt-2 sm:mt-4 border border-transparent bg-transparent ${className || ''}`}
+                className={`relative flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 rounded-full mx-3 sm:mx-4 mt-3 border border-transparent bg-transparent ${className || ''}`}
             >
                 {/* Logo */}
                 <Link href="/" className="flex items-center hover:opacity-70 transition-opacity">
@@ -237,7 +237,7 @@ export default function Header({ className }: { className?: string }) {
     }, [checkUser]);
 
     return (
-        <div ref={mountRef} className="sticky top-0 z-50 w-full">
+        <div ref={mountRef} className="sticky top-2 sm:top-3 lg:top-4 z-50 w-full">
             <SessionAwareHeader user={user} isLoading={isLoading} className={className} />
         </div>
     );

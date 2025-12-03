@@ -6,428 +6,697 @@ import {
   BrainCircuit,
   Copy,
   FileText,
-  Gamepad2,
-  Upload,
-  Sparkles,
-  Clock,
+  Ghost,
+  Zap,
+  ScanLine,
+  GraduationCap,
+  Plus,
+  GripVertical,
+  Edit2,
+  Trash2,
+  ChevronLeft,
   ChevronRight,
-  RefreshCw
+  Skull,
+  Calendar
 } from "lucide-react";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface Feature {
+  id: string;
   title: string;
   description: string;
-  steps: string[];
-  icon: React.ReactNode;
-  cardTitle: string;
-}
-
-const features: Feature[] = [
-  {
-    title: "Materials Hub",
-    description: "Centralize your knowledge. Upload lectures, essays, or notes, and watch them transform into organized study sets ready for action.",
-    steps: [
-      "Upload PDF, DOCX, or TXT files",
-      "Smart auto-organization",
-      "One-click study aid generation",
-      "Cloud synchronization",
-    ],
-    icon: <Library className="w-4 h-4 text-white" />,
-    cardTitle: "Smart Library",
-  },
-  {
-    title: "Learn Mode",
-    description: "Your personal AI tutor. It breaks down complex topics into bite-sized concepts, quizzes you as you go, and adapts to your pace.",
-    steps: [
-      "Smart concept breakdown",
-      "Interactive checkpoints",
-      "Confidence tracking",
-      "Personalized pacing",
-    ],
-    icon: <BrainCircuit className="w-4 h-4 text-white" />,
-    cardTitle: "Adaptive Learning",
-  },
-  {
-    title: "Flashcards",
-    description: "Master definitions with ease. Flip through AI-generated cards, track your confidence, and let spaced repetition handle the rest.",
-    steps: [
-      "Auto-generated decks",
-      "Spaced repetition system",
-      "Performance analytics",
-      "Edit and customize",
-    ],
-    icon: <Copy className="w-4 h-4 text-white" />,
-    cardTitle: "Active Recall",
-  },
-  {
-    title: "Practice Tests",
-    description: "Simulate the real exam. Generate custom tests with multiple choice, true/false, or identification questions to prove you're ready.",
-    steps: [
-      "Multiple question types",
-      "Instant grading & feedback",
-      "Detailed explanations",
-      "Score history tracking",
-    ],
-    icon: <FileText className="w-4 h-4 text-white" />,
-    cardTitle: "Exam Simulation",
-  },
-  {
-    title: "Match Mode",
-    description: "Gamify your grind. Race against the clock to link terms and definitions. High scores mean high retention.",
-    steps: [
-      "High-speed matching",
-      "Score tracking",
-      "Visual feedback",
-      "Competitive focus",
-    ],
-    icon: <Gamepad2 className="w-4 h-4 text-white" />,
-    cardTitle: "Speed Challenge",
-  },
-];
-
-function FeatureCard({ feature, isSpooky }: { feature: Feature; isSpooky: boolean }) {
-  return (
-    <div
-      className={`flex flex-col lg:flex-row items-center gap-5 lg:gap-8 p-4 rounded-2xl transition-colors duration-300 ${isSpooky ? "hover:bg-purple-500/10" : "hover:bg-white/50"
-        }`}
-    >
-      <div className="flex-1 order-2 lg:order-1">
-        <h3 className={`font-sans font-semibold text-[17px] sm:text-[19px] mb-2 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"
-          }`}>
-          {feature.title}
-        </h3>
-        <p className={`font-sans text-[13px] sm:text-[14px] leading-[1.5] mb-3 ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"
-          }`}>
-          {feature.description}
-        </p>
-        <ul className="space-y-1">
-          {feature.steps.map((step, i) => (
-            <li
-              key={i}
-              className={`flex items-center gap-2 text-[12px] sm:text-[13px] ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"
-                }`}
-            >
-              <span className={isSpooky ? "text-purple-400" : "text-[#171d2b]"}>→</span> {step}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div
-        className={`w-full lg:w-[340px] flex-shrink-0 rounded-[18px] p-4 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.1)] order-1 lg:order-2 ${isSpooky ? "bg-purple-500/15 border border-purple-500/20" : "bg-[rgba(210,210,200,0.55)]"
-          }`}
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSpooky ? "bg-purple-600" : "bg-[#171d2b]"
-            }`}>
-            {feature.icon}
-          </div>
-          <span className={`font-sans font-medium text-[14px] sm:text-[15px] ${isSpooky ? "text-purple-100" : "text-[#171d2b]"
-            }`}>
-            {feature.cardTitle}
-          </span>
-        </div>
-        <FeatureCardContent feature={feature} isSpooky={isSpooky} />
-      </div>
-    </div>
-  );
-}
-
-function FeatureCardContent({ feature, isSpooky }: { feature: Feature; isSpooky: boolean }) {
-  const borderClass = isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10";
-  const textClass = isSpooky ? "text-purple-300/80" : "text-[#171d2b]/80";
-  const bgClass = isSpooky ? "bg-purple-600" : "bg-[#171d2b]";
-  const bgLightClass = isSpooky ? "bg-purple-600/70" : "bg-[#171d2b]/70";
-  const buttonClass = isSpooky
-    ? "bg-purple-600 hover:bg-purple-500 text-white"
-    : "bg-[#171d2b] hover:bg-[#2a3347] text-white";
-
-  // Materials Hub State
-  const [files, setFiles] = useState([
-    { name: "Lecture_Notes.pdf", status: "Processed" },
-    { name: "History_Essay.docx", status: "Ready" }
-  ]);
-  const handleProcess = (index: number) => {
-    const newFiles = [...files];
-    if (newFiles[index].status === "Ready") {
-      newFiles[index].status = "Processing...";
-      setTimeout(() => {
-        setFiles(prev => {
-          const updated = [...prev];
-          updated[index].status = "Processed";
-          return updated;
-        });
-      }, 1000);
-    }
-    setFiles(newFiles);
-  };
-
-  // Learn Mode State
-  const [progress, setProgress] = useState(65);
-  const handleLearnNext = () => {
-    setProgress(prev => prev >= 100 ? 0 : prev + 15);
-  };
-
-  // Flashcards State
-  const [showAnswer, setShowAnswer] = useState(false);
-  const cards = [
-    { q: "Powerhouse of the cell?", a: "Mitochondria" },
-    { q: "Capital of France?", a: "Paris" }
-  ];
-
-  // Practice Test State
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const correctOption = 2; // Index 2 is correct
-
-  // Match Mode State
-  const [matchedPairs, setMatchedPairs] = useState<string[]>([]);
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
-  const matchItems = [
-    { id: "t1", text: "Mitochondria", pair: "p1" },
-    { id: "d1", text: "Powerhouse", pair: "p1" },
-    { id: "t2", text: "DNA", pair: "p2" },
-    { id: "d2", text: "Genetic Code", pair: "p2" },
-  ];
-  const handleMatchClick = (id: string, pair: string) => {
-    if (matchedPairs.includes(id)) return;
-
-    if (!selectedItem) {
-      setSelectedItem(id);
-    } else {
-      const prevItem = matchItems.find(i => i.id === selectedItem);
-      if (prevItem && prevItem.pair === pair && prevItem.id !== id) {
-        setMatchedPairs(prev => [...prev, selectedItem, id]);
-      }
-      setSelectedItem(null);
-    }
-  };
-  const resetMatch = () => {
-    setMatchedPairs([]);
-    setSelectedItem(null);
-  };
-
-
-  if (feature.title === "Materials Hub") {
-    return (
-      <div className="space-y-2">
-        {files.map((file, idx) => (
-          <div
-            key={idx}
-            className={`flex items-center justify-between py-2 border-b ${borderClass} cursor-pointer hover:opacity-80 transition-opacity`}
-            onClick={() => handleProcess(idx)}
-          >
-            <div className="flex items-center gap-2">
-              {file.name.endsWith('pdf') ?
-                <Upload className={`w-3 h-3 ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`} /> :
-                <FileText className={`w-3 h-3 ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`} />
-              }
-              <span className={`font-sans text-[12px] sm:text-[13px] ${textClass}`}>{file.name}</span>
-            </div>
-            <div className={`px-1.5 py-0.5 text-[9px] rounded transition-colors duration-300 ${file.status === "Processed" ? bgClass + " text-white" :
-              file.status === "Processing..." ? "bg-yellow-500 text-white" :
-                bgLightClass + " text-white"
-              }`}>
-              {file.status}
-            </div>
-          </div>
-        ))}
-        <div className="flex items-center justify-between py-2">
-          <span className={`font-sans text-[11px] ${textClass}`}>Storage Used</span>
-          <div className={`w-24 h-1.5 ${isSpooky ? "bg-purple-900/50" : "bg-gray-200"} rounded-full overflow-hidden`}>
-            <div className={`h-full w-[45%] ${bgClass} rounded-full`} />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (feature.title === "Learn Mode") {
-    return (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className={`font-sans text-[11px] ${textClass}`}>Concept Mastery</span>
-          <span className={`font-sans text-[11px] ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`}>{progress}%</span>
-        </div>
-        <div className={`w-full h-2 ${isSpooky ? "bg-purple-900/50" : "bg-gray-200"} rounded-full overflow-hidden`}>
-          <motion.div
-            className={`h-full ${bgClass} rounded-full`}
-            initial={{ width: "65%" }}
-            animate={{ width: `${progress}%` }}
-          />
-        </div>
-        <div className={`p-2 rounded-lg ${isSpooky ? "bg-purple-500/10" : "bg-white/50"} border ${borderClass}`}>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-start gap-2">
-              <Sparkles className={`w-3 h-3 mt-0.5 ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`} />
-              <div className="space-y-1">
-                <div className={`h-1.5 w-20 ${bgClass} rounded-full opacity-40`} />
-                <div className={`h-1.5 w-12 ${bgClass} rounded-full opacity-20`} />
-              </div>
-            </div>
-            <button
-              onClick={handleLearnNext}
-              className={`p-1 rounded-full ${buttonClass} transition-transform active:scale-95`}
-            >
-              <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (feature.title === "Flashcards") {
-    return (
-      <div className="space-y-2">
-        <button
-          onClick={() => setShowAnswer(!showAnswer)}
-          className={`relative w-full p-3 rounded-lg border ${borderClass} ${isSpooky ? "bg-[#1a1525]" : "bg-white"} min-h-[80px] flex flex-col items-center justify-center text-center cursor-pointer hover:opacity-90 transition-opacity`}
-        >
-          <AnimatePresence mode="wait">
-            {showAnswer ? (
-              <motion.div
-                key="answer"
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                className={`font-sans font-medium text-[13px] ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}
-              >
-                {cards[0].a}
-              </motion.div>
-            ) : (
-              <motion.div
-                key="question"
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                className={`font-sans text-[12px] ${textClass}`}
-              >
-                {cards[0].q}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </button>
-        <div className="flex justify-between gap-2">
-          <div className={`h-1 flex-1 ${bgClass} rounded-full`} />
-          <div className={`h-1 flex-1 ${bgClass} rounded-full opacity-30`} />
-        </div>
-      </div>
-    );
-  }
-
-  if (feature.title === "Practice Tests") {
-    return (
-      <div className="space-y-2">
-        <div className={`flex items-center justify-between py-1.5 border-b ${borderClass}`}>
-          <span className={`font-sans text-[11px] ${textClass}`}>Question 1/20</span>
-          <span className={`font-sans text-[10px] ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`}>Multiple Choice</span>
-        </div>
-        <div className="space-y-1.5">
-          {[1, 2, 3].map((i) => {
-            const isSelected = selectedOption === i;
-            const isCorrect = i === correctOption;
-            let itemBg = "";
-            let borderColor = isSpooky ? "border-purple-400/30" : "border-[#171d2b]/20";
-
-            if (isSelected) {
-              if (isCorrect) {
-                itemBg = isSpooky ? "bg-green-500/20" : "bg-green-100";
-                borderColor = "border-green-500";
-              } else {
-                itemBg = isSpooky ? "bg-red-500/20" : "bg-red-100";
-                borderColor = "border-red-500";
-              }
-            }
-
-            return (
-              <div
-                key={i}
-                onClick={() => setSelectedOption(i)}
-                className={`flex items-center gap-2 p-1.5 rounded border ${borderColor} ${itemBg} cursor-pointer transition-colors`}
-              >
-                <div className={`w-3 h-3 rounded-full border flex items-center justify-center ${isSpooky ? "border-purple-400" : "border-[#171d2b]"}`}>
-                  {isSelected && <div className={`w-1.5 h-1.5 rounded-full ${isSpooky ? "bg-purple-400" : "bg-[#171d2b]"}`} />}
-                </div>
-                <div className={`h-1.5 w-24 ${bgClass} rounded-full opacity-20`} />
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  if (feature.title === "Match Mode") {
-    return (
-      <div className="relative">
-        <div className="grid grid-cols-2 gap-2">
-          {matchItems.map((item) => {
-            const isMatched = matchedPairs.includes(item.id);
-            const isSelected = selectedItem === item.id;
-
-            if (isMatched) return <div key={item.id} className="h-8" />; // Placeholder for matched items
-
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleMatchClick(item.id, item.pair)}
-                className={`h-8 rounded border flex items-center justify-center transition-all active:scale-95
-                  ${isSelected
-                    ? (isSpooky ? "bg-purple-500/40 border-purple-400" : "bg-[#171d2b]/20 border-[#171d2b]")
-                    : (isSpooky ? "bg-purple-500/10 border-purple-500/20 hover:bg-purple-500/20" : "bg-white border-[#171d2b]/10 hover:bg-gray-50")
-                  }
-                `}
-              >
-                <span className={`text-[10px] ${textClass}`}>{item.text}</span>
-              </button>
-            );
-          })}
-        </div>
-        {matchedPairs.length === matchItems.length && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded backdrop-blur-sm">
-            <button onClick={resetMatch} className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] ${buttonClass}`}>
-              <RefreshCw className="w-3 h-3" /> Play Again
-            </button>
-          </div>
-        )}
-        <div className="col-span-2 flex items-center justify-center gap-1 mt-2">
-          <Clock className={`w-3 h-3 ${textClass}`} />
-          <span className={`text-[10px] ${textClass}`}>00:45</span>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
+  visual: React.ReactNode;
 }
 
 export default function FeaturesShowcase() {
   const theme = useThemeStore((state) => state.theme);
   const isSpooky = theme === "spooky";
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    const scrollContainer = scrollContainerRef.current;
+    const container = containerRef.current;
+    if (!scrollContainer || !container) return;
+
+    // Calculate scroll distance based on content - limit to reasonable amount
+    const getScrollAmount = () => {
+      const containerWidth = scrollContainer.parentElement?.clientWidth || window.innerWidth;
+      const totalScroll = scrollContainer.scrollWidth - containerWidth;
+      return -totalScroll;
+    };
+
+    // Get the actual scroll amount for end calculation
+    const scrollAmount = Math.abs(getScrollAmount());
+    
+    const tween = gsap.to(scrollContainer, {
+      x: getScrollAmount,
+      ease: "none",
+      scrollTrigger: {
+        trigger: container,
+        pin: true,
+        scrub: 1,
+        start: "top 10%",
+        end: () => `+=${scrollAmount}`,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    // Refresh on resize for zoom handling
+    const handleResize = () => ScrollTrigger.refresh();
+    window.addEventListener("resize", handleResize);
+    
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      tween.scrollTrigger?.kill();
+    };
+  }, { scope: containerRef });
+
+  const features: Feature[] = [
+    {
+      id: "03",
+      title: "Immersive Study Modes",
+      description: "Engage with your materials through diverse modes. Use 'Spooky Mode' to focus with a flashlight interface, or challenge yourself with 'Match Mode' for speed.",
+      visual: <SpookyLearnVisual isSpooky={isSpooky} />
+    },
+    {
+      id: "00",
+      title: "Materials Hub",
+      description: "Complete control over your study assets. Edit terms directly, organize reviewers into color-coded categories, and reorder flashcards with simple drag & drop. Manage your knowledge base with precision.",
+      visual: <MaterialsVisual isSpooky={isSpooky} />
+    },
+    {
+      id: "01",
+      title: "Intelligent Content Summarization",
+      description: "Transform dense lecture notes into structured reviewers. Our AI extracts key concepts and definitions, creating concise summaries tailored to your learning needs.",
+      visual: <ReviewerVisual isSpooky={isSpooky} />
+    },
+    {
+      id: "04",
+      title: "Persistent Focus Timer",
+      description: "Stay in the zone with a timer that follows you. Whether you're reviewing notes or taking a practice test, your Pomodoro session persists across pages.",
+      visual: <TimerVisual isSpooky={isSpooky} />
+    },
+    {
+      id: "05",
+      title: "Gamified Achievements",
+      description: "Level up your learning. Earn 'Soul Trophies' and XP for every study session, streak, and mastered deck. Make progress addictive.",
+      visual: <AchievementsVisual isSpooky={isSpooky} />
+    },
+    {
+      id: "06",
+      title: "Study Progress Calendar",
+      description: "Visualize your consistency. Track your daily study activity with a contribution graph and maintain your streak to build lasting habits.",
+      visual: <CalendarVisual isSpooky={isSpooky} />
+    },
+    {
+      id: "07",
+      title: "Seamless Sharing",
+      description: "Collaborate with peers. Share your flashcard decks and reviewers instantly via link. Study together, even when you're apart.",
+      visual: <ShareVisual isSpooky={isSpooky} />
+    },
+  ];
 
   return (
-    <section
-      className="relative z-10 px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-20"
-    >
-      <div>
-        <h2 className={`font-serif text-[24px] sm:text-[32px] lg:text-[38px] text-center mb-2 sm:mb-3 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"
-          }`}>
-          Powerful Study Tools
+    <section ref={containerRef} className="relative min-h-[600px] h-[80vh] max-h-[900px] flex items-center overflow-hidden mt-4 sm:mt-6">
+      {/* Left Side: Sticky Title */}
+      <div className="w-full lg:w-[35%] flex-shrink-0 px-6 lg:pl-16 lg:pr-8 z-10">
+        <h2 className={`font-serif text-4xl md:text-5xl lg:text-6xl leading-[1.1] mb-6 ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
+          What You'll Unlock <br />
+          <span className={isSpooky ? "text-purple-400" : "text-[#171d2b]"} style={{ fontStyle: 'italic' }}>with DeepTerm</span>
         </h2>
-        <p className={`font-sans text-[13px] sm:text-[15px] lg:text-[16px] text-center mb-10 sm:mb-14 lg:mb-16 max-w-[600px] mx-auto px-2 ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"
-          }`}>
-          AI-powered features to transform your study materials into effective
-          learning resources, all tracked on your personal dashboard.
+        <p className={`font-sans text-lg max-w-md ${isSpooky ? "text-gray-400" : "text-[#171d2b]/60"}`}>
+          A complete ecosystem of tools designed to transform your study workflow from chaotic to structured.
         </p>
       </div>
 
-      <div className="max-w-[900px] mx-auto space-y-8 sm:space-y-10">
-        {features.map((feature) => (
-          <FeatureCard key={feature.title} feature={feature} isSpooky={isSpooky} />
-        ))}
+      {/* Right Side: Horizontal Scroll Track */}
+      <div className="flex-1 h-full flex items-center overflow-hidden">
+        <div ref={scrollContainerRef} className="flex gap-8 px-8 lg:px-0 py-12">
+          {features.map((feature) => (
+            <div key={feature.id} className="feature-card w-[85vw] md:w-[600px] lg:w-[700px] flex-shrink-0">
+              <div className="flex flex-col gap-4">
+                {/* Header - Title always visible */}
+                <div className="flex-shrink-0 py-2">
+                  <h3 className={`font-sans font-bold text-xl md:text-2xl ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
+                    {feature.title}
+                  </h3>
+                </div>
+
+                {/* Visual Container */}
+                <div className={`w-full aspect-[16/10] rounded-lg overflow-hidden border relative ${
+                  isSpooky 
+                    ? "bg-[#0d0f14] border-white/10" 
+                    : "bg-gray-50 border-gray-200"
+                }`}>
+                  {feature.visual}
+                </div>
+
+                {/* Description */}
+                <p className={`font-sans text-sm md:text-base leading-relaxed max-w-2xl ${
+                  isSpooky ? "text-gray-400" : "text-gray-600"
+                }`}>
+                  {feature.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
+  );
+}
+
+function MaterialsVisual({ isSpooky }: { isSpooky: boolean }) {
+  return (
+    <div className="w-full h-full p-6 flex items-center justify-center">
+      <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
+        {[
+          { title: "Biology 101: Cell Structure", type: "Reviewer", count: 12, date: "2h ago" },
+          { title: "Chemistry Finals Deck", type: "Flashcards", count: 45, date: "5h ago" },
+          { title: "History: World War II", type: "Reviewer", count: 8, date: "1d ago" },
+          { title: "Physics Formulas", type: "Flashcards", count: 24, date: "2d ago" },
+        ].map((item, i) => (
+          <div key={i} className={`rounded-xl p-4 border transition-all cursor-pointer group relative ${
+            isSpooky 
+              ? "bg-[#151821] border-purple-500/10 hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/10" 
+              : "bg-white border-[#171d2b]/5 hover:border-[#171d2b]/20 hover:shadow-lg"
+          }`}>
+            <div className="flex justify-between items-start mb-3">
+              <span className={`px-2 py-0.5 rounded-md text-[10px] font-medium uppercase tracking-wider flex items-center gap-1 ${
+                item.type === "Reviewer"
+                  ? (isSpooky ? "bg-purple-600 text-white" : "bg-[#171d2b] text-white")
+                  : (isSpooky ? "bg-purple-500/20 text-purple-300" : "bg-[#171d2b]/10 text-[#171d2b]")
+              }`}>
+                {item.type === "Reviewer" ? <FileText size={10} /> : <Copy size={10} />}
+                {item.type === "Flashcards" ? (isSpooky ? "Spells" : "Cards") : (isSpooky ? "Grimoire" : "Reviewer")} · {item.count}
+              </span>
+              <div className={`p-1 rounded-full ${isSpooky ? "text-purple-300/30" : "text-[#171d2b]/30"}`}>
+                <GripVertical size={14} />
+              </div>
+            </div>
+            <div className="mb-3">
+              <h3 className={`font-sans font-semibold text-sm line-clamp-2 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+                {item.title}
+              </h3>
+            </div>
+            <div className={`flex items-center text-xs ${isSpooky ? "text-purple-300/40" : "text-[#171d2b]/40"}`}>
+              <div className="flex items-center gap-1">
+                <ScanLine size={12} />
+                <span>{item.date}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FlashcardVisual({ isSpooky }: { isSpooky: boolean }) {
+  const [flipped, setFlipped] = useState(false);
+
+  return (
+    <div className="w-full h-full flex items-center justify-center p-8 bg-grid-pattern">
+      <div className="flex flex-col items-center gap-6 w-full max-w-[400px]">
+        <div 
+          className="relative w-full aspect-[3/2] cursor-pointer perspective-1000 group"
+          onClick={() => setFlipped(!flipped)}
+        >
+          <motion.div
+            className="w-full h-full relative preserve-3d"
+            animate={{ rotateY: flipped ? 180 : 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            {/* Front */}
+            <div className={`absolute inset-0 backface-hidden rounded-3xl shadow-xl border flex flex-col items-center justify-center px-8 text-center hover:shadow-2xl transition-shadow overflow-hidden ${
+              isSpooky 
+                ? "bg-[#151821] border-purple-500/20 shadow-purple-500/10" 
+                : "bg-white border-[#171d2b]/5"
+            }`}>
+              <span className={`absolute top-6 left-6 text-xs font-bold uppercase tracking-widest ${isSpooky ? "text-purple-400/30" : "text-[#171d2b]/20"}`}>Definition</span>
+              <p className={`font-sora font-medium text-lg leading-relaxed ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+                Double-membrane-bound organelle found in most eukaryotic organisms.
+              </p>
+              <span className={`absolute bottom-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity ${isSpooky ? "text-purple-300/40" : "text-[#171d2b]/40"}`}>
+                {isSpooky ? "Click to reveal the answer..." : "Click to flip"}
+              </span>
+            </div>
+
+            {/* Back */}
+            <div className={`absolute inset-0 backface-hidden rounded-3xl shadow-xl flex flex-col items-center justify-center px-8 text-center overflow-hidden ${
+              isSpooky ? "bg-purple-900" : "bg-[#171d2b]"
+            }`} style={{ transform: "rotateY(180deg)" }}>
+              <span className="absolute top-6 left-6 text-xs font-bold text-white/20 uppercase tracking-widest">Term</span>
+              <p className="font-sora font-medium text-2xl text-white">Mitochondria</p>
+            </div>
+          </motion.div>
+        </div>
+
+        <button
+          onClick={() => setFlipped(!flipped)}
+          className={`px-6 py-3 rounded-full font-sora font-medium shadow-lg transition-all flex items-center gap-2 ${
+            isSpooky 
+              ? "bg-purple-600 text-white hover:bg-purple-500" 
+              : "bg-[#171d2b] text-white hover:bg-[#2a3347]"
+          }`}
+        >
+          <ScanLine size={18} />
+          {isSpooky ? "Reveal Incantation" : "Show Answer"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ReviewerVisual({ isSpooky }: { isSpooky: boolean }) {
+  return (
+    <div className="w-full h-full p-8 flex items-center justify-center">
+      <div className="w-full max-w-2xl space-y-4">
+        {[
+          { name: "Cell Biology", count: 12, color: "#22c55e", expanded: true },
+          { name: "Genetics", count: 8, color: "#3b82f6", expanded: false },
+        ].map((category, i) => (
+          <div
+            key={i}
+            className={`rounded-xl border overflow-hidden shadow-sm ${
+              isSpooky ? "bg-[#151821] border-purple-500/20" : "bg-white border-[#171d2b]/10"
+            }`}
+          >
+            <div
+              className={`p-4 flex items-center justify-between cursor-pointer ${
+                isSpooky ? "hover:bg-purple-500/5" : "hover:bg-gray-50"
+              }`}
+              style={{ borderLeft: `4px solid ${isSpooky ? "#a855f7" : category.color}` }}
+            >
+              <div className="flex items-center gap-4">
+                <h3 className={`font-sora font-semibold ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>{category.name}</h3>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                  isSpooky ? "bg-purple-500/20 text-purple-300" : "bg-[#171d2b]/5 text-[#171d2b]/60"
+                }`}>
+                  {category.count} {isSpooky ? "incantations" : "terms"}
+                </span>
+              </div>
+              <div className={`flex items-center gap-2 ${isSpooky ? "text-purple-400" : "text-[#171d2b]/40"}`}>
+                <Plus size={16} />
+                <Trash2 size={16} />
+              </div>
+            </div>
+            {category.expanded && (
+              <div className={`border-t ${isSpooky ? "border-purple-500/10" : "border-[#171d2b]/5"}`}>
+                <div className="p-4 grid gap-3">
+                  {[
+                    { term: "Mitosis", def: "Process of nuclear division in eukaryotic cells." },
+                    { term: "Meiosis", def: "Type of cell division that reduces chromosome number." }
+                  ].map((term, j) => (
+                    <div key={j} className={`p-3 rounded-lg border flex justify-between items-start ${
+                      isSpooky ? "bg-[#0d0f14] border-purple-500/10" : "bg-[#f8f9fa] border-[#171d2b]/5"
+                    }`}>
+                      <div>
+                        <h4 className={`font-bold text-sm mb-1 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>{term.term}</h4>
+                        <p className={`text-xs ${isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}`}>{term.def}</p>
+                      </div>
+                      <div className={`opacity-50 ${isSpooky ? "text-purple-400" : "text-[#171d2b]"}`}>
+                        <Edit2 size={12} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SpookyLearnVisual({ isSpooky }: { isSpooky: boolean }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setMousePos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  return (
+    <div 
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      className={`w-full h-full relative overflow-hidden cursor-none flex items-center justify-center p-8 ${isSpooky ? "bg-black" : "bg-gray-900"}`}
+    >
+      <div 
+        className="absolute inset-0 flex items-center justify-center p-8"
+        style={{
+          maskImage: `radial-gradient(circle 250px at ${mousePos.x}px ${mousePos.y}px, black 0%, transparent 100%)`,
+          WebkitMaskImage: `radial-gradient(circle 250px at ${mousePos.x}px ${mousePos.y}px, black 0%, transparent 100%)`,
+        }}
+      >
+        <div className={`w-full max-w-2xl rounded-3xl border p-8 flex flex-col gap-6 ${
+          isSpooky ? "bg-[#1a1b26] border-purple-500/20" : "bg-white border-gray-200"
+        }`}>
+          <div className="flex justify-between items-start">
+            <span className={`text-sm font-medium ${isSpooky ? "text-purple-400/70" : "text-gray-500"}`}>
+              {isSpooky ? "Dark Knowledge" : "Definition"}
+            </span>
+            <span className={`px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1 ${
+              isSpooky ? "bg-purple-900/50 text-purple-300" : "bg-pink-100 text-pink-600"
+            }`}>
+              <div className={`w-2 h-2 rounded-full border-2 ${isSpooky ? "border-purple-400" : "border-pink-600"}`} />
+              {isSpooky ? "New spell" : "New cards"}
+            </span>
+          </div>
+
+          <p className={`text-xl font-sora font-medium leading-relaxed ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+            Process of nuclear division in eukaryotic cells that occurs when a parent cell divides to produce two identical daughter cells.
+          </p>
+
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            {["Meiosis", "Mitosis", "Cytokinesis", "Interphase"].map((opt, i) => (
+              <div key={i} className={`p-4 border rounded-2xl flex items-center gap-4 ${
+                isSpooky 
+                  ? "bg-[#1a1b26] border-purple-500/30 text-purple-100" 
+                  : "bg-white border-gray-200 text-[#171d2b]"
+              }`}>
+                <div className={`w-8 h-8 rounded-full font-bold flex items-center justify-center text-sm ${
+                  isSpooky ? "bg-purple-900/50 text-purple-300" : "bg-blue-100 text-blue-600"
+                }`}>
+                  {String.fromCharCode(65 + i)}
+                </div>
+                <span className="font-medium">{opt}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <p className="text-white/20 font-mono text-sm uppercase tracking-[0.2em]">Move cursor to reveal</p>
+      </div>
+
+      <div 
+        className="absolute w-[500px] h-[500px] bg-purple-500/10 blur-[100px] rounded-full pointer-events-none transform -translate-x-1/2 -translate-y-1/2 mix-blend-screen"
+        style={{ left: mousePos.x, top: mousePos.y }}
+      />
+    </div>
+  );
+}
+
+function TimerVisual({ isSpooky }: { isSpooky: boolean }) {
+  return (
+    <div className="w-full h-full p-8 flex items-center justify-center">
+      <div className={`relative w-full max-w-[320px] aspect-square rounded-[32px] p-6 text-center text-white overflow-hidden flex flex-col items-center justify-between ${
+        isSpooky ? "bg-gradient-to-br from-purple-900 to-purple-950" : "bg-[#171d2b]"
+      }`}>
+        {/* Phase Indicators */}
+        <div className="flex gap-2 relative z-10 w-full justify-center">
+          {["Summoning", "Respite", "Slumber"].map((label, i) => (
+             <div key={i} className={`px-3 py-1 rounded-full text-[10px] font-medium transition-all ${
+               i === 0 ? "bg-white/20 scale-105" : "bg-white/5 opacity-70"
+             }`}>
+               {isSpooky ? label : ["Focus", "Short", "Long"][i]}
+             </div>
+          ))}
+        </div>
+
+        {/* Timer Display */}
+        <div className="relative w-40 h-40 flex-shrink-0 my-2">
+          <svg className="w-full h-full -rotate-90">
+            <circle cx="50%" cy="50%" r="45%" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6" />
+            <circle cx="50%" cy="50%" r="45%" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="6" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 45}%`} strokeDashoffset={`${2 * Math.PI * 45 * 0.25}%`} />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className={`font-mono text-4xl font-light tracking-wider ${isSpooky ? "text-purple-100" : "text-white"}`}>18:45</span>
+            <span className="text-[10px] text-white/70 uppercase tracking-widest mt-1">{isSpooky ? "Summoning" : "Focus"}</span>
+          </div>
+        </div>
+
+        {/* Session Dots */}
+        <div className="flex gap-2 mb-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className={`w-2 h-2 rounded-full ${i <= 2 ? "bg-white" : "bg-white/20"}`} />
+          ))}
+        </div>
+
+        {/* Controls */}
+        <div className="flex items-center gap-3 w-full justify-center">
+          <div className={`h-10 px-6 rounded-full flex items-center justify-center font-medium text-sm shadow-lg cursor-pointer transition-transform hover:scale-105 ${
+            isSpooky ? "bg-purple-500 text-white" : "bg-white text-[#171d2b]"
+          }`}>
+            {isSpooky ? "Suspend" : "Pause"}
+          </div>
+          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center cursor-pointer hover:bg-white/20">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AchievementsVisual({ isSpooky }: { isSpooky: boolean }) {
+  return (
+    <div className="w-full h-full p-8 flex items-center justify-center">
+      <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
+        {[
+          { title: "First Blood", desc: "Complete your first session", icon: Ghost, progress: 100, unlocked: true, color: "bg-purple-500" },
+          { title: "Night Owl", desc: "Study after midnight", icon: Zap, progress: 60, unlocked: false, color: "bg-yellow-500" },
+          { title: "Grimoire Master", desc: "Create 5 reviewers", icon: Library, progress: 40, unlocked: false, color: "bg-blue-500" },
+          { title: "Soul Collector", desc: "Earn 1000 XP", icon: BrainCircuit, progress: 85, unlocked: false, color: "bg-green-500" },
+        ].map((achievement, i) => (
+          <div key={i} className={`relative p-4 rounded-xl border transition-all ${
+            achievement.unlocked
+              ? (isSpooky 
+                  ? "bg-[#151821] border-purple-500/20 shadow-[0_0_15px_rgba(139,92,246,0.1)]" 
+                  : "bg-white border-[#171d2b]/10 shadow-sm")
+              : (isSpooky
+                  ? "bg-[#0d0f14] border-purple-500/10 opacity-60 grayscale"
+                  : "bg-[#f9f9f7] border-[#171d2b]/5 opacity-60 grayscale")
+          }`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-3 ${
+              isSpooky ? "bg-purple-500/20 text-purple-400" : "bg-[#171d2b]/5 text-[#171d2b]"
+            }`}>
+              <achievement.icon size={20} />
+            </div>
+            <h3 className={`font-sans font-medium text-sm mb-1 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+              {achievement.title}
+            </h3>
+            <p className={`font-sans text-xs mb-3 leading-tight ${isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}`}>
+              {achievement.desc}
+            </p>
+            <div className={`w-full h-1.5 rounded-full overflow-hidden ${isSpooky ? "bg-purple-900/30" : "bg-[#171d2b]/5"}`}>
+              <div
+                className={`h-full rounded-full ${isSpooky ? "bg-purple-500" : "bg-[#171d2b]"}`}
+                style={{ width: `${achievement.progress}%` }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CalendarVisual({ isSpooky }: { isSpooky: boolean }) {
+  // Mock data for a month view (e.g., October)
+  // Mock data for a month view (e.g., October)
+  // Use deterministic data to prevent hydration mismatches
+  const days = Array.from({ length: 35 }).map((_, i) => {
+    const day = i - 2; // Start from -2 to have some empty cells at start
+    if (day < 1 || day > 31) return { day: null, level: 0 };
+    
+    // Deterministic activity levels 0-4 based on index
+    // Use simple math to simulate randomness without Math.random()
+    const pseudoRandom = ((i * 13 + 7) % 23) / 23; 
+    const level = pseudoRandom > 0.6 ? Math.ceil(pseudoRandom * 4) : 0;
+    return { day, level };
+  });
+
+  const levelColors = isSpooky ? [
+    "bg-[#1a1525]",
+    "bg-purple-900/40",
+    "bg-purple-700/50",
+    "bg-purple-600/60",
+    "bg-purple-500/70",
+  ] : [
+    "bg-[#f5f5f0]",
+    "bg-[#f5e6c8]",
+    "bg-[#e8c896]",
+    "bg-[#d4a574]",
+    "bg-[#c4875a]",
+  ];
+
+  return (
+    <div className="w-full h-full p-4 sm:p-6 flex items-center justify-center">
+        <div className={`w-full h-full rounded-xl border shadow-sm overflow-hidden flex flex-col ${
+            isSpooky 
+                ? "bg-[#151821] border-purple-500/20"
+                : "bg-white border-[#171d2b]/5"
+        }`}>
+            {/* Header */}
+            <div className={`px-4 py-3 border-b flex-shrink-0 ${
+                isSpooky 
+                    ? "bg-purple-900/30 border-purple-500/20"
+                    : "bg-[#f5e6c8] border-[#171d2b]/5"
+            }`}>
+                <div className="flex items-center gap-2">
+                    {isSpooky ? (
+                        <Skull size={16} className="text-purple-400" />
+                    ) : (
+                        <Calendar size={16} className="text-[#171d2b]/70" />
+                    )}
+                    <h2 className={`font-serif text-sm ${
+                        isSpooky ? "text-purple-200" : "text-[#171d2b]"
+                    }`}>
+                        {isSpooky ? "Grimoire of Studies" : "Study History"}
+                    </h2>
+                </div>
+            </div>
+
+            {/* Month Nav */}
+             <div className={`flex items-center justify-between px-3 py-2 border-b flex-shrink-0 ${
+                isSpooky 
+                    ? "border-purple-500/10 bg-[#151821]"
+                    : "border-[#171d2b]/10 bg-white"
+            }`}>
+                <div className={`w-6 h-6 flex items-center justify-center border rounded ${
+                        isSpooky
+                            ? "border-purple-500/30 text-purple-300"
+                            : "border-[#171d2b]/20 text-[#171d2b]"
+                    }`}>
+                    <ChevronLeft size={14} />
+                </div>
+                <span className={`font-serif text-sm font-semibold ${
+                    isSpooky ? "text-purple-200" : "text-[#171d2b]"
+                }`}>
+                    {isSpooky ? "Harvest Moon" : "October"} 2025
+                </span>
+                <div className={`w-6 h-6 flex items-center justify-center border rounded ${
+                        isSpooky
+                            ? "border-purple-500/30 text-purple-300"
+                            : "border-[#171d2b]/20 text-[#171d2b]"
+                    }`}>
+                    <ChevronRight size={14} />
+                </div>
+            </div>
+
+            {/* Days Header */}
+            <div className={`grid grid-cols-7 flex-shrink-0 ${
+                isSpooky ? "bg-[#1a1525]" : "bg-[#f5f0e0]"
+            }`}>
+                {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day, i) => (
+                    <div key={i} className={`py-2 text-center text-[10px] font-semibold border-b border-r last:border-r-0 ${
+                        isSpooky
+                            ? "text-purple-300/70 border-purple-500/10"
+                            : "text-[#171d2b]/70 border-[#171d2b]/10"
+                    }`}>
+                        {day}
+                    </div>
+                ))}
+            </div>
+
+            {/* Grid */}
+            <div className="grid grid-cols-7 flex-1">
+                {days.map((d, i) => (
+                    <div key={i} className={`
+                        flex items-center justify-center text-xs font-medium
+                        border-b border-r last:border-r-0
+                        ${d.day ? levelColors[d.level] : (isSpooky ? "bg-[#151821]" : "bg-white")}
+                        ${isSpooky 
+                            ? "border-purple-500/10 text-[#e8e4dc]"
+                            : "border-[#171d2b]/10 text-[#171d2b]"
+                        }
+                    `}>
+                        {d.day}
+                    </div>
+                ))}
+            </div>
+            
+            {/* Legend */}
+             <div className={`flex justify-center items-center gap-2 py-3 border-t flex-shrink-0 ${
+                isSpooky ? "border-purple-500/10" : "border-[#171d2b]/10"
+            }`}>
+                <span className={`text-[10px] ${
+                    isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"
+                }`}>
+                    {isSpooky ? "Dormant" : "Less"}
+                </span>
+                <div className="flex gap-1">
+                    {levelColors.map((color, i) => (
+                        <div key={i} className={`w-3 h-3 rounded-sm ${color} border ${
+                            isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10"
+                        }`} />
+                    ))}
+                </div>
+                <span className={`text-[10px] ${
+                    isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"
+                }`}>
+                    {isSpooky ? "Possessed" : "More"}
+                </span>
+            </div>
+        </div>
+    </div>
+  );
+}
+
+function ShareVisual({ isSpooky }: { isSpooky: boolean }) {
+  return (
+    <div className="w-full h-full p-8 flex items-center justify-center overflow-hidden">
+      <div className={`relative w-full max-w-sm rounded-xl border p-4 transform scale-125 origin-center ${
+        isSpooky ? "bg-[#151821] border-purple-500/20" : "bg-white border-[#171d2b]/10"
+      }`}>
+        <div className="flex justify-between items-start mb-4">
+          <span className={`px-2 py-0.5 rounded-md text-[10px] font-medium uppercase tracking-wider flex items-center gap-1 ${
+            isSpooky ? "bg-purple-600 text-white" : "bg-[#171d2b] text-white"
+          }`}>
+            <FileText size={10} />
+            {isSpooky ? "Grimoire" : "Reviewer"}
+          </span>
+          <div className={`p-1 rounded-full bg-black/5 ${isSpooky ? "text-purple-300" : "text-[#171d2b]"}`}>
+            <GripVertical size={14} />
+          </div>
+        </div>
+        
+        <h3 className={`font-sans font-semibold text-sm mb-4 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+          Advanced Potions & Spells
+        </h3>
+
+        {/* Dropdown */}
+        <div className={`absolute -right-12 -bottom-12 w-48 rounded-lg shadow-xl border py-1 z-50 ${
+          isSpooky ? "bg-[#151821] border-purple-500/20" : "bg-white border-[#171d2b]/10"
+        }`}>
+          <button className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 ${
+            isSpooky ? "text-purple-200 bg-purple-500/10" : "text-[#171d2b] bg-[#171d2b]/5"
+          }`}>
+            <ScanLine size={14} />
+            {isSpooky ? "Share Curse" : "Share"}
+          </button>
+          <button className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 ${
+            isSpooky ? "text-purple-200 hover:bg-purple-500/10" : "text-[#171d2b] hover:bg-[#171d2b]/5"
+          }`}>
+            <Trash2 size={14} />
+            {isSpooky ? "Banish" : "Delete"}
+          </button>
+        </div>
+
+        {/* Cursor */}
+        <div className="absolute -right-4 -bottom-4 pointer-events-none">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5.65376 12.3673H5.46026L5.31717 12.4976L0.500002 16.8829L0.500002 1.19179L23.0216 12.3673H5.65376Z" fill={isSpooky ? "#a855f7" : "#171d2b"} stroke="white"/>
+          </svg>
+        </div>
+      </div>
+    </div>
   );
 }

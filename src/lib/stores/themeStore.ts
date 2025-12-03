@@ -17,7 +17,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
     persist(
         (set, get) => ({
-            theme: "normal",
+            theme: "spooky",
             soundEnabled: false,
             setTheme: (theme) => set({ theme }),
             toggleTheme: () => set({ theme: get().theme === "normal" ? "spooky" : "normal" }),

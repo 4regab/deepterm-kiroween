@@ -1,15 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import {
-  imgSpark,
-  imgVector,
-  imgAiRobustness1,
-  imgGamesvg,
-  imgLogo,
-} from "@/config/assets";
+import { imgLogo } from "@/config/assets";
 import Header from "@/components/Header";
-import DraggablePlanet from "@/components/DraggablePlanet";
 import FeaturesShowcase from "@/components/FeaturesShowcase";
 import BackgroundPaths from "@/components/BackgroundPaths";
 import { PublicPageWrapper } from "@/components/SpookyTheme";
@@ -20,8 +13,6 @@ const imgPlanet2 = "/assets/planet2.webp";
 const imgPlanet1 = "/assets/planet1.webp";
 const imgSpookyPlanet1 = "/assets/splanet1.webp";
 const imgSpookyPlanet2 = "/assets/splanet2.webp";
-const imgStudyart1 = "/assets/studyart.webp";
-const imgHeroSpooky = "/assets/herospooky.png";
 
 export default function Home() {
   const theme = useThemeStore((state) => state.theme);
@@ -34,104 +25,130 @@ export default function Home() {
     <PublicPageWrapper>
       <div className="relative max-w-[1440px] min-h-screen mx-auto">
         <BackgroundPaths isSpooky={isSpooky} />
-        <Header className="!mt-1 sm:!mt-2" />
+        <Header className="!mt-4 sm:!mt-5 lg:!mt-6" />
 
         {/* Hero Section */}
-        <section className={`relative z-10 mx-auto mt-20 rounded-[30px] sm:rounded-[50px] overflow-hidden w-[96%] sm:w-[92%] lg:w-[80%] ${isSpooky ? "border border-purple-500/20" : ""}`}>
-          {/* Background - hero image */}
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: isSpooky ? "none" : "url('/assets/herobg.webp')" }}
-          />
-          {/* Dark overlay for text readability */}
-          <div className={`absolute inset-0 ${isSpooky ? "bg-gradient-to-br from-purple-900/90 via-[#1a1025] to-[#0d0f14]" : "bg-[#171d2b]/60"}`} />
+        <section className="relative z-10 mx-auto pt-6 sm:pt-8 lg:pt-10 pb-0 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center overflow-visible">
+          {/* Planet positioned top-left - Large decorative element */}
+          <div className="absolute -left-[30px] sm:-left-[50px] lg:-left-[60px] top-[-5%] sm:top-[-2%] w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] lg:w-[220px] lg:h-[220px] z-0 pointer-events-none">
+            <Image
+              alt=""
+              src={planet2Src}
+              fill
+              className="object-contain"
+              style={{ transform: "rotate(10deg)" }}
+              unoptimized
+            />
+          </div>
 
-          <div className="relative flex flex-col md:flex-row items-center justify-between px-4 sm:px-6 py-2 sm:py-4 lg:py-6 gap-4 sm:gap-6">
-            {/* Hero Text Content */}
-            <div className="flex flex-col gap-3 sm:gap-4 max-w-[400px] md:max-w-[500px] lg:max-w-[640px] z-10 text-center md:text-left relative">
-              <h1
-                className="[text-shadow:rgba(0,0,0,0.25)_0px_4px_4px] text-[36px] sm:text-[48px] lg:text-[68px] text-white leading-[1.1] m-0"
-                style={{ fontFamily: '"Source Serif 4", serif', fontWeight: 400, fontOpticalSizing: 'auto' }}
+          {/* Planet positioned bottom-right - Large decorative element */}
+          <div className="absolute -right-[20px] sm:-right-[40px] lg:-right-[50px] bottom-[-10%] sm:bottom-[-5%] w-[120px] h-[120px] sm:w-[160px] sm:h-[160px] lg:w-[200px] lg:h-[200px] z-0 pointer-events-none">
+            <Image
+              alt=""
+              src={planet1Src}
+              fill
+              className="object-contain"
+              style={{ transform: "rotate(-15deg)" }}
+              unoptimized
+            />
+          </div>
+
+          {/* Main Hero Content */}
+          <div className="relative z-10 text-center max-w-[900px] lg:max-w-[1100px] mx-auto">
+            {/* Main Headline - Creative Typography */}
+            <h1 className="relative mb-4 sm:mb-5">
+              {isSpooky ? (
+                <>
+                  <span
+                    className="block text-[44px] sm:text-[64px] lg:text-[88px] xl:text-[110px] leading-[1.2] tracking-tight text-purple-100"
+                    style={{ fontFamily: '"Source Serif 4", serif', fontWeight: 400 }}
+                  >
+                    Ghost your
+                  </span>
+                  <span
+                    className="inline-block text-[48px] sm:text-[72px] lg:text-[100px] xl:text-[130px] leading-[1.3] tracking-tight text-purple-400"
+                    style={{ fontFamily: '"Source Serif 4", serif', fontWeight: 400, fontStyle: 'italic' }}
+                  >
+                    bad grades
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span
+                    className="block text-[44px] sm:text-[64px] lg:text-[88px] xl:text-[110px] leading-[1.2] tracking-tight text-[#171d2b]"
+                    style={{ fontFamily: '"Source Serif 4", serif', fontWeight: 400 }}
+                  >
+                    Study smarter
+                  </span>
+                  <span
+                    className="inline-block text-[48px] sm:text-[72px] lg:text-[100px] xl:text-[130px] leading-[1.3] tracking-tight text-[#171d2b]"
+                    style={{ fontFamily: '"Source Serif 4", serif', fontWeight: 400, fontStyle: 'italic' }}
+                  >
+                    not harder
+                  </span>
+                </>
+              )}
+            </h1>
+
+            {/* Subheadline */}
+            <p className={`font-sans text-[15px] sm:text-[17px] lg:text-[18px] leading-[1.6] max-w-[520px] mx-auto mb-5 sm:mb-6 ${isSpooky ? "text-purple-300/80" : "text-[#171d2b]/70"}`}>
+              {isSpooky
+                ? "Summon AI to transform your study materials into reviewer notes, flashcards, practice tests, and study guides."
+                : "Transform your PDFs into reviewer notes, flashcards, practice tests, and interactive study materials with AI."
+              }
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-5 sm:mb-6">
+              <a
+                href="/auth/callback"
+                className={`group relative h-[52px] sm:h-[56px] rounded-full px-8 sm:px-10 font-sora text-[15px] sm:text-[16px] font-medium transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02] ${isSpooky ? "bg-purple-600 text-white hover:bg-purple-500" : "bg-[#171d2b] text-white hover:bg-[#2a3347]"}`}
               >
-                {isSpooky ? (
-                  <>
-                    <span className="sm:whitespace-nowrap">Ghost your bad</span>
-                    <br />
-                    <span className="sm:whitespace-nowrap">grades <span className="italic">forever.</span></span>
-                  </>
-                ) : (
-                  <>
-                    <span className="sm:whitespace-nowrap">Study tools that</span>
-                    <br />
-                    <span className="sm:whitespace-nowrap">works <span className="italic">for</span> you.</span>
-                  </>
-                )}
-              </h1>
-              <p className="font-sans font-normal leading-[1.5] text-[15px] sm:text-[18px] lg:text-[20px] text-white/90 max-w-[380px] md:max-w-[500px] m-0 mx-auto md:mx-0">
-                {isSpooky
-                  ? "Stop doomscrolling. Summon AI to cook your notes, craft goated practice tests, and slay your exams. No cap."
-                  : "We use latest AI to simplify complex topics, generate personalized practice tests, and interactive aids all in minutes."
-                }
-              </p>
+                Start Learning Free
+                <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
+              <a
+                href="https://github.com/4regab/deepterm"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`h-[52px] sm:h-[56px] rounded-full px-8 sm:px-10 font-sora text-[15px] sm:text-[16px] font-medium transition-all duration-300 flex items-center gap-2 border-2 hover:scale-[1.02] ${isSpooky ? "border-purple-500/30 text-purple-200 hover:bg-purple-500/10" : "border-[#171d2b]/20 text-[#171d2b] hover:bg-[#171d2b]/5"}`}
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /></svg>
+                View on GitHub
+              </a>
             </div>
 
-            {/* Study Art Image */}
-            <div className="relative h-[220px] sm:h-[300px] lg:h-[400px] rounded-[16px] sm:rounded-[24px] w-full md:w-[380px] lg:w-[580px] overflow-hidden flex-shrink-0 shadow-2xl">
-              <div className="group w-full h-full">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  alt="Study Art"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  src={isSpooky ? imgHeroSpooky : imgStudyart1}
-                />
+            {/* Features Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${isSpooky ? "bg-purple-500/10" : "bg-[#171d2b]/5"}`}>
+                <svg className={`w-3.5 h-3.5 ${isSpooky ? "text-purple-400" : "text-[#171d2b]/60"}`} fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                </svg>
+                <span className={`font-sans text-[11px] sm:text-[12px] ${isSpooky ? "text-purple-300" : "text-[#171d2b]/70"}`}>{isSpooky ? "AI Sorcery" : "AI-Powered"}</span>
+              </div>
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${isSpooky ? "bg-purple-500/10" : "bg-[#171d2b]/5"}`}>
+                <svg className={`w-3.5 h-3.5 ${isSpooky ? "text-purple-400" : "text-[#171d2b]/60"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className={`font-sans text-[11px] sm:text-[12px] ${isSpooky ? "text-purple-300" : "text-[#171d2b]/70"}`}>{isSpooky ? "Free Forever" : "100% Free"}</span>
+              </div>
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${isSpooky ? "bg-purple-500/10" : "bg-[#171d2b]/5"}`}>
+                <svg className={`w-3.5 h-3.5 ${isSpooky ? "text-purple-400" : "text-[#171d2b]/60"}`} fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                </svg>
+                <span className={`font-sans text-[11px] sm:text-[12px] ${isSpooky ? "text-purple-300" : "text-[#171d2b]/70"}`}>{isSpooky ? "Open Source" : "Open Source"}</span>
+              </div>
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${isSpooky ? "bg-purple-500/10" : "bg-[#171d2b]/5"}`}>
+                <svg className={`w-3.5 h-3.5 ${isSpooky ? "text-purple-400" : "text-[#171d2b]/60"}`} fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+                </svg>
+                <span className={`font-sans text-[11px] sm:text-[12px] ${isSpooky ? "text-purple-300" : "text-[#171d2b]/70"}`}>{isSpooky ? "XP Grind" : "Gamified"}</span>
               </div>
             </div>
           </div>
-
-          {/* Features Bar */}
-          <div className="relative flex flex-wrap items-center justify-center gap-2 sm:gap-6 py-2 sm:py-3 px-3">
-            <div className="flex items-center gap-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt="" className="w-[14px] h-[14px] sm:w-[16px] sm:h-[16px]" src={imgSpark} />
-              <span className="font-sans text-[12px] sm:text-[14px] text-white">{isSpooky ? "AI Sorcery" : "AI-Powered"}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt="" className="w-[12px] h-[14px] sm:w-[14px] sm:h-[16px] rotate-[36deg]" src={imgVector} />
-              <span className="font-sans text-[12px] sm:text-[14px] text-white">{isSpooky ? "Open Source" : "Free to Use"}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt="" className="w-[18px] h-[10px] sm:w-[20px] sm:h-[12px]" src={imgAiRobustness1} />
-              <span className="font-sans text-[12px] sm:text-[14px] text-white">{isSpooky ? "Big Brain Mode" : "Open Source"}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt="" className="w-[14px] h-[10px] sm:w-[16px] sm:h-[12px]" src={imgGamesvg} />
-              <span className="font-sans text-[12px] sm:text-[14px] text-white">{isSpooky ? "XP Grind" : "Gamified"}</span>
-            </div>
-          </div>
         </section>
-
-        {/* Planet Decorations - hidden on mobile/tablet, only visible on lg+ */}
-        <DraggablePlanet
-          src={planet2Src}
-          defaultX={0}
-          defaultY={650}
-          size="w-[200px] h-[200px]"
-          mdSize="lg:w-[280px] lg:h-[280px]"
-          rotation={76}
-          blur={0}
-        />
-        <DraggablePlanet
-          src={planet1Src}
-          defaultX={1250}
-          defaultY={1550}
-          size="w-[180px] h-[180px]"
-          mdSize="lg:w-[250px] lg:h-[250px]"
-          rotation={301}
-          blur={0}
-        />
 
         {/* How Our Tools Work Section - GSAP Animated */}
         <FeaturesShowcase />
@@ -340,7 +357,7 @@ export default function Home() {
 
               {/* Company Links */}
               <div>
-                <h4 className={`font-sora text-[13px] sm:text-[14px] mb-2 sm:mb-3 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>Company</h4>
+                <h4 className={`font-sora text-[13px] sm:text-[14px] mb-2 sm:mb-3 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>Resources</h4>
                 <ul className="flex flex-col gap-1.5 sm:gap-2">
                   <li><a href="/help#about" className={`font-sans text-[12px] sm:text-[13px] transition-colors ${isSpooky ? "text-purple-300/60 hover:text-purple-100" : "text-[#171d2b]/60 hover:text-[#171d2b]"}`}>About</a></li>
                   <li><a href="/help" className={`font-sans text-[12px] sm:text-[13px] transition-colors ${isSpooky ? "text-purple-300/60 hover:text-purple-100" : "text-[#171d2b]/60 hover:text-[#171d2b]"}`}>Help Center</a></li>

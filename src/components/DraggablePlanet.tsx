@@ -4,8 +4,8 @@ import Image from "next/image";
 
 interface DraggablePlanetProps {
   src: string;
-  defaultX: number;
-  defaultY: number;
+  position: "left" | "right";
+  topOffset: string;
   size: string;
   mdSize: string;
   rotation: number;
@@ -14,20 +14,21 @@ interface DraggablePlanetProps {
 
 export default function DraggablePlanet({
   src,
-  defaultX,
-  defaultY,
+  position,
+  topOffset,
   size,
   mdSize,
   rotation,
   blur,
 }: DraggablePlanetProps) {
+  const positionClasses = position === "left" 
+    ? "-left-[60px] lg:-left-[80px]" 
+    : "-right-[60px] lg:-right-[80px]";
+
   return (
     <div
-      className={`hidden lg:block absolute ${size} ${mdSize} z-0 select-none pointer-events-none`}
-      style={{
-        left: defaultX,
-        top: defaultY,
-      }}
+      className={`hidden lg:block fixed ${size} ${mdSize} ${positionClasses} z-0 select-none pointer-events-none overflow-hidden`}
+      style={{ top: topOffset }}
     >
       <div
         className="relative w-full h-full"

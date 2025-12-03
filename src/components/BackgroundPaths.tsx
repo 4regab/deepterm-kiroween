@@ -88,9 +88,8 @@ export default function BackgroundPaths({ isSpooky }: { isSpooky?: boolean }) {
 
   return (
     <div
-      className="absolute top-0 left-0 right-0 bottom-0 overflow-visible pointer-events-auto z-0"
-      style={{ height: "100%" }}
-      onMouseMove={handleMouseMove}
+      className="fixed inset-0 overflow-hidden pointer-events-none z-0"
+      style={{ height: "100vh" }}
     >
       <FloatingPaths position={1} mouseX={mousePos.x} mouseY={mousePos.y} isSpooky={isSpooky} />
     </div>
