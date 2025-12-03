@@ -6,7 +6,6 @@
 -- WARNING: This will restrict ALL data access to authenticated users only
 -- Backup your data before running in production
 -- ============================================================
--- SECURITY FIXES APPLIED (2025-12-01):
 -- VULN-001: material_shares - removed anonymous access (HIGH)
 -- VULN-002: unlimited_users - removed public access (HIGH)
 -- Added secure RPC functions for share access
@@ -458,7 +457,6 @@ CREATE POLICY "Users can update own quiz_attempts" ON quiz_attempts
     WITH CHECK ((select auth.uid()) = user_id);
 
 -- ------------------------------------------------------------
--- MATERIAL_SHARES (SECURITY FIX - CRITICAL)
 -- Only owners can manage their shares. No anonymous access.
 -- Share code validation happens via secure RPC function.
 -- ------------------------------------------------------------
@@ -480,7 +478,6 @@ CREATE POLICY "Users can delete own material_shares" ON material_shares
     USING ((select auth.uid()) = user_id);
 
 -- ------------------------------------------------------------
--- UNLIMITED_USERS (SECURITY FIX - HIGH)
 -- Only users can check their own premium status.
 -- ------------------------------------------------------------
 CREATE POLICY "Users can check own unlimited status" ON unlimited_users

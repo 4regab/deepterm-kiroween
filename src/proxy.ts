@@ -1,10 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-// Allowed origins for CORS (SECURITY FIX - CWE-942)
+// Allowed origins for CORS 
 const ALLOWED_ORIGINS = [
-  'https://deepterm.tech',
-  'https://www.deepterm.tech',
+  'https://deepterm.me',
+  'https://www.deepterm.me',
 ]
 
 // Routes that require authentication
@@ -38,7 +38,6 @@ export async function proxy(request: NextRequest) {
     },
   })
 
-  // CORS: Only allow trusted origins (SECURITY FIX)
   if (origin && ALLOWED_ORIGINS.includes(origin)) {
     response.headers.set('Access-Control-Allow-Origin', origin)
     response.headers.set('Access-Control-Allow-Credentials', 'true')

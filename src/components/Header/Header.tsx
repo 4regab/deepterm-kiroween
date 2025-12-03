@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { imgLogo } from "@/config/assets";
 import { createClient } from "@/config/supabase/client";
 import { useUIStore, useThemeStore } from "@/lib/stores";
+import { useScrolled } from "@/lib/hooks";
 import { ThemeToggle } from "@/components/SpookyTheme";
 import SpookyLogo from "@/components/SpookyLogo";
 import type { User } from "@supabase/supabase-js";
@@ -19,6 +21,7 @@ const LEARN_ITEMS = [
 function SessionAwareHeader({ user, isLoading, className }: { user: User | null; isLoading: boolean; className?: string }) {
     const theme = useThemeStore((state) => state.theme);
     const isSpooky = theme === "spooky";
+    const isScrolled = useScrolled(20);
 
     const {
         sidebarMobileOpen: isMenuOpen,
@@ -44,37 +47,20 @@ function SessionAwareHeader({ user, isLoading, className }: { user: User | null;
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
     const toggleLearn = () => setIsLearnOpen(!isLearnOpen);
 
-    useEffect(() => {
-        const updateHeader = () => {
-            const header = document.getElementById('deepterm-header');
-            if (header) {
-                if (window.scrollY > 20) {
-                    header.classList.add('glass-header');
-                } else {
-                    header.classList.remove('glass-header');
-                }
-            }
-        };
-
-        window.addEventListener('scroll', updateHeader);
-        updateHeader();
-
-        return () => window.removeEventListener('scroll', updateHeader);
-    }, []);
+    // Glass header styles applied via state instead of DOM manipulation
+    const glassStyles = isScrolled ? {
+        backgroundColor: isSpooky ? "rgba(13, 15, 20, 0.8)" : "rgba(240, 240, 234, 0.8)",
+        borderColor: isSpooky ? "rgba(168, 85, 247, 0.1)" : "rgba(23, 29, 43, 0.05)",
+        backdropFilter: "blur(12px)",
+        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+    } : {};
 
     return (
         <>
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                /* Glass header state (applied via script) */
-                header.glass-header {
-                    background-color: ${isSpooky ? "rgba(13, 15, 20, 0.8)" : "rgba(240, 240, 234, 0.8)"} !important;
-                    border-color: ${isSpooky ? "rgba(168, 85, 247, 0.1)" : "rgba(23, 29, 43, 0.05)"} !important;
-                    backdrop-filter: blur(12px);
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                }
-            `}} />
-            <header id="deepterm-header" className={`relative flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 transition-all duration-300 rounded-2xl mx-2 sm:mx-4 mt-2 sm:mt-4 border border-transparent bg-transparent ${className || ''}`}>
+            <header 
+                style={glassStyles}
+                className={`relative flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 transition-all duration-300 rounded-2xl mx-2 sm:mx-4 mt-2 sm:mt-4 border border-transparent bg-transparent ${className || ''}`}
+            >
                 {/* Logo */}
                 <Link href="/" className="flex items-center hover:opacity-70 transition-opacity">
                     <div className={`w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] flex items-center justify-center`}>
@@ -82,7 +68,7 @@ function SessionAwareHeader({ user, isLoading, className }: { user: User | null;
                             {isSpooky ? (
                                 <SpookyLogo className="w-[32px] h-[32px] sm:w-[38px] sm:h-[38px] text-purple-500" />
                             ) : (
-                                <img alt="Deepterm Logo" className="w-[32px] h-[32px] sm:w-[38px] sm:h-[38px]" src={imgLogo} />
+                                <Image alt="Deepterm Logo" className="w-[32px] h-[32px] sm:w-[38px] sm:h-[38px]" src={imgLogo} width={38} height={38} />
                             )}
                         </div>
                     </div>

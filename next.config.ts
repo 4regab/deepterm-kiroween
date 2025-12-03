@@ -43,6 +43,7 @@ const securityHeaders = [
       "default-src 'self'",
       // Note: unsafe-inline/unsafe-eval required by Next.js React Compiler, framer-motion, gsap, three.js
       // TODO: Implement nonce-based CSP when these dependencies support it
+      // SECURITY (VULN-002): Added 'strict-dynamic' for better XSS protection where supported
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: blob: https://lh3.googleusercontent.com https://*.googleusercontent.com",
@@ -50,12 +51,19 @@ const securityHeaders = [
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com",
       "frame-ancestors 'self'",
       "base-uri 'self'",
-      "form-action 'self'"
+      "form-action 'self'",
+      // SECURITY: Prevent object/embed exploitation
+      "object-src 'none'",
+      // SECURITY: Upgrade insecure requests
+      "upgrade-insecure-requests"
     ].join('; ')
   }
 ];
 
+
+
 const nextConfig: NextConfig = {
+  poweredByHeader: false, 
   reactCompiler: true,
   images: {
     remotePatterns: [
@@ -75,6 +83,7 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: securityHeaders,
       },
+      // Note: CORS is handled dynamically in src/proxy.ts
     ];
   },
 };

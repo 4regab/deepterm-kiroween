@@ -1,6 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/config/supabase/server'
 
+export async function GET() {
+  return NextResponse.json({ error: 'Method not allowed' }, { status: 405 })
+}
+
+export async function PUT() {
+  return NextResponse.json({ error: 'Method not allowed' }, { status: 405 })
+}
+
+export async function DELETE() {
+  return NextResponse.json({ error: 'Method not allowed' }, { status: 405 })
+}
+
+const DAILY_COPY_LIMIT = 20
+
+async function checkCopyRateLimit(supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>, userId: string): Promise<{ allowed: boolean; remaining: number }> {
+  const today = new Date().toISOString().split('T')[0]
+  
+  // Count copies made today by checking materials created with " (Copy)" suffix
+  const { count: flashcardCopies } = await supabase
+    .from('flashcard_sets')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .like('title', '% (Copy)')
+    .gte('created_at', `${today}T00:00:00Z`)
+  
+  const { count: reviewerCopies } = await supabase
+    .from('reviewers')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .like('title', '% (Copy)')
+    .gte('created_at', `${today}T00:00:00Z`)
+  
+  const totalCopies = (flashcardCopies || 0) + (reviewerCopies || 0)
+  const remaining = Math.max(0, DAILY_COPY_LIMIT - totalCopies)
+  
+  return { allowed: totalCopies < DAILY_COPY_LIMIT, remaining }
+}
+
 // POST - Copy shared material to user's collection
 export async function POST(request: NextRequest) {
   const supabase = await createServerSupabaseClient()
@@ -10,10 +48,29 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { shareCode } = await request.json()
+  const rateLimit = await checkCopyRateLimit(supabase, user.id)
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ 
+      error: `Daily copy limit reached (${DAILY_COPY_LIMIT}/day)`,
+      remaining: rateLimit.remaining
+    }, { status: 429 })
+  }
+
+  let shareCode: string
+  try {
+    const body = await request.json()
+    shareCode = body.shareCode
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  }
   
-  if (!shareCode) {
+  if (!shareCode || typeof shareCode !== 'string') {
     return NextResponse.json({ error: 'Missing shareCode' }, { status: 400 })
+  }
+  
+  // Validate shareCode format to prevent injection
+  if (!/^[a-zA-Z0-9-]+$/.test(shareCode) || shareCode.length > 50) {
+    return NextResponse.json({ error: 'Invalid shareCode format' }, { status: 400 })
   }
 
   // Get shared material data using the RPC function

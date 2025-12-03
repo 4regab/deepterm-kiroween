@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   imgSpark,
   imgVector,
@@ -326,7 +327,7 @@ export default function Home() {
                       {isSpooky ? (
                         <SpookyLogo className="w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] text-purple-500" />
                       ) : (
-                        <img alt="Deepterm Logo" className="w-[22px] h-[22px] sm:w-[26px] sm:h-[26px]" src={imgLogo} />
+                        <Image alt="Deepterm Logo" className="w-[22px] h-[22px] sm:w-[26px] sm:h-[26px]" src={imgLogo} width={26} height={26} />
                       )}
                     </div>
                   </div>

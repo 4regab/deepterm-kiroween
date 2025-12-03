@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { imgLogo } from "@/config/assets";
@@ -118,7 +119,7 @@ export default function SpookySidebar() {
                                 {isSpooky ? (
                                     <SpookyLogo className="w-[26px] h-[26px] text-purple-500" />
                                 ) : (
-                                    <img alt="Deepterm Logo" className="w-[26px] h-[26px]" src={imgLogo} />
+                                    <Image alt="Deepterm Logo" className="w-[26px] h-[26px]" src={imgLogo} width={26} height={26} />
                                 )}
                             </div>
                         </div>

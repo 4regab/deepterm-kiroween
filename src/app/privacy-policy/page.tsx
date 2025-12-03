@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { imgLogo } from "@/config/assets";
 import SpookyLogo from "@/components/SpookyLogo";
@@ -23,7 +24,7 @@ export default function PrivacyPolicyPage() {
                   {isSpooky ? (
                     <SpookyLogo className="w-[22px] h-[22px] text-purple-500" />
                   ) : (
-                    <img alt="Deepterm Logo" className="w-[22px] h-[22px]" src={imgLogo} />
+                    <Image alt="Deepterm Logo" className="w-[22px] h-[22px]" src={imgLogo} width={22} height={22} />
                   )}
                 </div>
               </div>

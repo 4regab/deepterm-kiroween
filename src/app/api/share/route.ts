@@ -123,7 +123,8 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Share creation error:', error.message, error.code)
+    return NextResponse.json({ error: 'Failed to create share. Please try again.' }, { status: 500 })
   }
 
   return NextResponse.json({ share }, { status: 201 })
