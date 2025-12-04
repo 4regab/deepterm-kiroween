@@ -12,6 +12,7 @@ import { createClient } from "@/config/supabase/client";
 import { useXPStore, useThemeStore, useStudySettingsStore } from "@/lib/stores";
 import { addXP, recordStudyActivity, updateFlashcardStatus, XP_REWARDS } from "@/services/activity";
 import { DarkStudyMode, GhostIcon, PumpkinIcon } from "@/components/SpookyTheme/FlashlightEffect";
+import SurvivalModeOverlay, { SurvivalTimer } from "@/components/SurvivalModeOverlay";
 
 type QuestionType = "multipleChoice" | "trueFalse" | "fillBlank";
 
@@ -109,9 +110,15 @@ export default function PracticePage() {
     const [showSettings, setShowSettings] = useState(false);
     
     // Use Zustand store for settings - reactive updates
-    const settings = useStudySettingsStore((state) => state.practiceSettings);
+    const rawSettings = useStudySettingsStore((state) => state.practiceSettings);
     const settingsVersion = useStudySettingsStore((state) => state.settingsVersion);
     const [lastSettingsVersion, setLastSettingsVersion] = useState(settingsVersion);
+    
+    // Ensure survivalMode has defaults (handles migration from old persisted state)
+    const settings = {
+        ...rawSettings,
+        survivalMode: rawSettings.survivalMode ?? { enabled: false, timePerQuestion: 10 },
+    };
 
     const fetchCards = useCallback(async () => {
         // Fetch XP stats for display
@@ -145,6 +152,11 @@ export default function PracticePage() {
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const [finalXpEarned, setFinalXpEarned] = useState(0);
     
+    // Survival mode state
+    const [survivalTimeLeft, setSurvivalTimeLeft] = useState(0);
+    const survivalTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const [survivalEnded, setSurvivalEnded] = useState(false);
+    
     // Rebuild questions when settings change during "take" stage (reactive)
     if (settingsVersion !== lastSettingsVersion && stage === "take" && flashcardData.length > 0) {
         setLastSettingsVersion(settingsVersion);
@@ -154,6 +166,74 @@ export default function PracticePage() {
         setCurrentQuestionIndex(0);
         setShowAnswer(false);
         setStreak(0);
+    }
+
+    // Survival mode timer - runs when in take stage and survival mode is enabled
+    const startSurvivalTimer = useCallback(() => {
+        if (survivalTimerRef.current) {
+            clearInterval(survivalTimerRef.current);
+        }
+        setSurvivalTimeLeft(settings.survivalMode.timePerQuestion);
+        survivalTimerRef.current = setInterval(() => {
+            setSurvivalTimeLeft(prev => {
+                if (prev <= 1) {
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    }, [settings.survivalMode.timePerQuestion]);
+
+    // Handle survival mode time up - end session
+    const handleSurvivalTimeUp = useCallback(() => {
+        if (survivalTimerRef.current) {
+            clearInterval(survivalTimerRef.current);
+            survivalTimerRef.current = null;
+        }
+        setSurvivalEnded(true);
+        
+        // Calculate XP earned so far
+        const correct = questions.filter(q => q.isCorrect).length;
+        const xpEarned = correct * XP_REWARDS.FLASHCARD_CORRECT;
+        setFinalXpEarned(xpEarned);
+        
+        const persistResults = async () => {
+            if (xpEarned > 0) {
+                await addXP(xpEarned);
+                useXPStore.getState().fetchXPStats();
+            }
+            await recordStudyActivity({ quizzes: 1 });
+        };
+        persistResults();
+        
+        setStage("results");
+    }, [questions]);
+
+    // Reset survival timer when question changes
+    const resetSurvivalTimerForNewQuestion = useCallback(() => {
+        if (settings.survivalMode.enabled && stage === "take" && !showAnswer) {
+            startSurvivalTimer();
+        }
+    }, [settings.survivalMode.enabled, stage, showAnswer, startSurvivalTimer]);
+
+    // Stop survival timer when answer is shown
+    const stopSurvivalTimer = useCallback(() => {
+        if (survivalTimerRef.current) {
+            clearInterval(survivalTimerRef.current);
+            survivalTimerRef.current = null;
+        }
+    }, []);
+
+    // Start survival timer when entering take stage
+    // Using a ref to track if we've started the timer for this session
+    const survivalStartedRef = useRef(false);
+    if (stage === "take" && settings.survivalMode.enabled && !survivalStartedRef.current && !showAnswer) {
+        survivalStartedRef.current = true;
+        startSurvivalTimer();
+    }
+    // Reset the ref when leaving take stage
+    if (stage !== "take" && survivalStartedRef.current) {
+        survivalStartedRef.current = false;
     }
 
     const handleSettingsSave = () => {
@@ -169,6 +249,11 @@ export default function PracticePage() {
             setCurrentQuestionIndex(0);
             setShowAnswer(false);
             setStreak(0);
+            setSurvivalEnded(false);
+            // Initialize survival timer if enabled
+            if (currentSettings.survivalMode.enabled) {
+                setSurvivalTimeLeft(currentSettings.survivalMode.timePerQuestion);
+            }
             setStage("take");
         }, 1500);
     };
@@ -189,7 +274,17 @@ export default function PracticePage() {
         }
         if (currentQuestionIndex < questions.length - 1) {
             setCurrentQuestionIndex(prev => prev + 1);
+            // Reset survival timer for next question
+            if (settings.survivalMode.enabled) {
+                setSurvivalTimeLeft(settings.survivalMode.timePerQuestion);
+                startSurvivalTimer();
+            }
         } else {
+            // Stop survival timer
+            if (survivalTimerRef.current) {
+                clearInterval(survivalTimerRef.current);
+                survivalTimerRef.current = null;
+            }
             // Persist XP at moment of completion (not during render)
             const correct = questions.filter(q => q.isCorrect).length;
             const xpEarned = correct * XP_REWARDS.FLASHCARD_CORRECT;
@@ -206,9 +301,15 @@ export default function PracticePage() {
             
             setStage("results");
         }
-    }, [currentQuestionIndex, questions]);
+    }, [currentQuestionIndex, questions, settings.survivalMode.enabled, settings.survivalMode.timePerQuestion, startSurvivalTimer]);
 
     const handleAnswer = useCallback(async (answer: string) => {
+        // Stop survival timer when answering
+        if (survivalTimerRef.current) {
+            clearInterval(survivalTimerRef.current);
+            survivalTimerRef.current = null;
+        }
+        
         const updated = [...questions];
         updated[currentQuestionIndex].userAnswer = answer;
         const current = updated[currentQuestionIndex];
@@ -260,6 +361,13 @@ export default function PracticePage() {
     }, [questions, currentQuestionIndex, flashcardData, streak, settings.autoNextAfterAnswer, settings.autoNextDuration, nextQuestion]);
 
     const startOver = () => {
+        // Stop any existing survival timer
+        if (survivalTimerRef.current) {
+            clearInterval(survivalTimerRef.current);
+            survivalTimerRef.current = null;
+        }
+        setSurvivalEnded(false);
+        
         // Regenerate with current settings
         setStage("generating");
         setTimeout(() => {
@@ -270,6 +378,10 @@ export default function PracticePage() {
             setShowAnswer(false);
             setStreak(0);
             setFinalXpEarned(0);
+            // Reset survival timer if enabled
+            if (settings.survivalMode.enabled) {
+                setSurvivalTimeLeft(settings.survivalMode.timePerQuestion);
+            }
             setStage("take");
         }, 1500);
     };
@@ -373,7 +485,7 @@ export default function PracticePage() {
                 items={resultItems}
                 onContinue={() => router.back()}
                 onTryAgain={startOver}
-                title="Practice test complete, keep going!"
+                title={survivalEnded ? "Time's up! Session ended." : "Practice test complete, keep going!"}
                 hideStudyProgress={true}
                 continueButtonText="Exit"
             />
@@ -389,9 +501,9 @@ export default function PracticePage() {
     }
 
     const content = (
-        <div className={`${bgColor} min-h-screen flex justify-center`}>
+        <div className={`${settings.survivalMode.enabled ? "" : bgColor} min-h-screen flex justify-center relative z-10`}>
             <EncouragementToast message={toastMessage} isVisible={showToast} onClose={() => setShowToast(false)} />
-            <main className="w-full max-w-[900px] px-4 sm:px-8 py-8">
+            <main className="w-full max-w-[900px] px-4 sm:px-8 py-8 relative z-10">
                 <AnimatePresence mode="wait">
                     {/* Config Screen - Shows settings modal */}
                     {stage === "config" && (
@@ -454,7 +566,15 @@ export default function PracticePage() {
 
                     {/* Take Test Screen */}
                     {stage === "take" && currentQuestion && (
-                        <motion.div key="take" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
+                        <motion.div key="take" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={`space-y-6 ${settings.survivalMode.enabled ? "survival-shake" : ""}`}>
+                            {/* Survival Mode Overlay */}
+                            <SurvivalModeOverlay
+                                enabled={settings.survivalMode.enabled}
+                                timeLeft={survivalTimeLeft}
+                                maxTime={settings.survivalMode.timePerQuestion}
+                                onTimeUp={handleSurvivalTimeUp}
+                                isPaused={showAnswer || showSettings || showExitPopup}
+                            />
                             <ExitPopup isOpen={showExitPopup} onClose={() => setShowExitPopup(false)} onExit={() => { setShowExitPopup(false); router.back(); }} xpToLose={questions.filter(q => q.isCorrect).length * XP_REWARDS.FLASHCARD_CORRECT} currentLevel={xpStats?.currentLevel || 1} currentXp={xpStats?.xpInLevel || 0} maxXp={xpStats?.xpForNext || 100} nextLevel={(xpStats?.currentLevel || 1) + 1} />
                             <PracticeSettingsModal
                                 isOpen={showSettings}
@@ -465,7 +585,19 @@ export default function PracticePage() {
                             />
                             <div className="flex items-center justify-between mb-4">
                                 <button onClick={() => setShowExitPopup(true)} className={`p-2 rounded-full transition-colors ${isSpooky ? "hover:bg-purple-900/30 text-purple-300" : "hover:bg-[#171d2b]/5"}`}><X size={24} /></button>
-                                <span className={`font-sora font-semibold ${textColor}`}>{isSpooky ? "Dark Ritual" : "Practice Test"}</span>
+                                <div className="flex items-center gap-3">
+                                    <span className={`font-sora font-semibold ${textColor}`}>
+                                        {settings.survivalMode.enabled ? "Survival Mode" : (isSpooky ? "Dark Ritual" : "Practice Test")}
+                                    </span>
+                                    {/* Survival Timer Display */}
+                                    {settings.survivalMode.enabled && !showAnswer && (
+                                        <SurvivalTimer 
+                                            timeLeft={survivalTimeLeft} 
+                                            maxTime={settings.survivalMode.timePerQuestion}
+                                            className="ml-2"
+                                        />
+                                    )}
+                                </div>
                                 <button
                                     onClick={() => setShowSettings(true)}
                                     className={`px-3 sm:px-4 py-2 border rounded-full font-semibold text-xs sm:text-sm transition-colors shadow-sm ${buttonBg} ${buttonHover}`}
@@ -473,7 +605,7 @@ export default function PracticePage() {
                                     {isSpooky ? "Rituals" : "Options"}
                                 </button>
                             </div>
-                            <AnimatedProgress value={currentQuestionIndex + 1} total={questions.length} color={isSpooky ? "#a855f7" : "#171d2b"} />
+                            <AnimatedProgress value={currentQuestionIndex + 1} total={questions.length} color={settings.survivalMode.enabled ? "#ef4444" : (isSpooky ? "#a855f7" : "#171d2b")} />
 
                             {/* Question Card */}
                             <div className={`rounded-3xl shadow-sm border p-8 min-h-[200px] flex flex-col mb-6 ${cardBg} ${isSpooky ? "border-purple-500/20" : "border-gray-100"}`}>
@@ -666,8 +798,14 @@ export default function PracticePage() {
         </div>
     );
 
+    // DarkStudyMode (pitch black room) conditions:
+    // - Only enabled in spooky theme
+    // - Only during "take" stage (not config/generating/results)
+    // - Disabled when survival mode is enabled (survival has its own effects)
+    const isDarkModeActive = isSpooky && stage === "take" && !settings.survivalMode.enabled;
+
     return (
-        <DarkStudyMode enabled={isSpooky}>
+        <DarkStudyMode enabled={isDarkModeActive}>
             {content}
         </DarkStudyMode>
     );

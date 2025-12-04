@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useUIStore, useThemeStore } from "@/lib/stores";
 import PomodoroNotification from "@/components/PomodoroNotification";
+import TaskReminderNotification from "@/components/TaskReminderNotification";
 import { ThemeProvider, SpookyEffects, SpookyAmbientSound } from "@/components/SpookyTheme";
 
 // Dynamic import for Sidebar
@@ -51,6 +52,7 @@ export default function DashboardLayout({
                 <SpookyAmbientSound />
                 
                 <PomodoroNotification />
+                <TaskReminderNotification />
                 {!isStudyMode && (
                     <Suspense fallback={<SidebarSkeleton />}>
                         <Sidebar />

@@ -181,8 +181,9 @@ export function DarkStudyMode({
             {children}
             
             {/* PITCH BLACK overlay - only flashlight reveals content */}
+            {/* z-[45] allows modals (z-50) to appear above the darkness */}
             <div 
-                className="fixed inset-0 pointer-events-none z-[100]"
+                className="fixed inset-0 pointer-events-none z-[45]"
                 style={{
                     background: hasInteracted 
                         ? `radial-gradient(circle ${flashlightSize}px at ${mousePos.x}px ${mousePos.y}px, 
@@ -199,7 +200,7 @@ export function DarkStudyMode({
             {/* Subtle purple glow at flashlight edge */}
             {hasInteracted && (
                 <div 
-                    className="fixed pointer-events-none z-[99]"
+                    className="fixed pointer-events-none z-[44]"
                     style={{
                         left: mousePos.x - flashlightSize,
                         top: mousePos.y - flashlightSize,
@@ -214,7 +215,7 @@ export function DarkStudyMode({
             {/* Flickering effect overlay */}
             {hasInteracted && (
                 <div 
-                    className="fixed inset-0 pointer-events-none z-[98] animate-flicker"
+                    className="fixed inset-0 pointer-events-none z-[43] animate-flicker"
                     style={{
                         background: `radial-gradient(circle ${flashlightSize + 30}px at ${mousePos.x}px ${mousePos.y}px, 
                             rgba(255, 255, 255, 0.015) 0%, 
@@ -224,8 +225,9 @@ export function DarkStudyMode({
             )}
 
             {/* Initial prompt - spooky entrance */}
+            {/* z-[46] so it appears above the darkness but below modals */}
             {!hasInteracted && (
-                <div className="fixed inset-0 flex items-center justify-center z-[101] pointer-events-none bg-black">
+                <div className="fixed inset-0 flex items-center justify-center z-[46] pointer-events-none bg-black">
                     <div className="text-center px-4">
                         <FlashlightIcon className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 text-purple-400 animate-bounce" />
                         <p className="text-purple-300 text-xl sm:text-2xl font-medium animate-pulse mb-2">

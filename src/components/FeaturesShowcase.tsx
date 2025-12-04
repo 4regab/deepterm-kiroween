@@ -9,7 +9,6 @@ import {
   Ghost,
   Zap,
   ScanLine,
-  GraduationCap,
   Plus,
   GripVertical,
   Edit2,
@@ -19,8 +18,7 @@ import {
   Skull,
   Calendar
 } from "lucide-react";
-import { useState, useRef } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -39,8 +37,20 @@ export default function FeaturesShowcase() {
   const isSpooky = theme === "spooky";
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(true); // Default to mobile for SSR
+
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useGSAP(() => {
+    // Skip GSAP horizontal scroll on mobile/tablet - use native vertical scroll instead
+    if (isMobile) return;
+
     const scrollContainer = scrollContainerRef.current;
     const container = containerRef.current;
     if (!scrollContainer || !container) return;
@@ -69,14 +79,24 @@ export default function FeaturesShowcase() {
     });
 
     // Refresh on resize for zoom handling
-    const handleResize = () => ScrollTrigger.refresh();
+    const handleResize = () => {
+      // Kill animation if resized to mobile
+      if (window.innerWidth < 1024) {
+        tween.scrollTrigger?.kill();
+        gsap.set(scrollContainer, { x: 0 });
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+        ScrollTrigger.refresh();
+      }
+    };
     window.addEventListener("resize", handleResize);
     
     return () => {
       window.removeEventListener("resize", handleResize);
       tween.scrollTrigger?.kill();
     };
-  }, { scope: containerRef });
+  }, { scope: containerRef, dependencies: [isMobile] });
 
   const features: Feature[] = [
     {
@@ -123,31 +143,99 @@ export default function FeaturesShowcase() {
     },
   ];
 
-  return (
-    <section ref={containerRef} className="relative min-h-[600px] h-[80vh] max-h-[900px] flex items-center overflow-hidden mt-4 sm:mt-6">
-      {/* Left Side: Sticky Title */}
-      <div className="w-full lg:w-[35%] flex-shrink-0 px-6 lg:pl-16 lg:pr-8 z-10">
-        <h2 className={`font-serif text-4xl md:text-5xl lg:text-6xl leading-[1.1] mb-6 ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
-          What You'll Unlock <br />
-          <span className={isSpooky ? "text-purple-400" : "text-[#171d2b]"} style={{ fontStyle: 'italic' }}>with DeepTerm</span>
-        </h2>
-        <p className={`font-sans text-lg max-w-md ${isSpooky ? "text-gray-400" : "text-[#171d2b]/60"}`}>
-          A complete ecosystem of tools designed to transform your study workflow from chaotic to structured.
-        </p>
-      </div>
+  // Refs for fade-in animations
+  const mobileSectionRef = useRef<HTMLElement>(null);
+  const mobileHeaderRef = useRef<HTMLDivElement>(null);
+  const mobileCardsRef = useRef<HTMLDivElement>(null);
+  const desktopTitleRef = useRef<HTMLDivElement>(null);
 
-      {/* Right Side: Horizontal Scroll Track */}
-      <div className="flex-1 h-full flex items-center overflow-hidden">
-        <div ref={scrollContainerRef} className="flex gap-8 px-8 lg:px-0 py-12">
+  // Fade-in animation for mobile section
+  useGSAP(() => {
+    if (!isMobile) return;
+    
+    // Animate header
+    if (mobileHeaderRef.current) {
+      gsap.fromTo(mobileHeaderRef.current, 
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: mobileHeaderRef.current,
+            start: "top 90%",
+            toggleActions: "play none none none",
+          }
+        }
+      );
+    }
+
+    // Animate cards with stagger
+    if (mobileCardsRef.current) {
+      const cards = mobileCardsRef.current.querySelectorAll('.feature-card');
+      gsap.fromTo(cards, 
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.15,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: mobileCardsRef.current,
+            start: "top 85%",
+            toggleActions: "play none none none",
+          }
+        }
+      );
+    }
+  }, { dependencies: [isMobile] });
+
+  // Fade-in animation for desktop section
+  useGSAP(() => {
+    if (isMobile || !desktopTitleRef.current) return;
+    
+    gsap.fromTo(desktopTitleRef.current,
+      { opacity: 0, x: -40 },
+      {
+        opacity: 1,
+        x: 0,
+        duration: 0.9,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: desktopTitleRef.current,
+          start: "top 85%",
+          toggleActions: "play none none none",
+        }
+      }
+    );
+  }, { dependencies: [isMobile] });
+
+  return (
+    <>
+      {/* Mobile/Tablet: Vertical scroll layout - shown below lg breakpoint */}
+      <section ref={mobileSectionRef} className="lg:hidden relative pt-4 pb-12 sm:pt-6 sm:pb-16 px-4 sm:px-6">
+        {/* Section Header */}
+        <div ref={mobileHeaderRef} className="text-center mb-8 sm:mb-12">
+          <h2 className={`font-serif text-3xl sm:text-4xl md:text-5xl leading-[1.1] mb-4 ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
+            What you&apos;ll unlock <br />
+            <span className={isSpooky ? "text-purple-400" : "text-[#171d2b]"} style={{ fontStyle: 'italic' }}>with Deepterm</span>
+          </h2>
+          <p className={`font-sans text-base sm:text-lg max-w-md mx-auto ${isSpooky ? "text-gray-400" : "text-[#171d2b]/60"}`}>
+            A complete ecosystem of tools designed to transform your study workflow from chaotic to structured.
+          </p>
+        </div>
+
+        {/* Vertical Feature Cards */}
+        <div ref={mobileCardsRef} className="flex flex-col gap-8 sm:gap-10 max-w-2xl mx-auto">
           {features.map((feature) => (
-            <div key={feature.id} className="feature-card w-[85vw] md:w-[600px] lg:w-[700px] flex-shrink-0">
-              <div className="flex flex-col gap-4">
-                {/* Header - Title always visible */}
-                <div className="flex-shrink-0 py-2">
-                  <h3 className={`font-sans font-bold text-xl md:text-2xl ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
-                    {feature.title}
-                  </h3>
-                </div>
+            <div key={feature.id} className="feature-card">
+              <div className="flex flex-col gap-3">
+                {/* Header */}
+                <h3 className={`font-sans font-bold text-lg sm:text-xl ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
+                  {feature.title}
+                </h3>
 
                 {/* Visual Container */}
                 <div className={`w-full aspect-[16/10] rounded-lg overflow-hidden border relative ${
@@ -159,7 +247,7 @@ export default function FeaturesShowcase() {
                 </div>
 
                 {/* Description */}
-                <p className={`font-sans text-sm md:text-base leading-relaxed max-w-2xl ${
+                <p className={`font-sans text-sm leading-relaxed ${
                   isSpooky ? "text-gray-400" : "text-gray-600"
                 }`}>
                   {feature.description}
@@ -168,8 +256,56 @@ export default function FeaturesShowcase() {
             </div>
           ))}
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* Desktop: Horizontal scroll layout with GSAP - shown at lg breakpoint and above */}
+      <section ref={containerRef} className="hidden lg:flex relative min-h-[600px] h-[80vh] max-h-[900px] items-center overflow-hidden">
+        {/* Left Side: Sticky Title */}
+        <div ref={desktopTitleRef} className="w-[320px] xl:w-[380px] flex-shrink-0 pl-8 xl:pl-16 pr-4 z-10">
+          <h2 className={`font-serif text-4xl xl:text-5xl leading-[1.1] mb-4 ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
+            What you&apos;ll unlock with<br />
+            <span className={isSpooky ? "text-purple-400" : "text-[#171d2b]"} style={{ fontStyle: 'italic' }}>Deepterm</span>
+          </h2>
+          <p className={`font-sans text-base xl:text-lg max-w-sm ${isSpooky ? "text-gray-400" : "text-[#171d2b]/60"}`}>
+            A complete ecosystem of tools designed to transform your study workflow from chaotic to structured.
+          </p>
+        </div>
+
+        {/* Right Side: Horizontal Scroll Track */}
+        <div className="flex-1 h-full flex items-center overflow-hidden">
+          <div ref={scrollContainerRef} className="flex gap-8 py-12">
+            {features.map((feature) => (
+              <div key={feature.id} className="feature-card w-[700px] flex-shrink-0">
+                <div className="flex flex-col gap-4">
+                  {/* Header - Title always visible */}
+                  <div className="flex-shrink-0 py-2">
+                    <h3 className={`font-sans font-bold text-2xl ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
+                      {feature.title}
+                    </h3>
+                  </div>
+
+                  {/* Visual Container */}
+                  <div className={`w-full aspect-[16/10] rounded-lg overflow-hidden border relative ${
+                    isSpooky 
+                      ? "bg-[#0d0f14] border-white/10" 
+                      : "bg-gray-50 border-gray-200"
+                  }`}>
+                    {feature.visual}
+                  </div>
+
+                  {/* Description */}
+                  <p className={`font-sans text-base leading-relaxed max-w-2xl ${
+                    isSpooky ? "text-gray-400" : "text-gray-600"
+                  }`}>
+                    {feature.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -214,62 +350,6 @@ function MaterialsVisual({ isSpooky }: { isSpooky: boolean }) {
             </div>
           </div>
         ))}
-      </div>
-    </div>
-  );
-}
-
-function FlashcardVisual({ isSpooky }: { isSpooky: boolean }) {
-  const [flipped, setFlipped] = useState(false);
-
-  return (
-    <div className="w-full h-full flex items-center justify-center p-8 bg-grid-pattern">
-      <div className="flex flex-col items-center gap-6 w-full max-w-[400px]">
-        <div 
-          className="relative w-full aspect-[3/2] cursor-pointer perspective-1000 group"
-          onClick={() => setFlipped(!flipped)}
-        >
-          <motion.div
-            className="w-full h-full relative preserve-3d"
-            animate={{ rotateY: flipped ? 180 : 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-          >
-            {/* Front */}
-            <div className={`absolute inset-0 backface-hidden rounded-3xl shadow-xl border flex flex-col items-center justify-center px-8 text-center hover:shadow-2xl transition-shadow overflow-hidden ${
-              isSpooky 
-                ? "bg-[#151821] border-purple-500/20 shadow-purple-500/10" 
-                : "bg-white border-[#171d2b]/5"
-            }`}>
-              <span className={`absolute top-6 left-6 text-xs font-bold uppercase tracking-widest ${isSpooky ? "text-purple-400/30" : "text-[#171d2b]/20"}`}>Definition</span>
-              <p className={`font-sora font-medium text-lg leading-relaxed ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
-                Double-membrane-bound organelle found in most eukaryotic organisms.
-              </p>
-              <span className={`absolute bottom-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity ${isSpooky ? "text-purple-300/40" : "text-[#171d2b]/40"}`}>
-                {isSpooky ? "Click to reveal the answer..." : "Click to flip"}
-              </span>
-            </div>
-
-            {/* Back */}
-            <div className={`absolute inset-0 backface-hidden rounded-3xl shadow-xl flex flex-col items-center justify-center px-8 text-center overflow-hidden ${
-              isSpooky ? "bg-purple-900" : "bg-[#171d2b]"
-            }`} style={{ transform: "rotateY(180deg)" }}>
-              <span className="absolute top-6 left-6 text-xs font-bold text-white/20 uppercase tracking-widest">Term</span>
-              <p className="font-sora font-medium text-2xl text-white">Mitochondria</p>
-            </div>
-          </motion.div>
-        </div>
-
-        <button
-          onClick={() => setFlipped(!flipped)}
-          className={`px-6 py-3 rounded-full font-sora font-medium shadow-lg transition-all flex items-center gap-2 ${
-            isSpooky 
-              ? "bg-purple-600 text-white hover:bg-purple-500" 
-              : "bg-[#171d2b] text-white hover:bg-[#2a3347]"
-          }`}
-        >
-          <ScanLine size={18} />
-          {isSpooky ? "Reveal Incantation" : "Show Answer"}
-        </button>
       </div>
     </div>
   );

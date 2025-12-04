@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, HelpCircle } from "lucide-react";
+import { X, HelpCircle, Skull, Clock } from "lucide-react";
 import { useThemeStore, useStudySettingsStore } from "@/lib/stores";
 import type { PracticeSettings, PracticeQuestionType } from "@/lib/stores";
 
@@ -37,10 +37,20 @@ const SectionHeader = ({ title, helpText, isSpooky }: { title: string; helpText?
     </div>
 );
 
+// Default survival mode settings for migration
+const DEFAULT_SURVIVAL_MODE = { enabled: false, timePerQuestion: 10 };
+
 export default function PracticeSettingsModal({ isOpen, onClose, onSave, totalCards }: Props) {
     const storeSettings = useStudySettingsStore((state) => state.practiceSettings);
     const updatePracticeSettings = useStudySettingsStore((state) => state.updatePracticeSettings);
-    const [settings, setSettings] = useState<PracticeSettings>(storeSettings);
+    
+    // Ensure survivalMode has defaults (handles migration from old persisted state)
+    const safeStoreSettings: PracticeSettings = {
+        ...storeSettings,
+        survivalMode: storeSettings.survivalMode ?? DEFAULT_SURVIVAL_MODE,
+    };
+    
+    const [settings, setSettings] = useState<PracticeSettings>(safeStoreSettings);
     const [wasOpen, setWasOpen] = useState(false);
     const theme = useThemeStore((state) => state.theme);
     const isSpooky = theme === "spooky";
@@ -48,7 +58,10 @@ export default function PracticeSettingsModal({ isOpen, onClose, onSave, totalCa
     // Sync local state when modal opens (not continuously during render)
     if (isOpen && !wasOpen) {
         setWasOpen(true);
-        setSettings(storeSettings);
+        setSettings({
+            ...storeSettings,
+            survivalMode: storeSettings.survivalMode ?? DEFAULT_SURVIVAL_MODE,
+        });
     } else if (!isOpen && wasOpen) {
         setWasOpen(false);
     }
@@ -168,6 +181,62 @@ export default function PracticeSettingsModal({ isOpen, onClose, onSave, totalCa
                                         }}
                                         className={`w-20 px-3 py-2 border rounded-lg text-sm focus:outline-none ${inputBg} ${isSpooky ? "focus:border-purple-400" : "focus:border-[#171d2b]"}`}
                                     />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Survival Mode */}
+                    <div>
+                        <SectionHeader title="Survival Mode" isSpooky={isSpooky} />
+                        <div className={`rounded-xl p-4 mb-4 ${isSpooky ? "bg-red-950/30 border border-red-500/30" : "bg-red-50 border border-red-200"}`}>
+                            <div className="flex items-start gap-3">
+                                <Skull size={20} className={isSpooky ? "text-red-400 mt-0.5" : "text-red-500 mt-0.5"} />
+                                <div>
+                                    <p className={`text-sm font-medium ${isSpooky ? "text-red-300" : "text-red-700"}`}>
+                                        Race against time
+                                    </p>
+                                    <p className={`text-xs mt-1 ${isSpooky ? "text-red-400/70" : "text-red-600/70"}`}>
+                                        Answer before time runs out or your session ends. The pressure is real.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <span className={`text-sm font-medium flex items-center gap-2 ${textMuted}`}>
+                                    <Skull size={14} className={settings.survivalMode.enabled ? (isSpooky ? "text-red-400" : "text-red-500") : ""} />
+                                    Enable Survival Mode
+                                </span>
+                                <Toggle
+                                    checked={settings.survivalMode.enabled}
+                                    onChange={() => setSettings(prev => ({ 
+                                        ...prev, 
+                                        survivalMode: { ...prev.survivalMode, enabled: !prev.survivalMode.enabled }
+                                    }))}
+                                    isSpooky={isSpooky}
+                                />
+                            </div>
+                            {settings.survivalMode.enabled && (
+                                <div className="flex items-center justify-between">
+                                    <span className={`text-sm font-medium flex items-center gap-2 ${textMuted}`}>
+                                        <Clock size={14} />
+                                        Time per question
+                                    </span>
+                                    <select
+                                        value={settings.survivalMode.timePerQuestion}
+                                        onChange={(e) => setSettings(prev => ({ 
+                                            ...prev, 
+                                            survivalMode: { ...prev.survivalMode, timePerQuestion: Number(e.target.value) }
+                                        }))}
+                                        className={`p-2 border rounded-lg text-sm focus:outline-none ${inputBg} ${isSpooky ? "focus:border-purple-400" : "focus:border-[#171d2b]"}`}
+                                    >
+                                        <option value={5}>5 seconds</option>
+                                        <option value={10}>10 seconds</option>
+                                        <option value={15}>15 seconds</option>
+                                        <option value={20}>20 seconds</option>
+                                        <option value={30}>30 seconds</option>
+                                    </select>
                                 </div>
                             )}
                         </div>

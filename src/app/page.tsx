@@ -4,6 +4,8 @@ import Image from "next/image";
 import { imgLogo } from "@/config/assets";
 import Header from "@/components/Header";
 import FeaturesShowcase from "@/components/FeaturesShowcase";
+import StepsSection from "@/components/StepsSection";
+import FAQSection from "@/components/FAQSection";
 import BackgroundPaths from "@/components/BackgroundPaths";
 import { PublicPageWrapper } from "@/components/SpookyTheme";
 import { useThemeStore } from "@/lib/stores";
@@ -28,9 +30,9 @@ export default function Home() {
         <Header className="!mt-4 sm:!mt-5 lg:!mt-6" />
 
         {/* Hero Section */}
-        <section className="relative z-10 mx-auto pt-6 sm:pt-8 lg:pt-10 pb-0 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center overflow-visible">
+        <section className="relative z-10 mx-auto pt-6 sm:pt-8 lg:pt-10 pb-8 sm:pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center overflow-visible min-h-[70vh] lg:min-h-[80vh]">
           {/* Planet positioned top-left - Large decorative element */}
-          <div className="absolute -left-[30px] sm:-left-[50px] lg:-left-[60px] top-[-5%] sm:top-[-2%] w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] lg:w-[220px] lg:h-[220px] z-0 pointer-events-none">
+          <div className="absolute -left-[40px] sm:-left-[50px] lg:-left-[60px] top-[-2%] sm:top-[-2%] w-[100px] h-[100px] sm:w-[180px] sm:h-[180px] lg:w-[220px] lg:h-[220px] z-0 pointer-events-none">
             <Image
               alt=""
               src={planet2Src}
@@ -42,7 +44,7 @@ export default function Home() {
           </div>
 
           {/* Planet positioned bottom-right - Large decorative element */}
-          <div className="absolute -right-[20px] sm:-right-[40px] lg:-right-[50px] bottom-[-10%] sm:bottom-[-5%] w-[120px] h-[120px] sm:w-[160px] sm:h-[160px] lg:w-[200px] lg:h-[200px] z-0 pointer-events-none">
+          <div className="hidden sm:block absolute -right-[40px] lg:-right-[50px] bottom-[-5%] w-[160px] h-[160px] lg:w-[200px] lg:h-[200px] z-0 pointer-events-none">
             <Image
               alt=""
               src={planet1Src}
@@ -132,7 +134,7 @@ export default function Home() {
                 <svg className={`w-3.5 h-3.5 ${isSpooky ? "text-purple-400" : "text-[#171d2b]/60"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span className={`font-sans text-[11px] sm:text-[12px] ${isSpooky ? "text-purple-300" : "text-[#171d2b]/70"}`}>{isSpooky ? "Free Forever" : "100% Free"}</span>
+                <span className={`font-sans text-[11px] sm:text-[12px] ${isSpooky ? "text-purple-300" : "text-[#171d2b]/70"}`}>{isSpooky ? "Free Forever" : "Interactive"}</span>
               </div>
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${isSpooky ? "bg-purple-500/10" : "bg-[#171d2b]/5"}`}>
                 <svg className={`w-3.5 h-3.5 ${isSpooky ? "text-purple-400" : "text-[#171d2b]/60"}`} fill="currentColor" viewBox="0 0 24 24">
@@ -153,165 +155,11 @@ export default function Home() {
         {/* How Our Tools Work Section - GSAP Animated */}
         <FeaturesShowcase />
 
-        {/* Getting Started Section */}
-        <section className="relative z-10 px-4 sm:px-8 lg:px-12 py-12 sm:py-16 lg:py-20">
-          <h2 className={`font-serif text-[22px] sm:text-[28px] lg:text-[32px] text-center mb-2 sm:mb-3 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
-            {isSpooky ? "Start Your Ritual" : "Get Started in Minutes"}
-          </h2>
-          <p className={`font-sans text-[13px] sm:text-[15px] lg:text-[16px] text-center mb-8 sm:mb-10 lg:mb-12 max-w-[500px] mx-auto px-4 ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}`}>
-            {isSpooky ? "Three steps to unlock your potential" : "Three simple steps to smarter studying"}
-          </p>
+        {/* Steps Section - Stacked Cards */}
+        <StepsSection />
 
-          <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-6 max-w-[950px] mx-auto">
-            {/* Step 1 */}
-            <div className="flex flex-row lg:flex-col items-center lg:items-center text-left lg:text-center gap-4 lg:gap-0 w-full lg:w-auto lg:max-w-[260px] px-2">
-              <div className={`w-[50px] h-[50px] sm:w-[56px] sm:h-[56px] lg:w-[68px] lg:h-[68px] rounded-full flex items-center justify-center flex-shrink-0 lg:mb-4 ${isSpooky ? "bg-purple-600" : "bg-[#171d2b]"}`}>
-                <span className="font-serif text-[20px] sm:text-[22px] lg:text-[26px] text-white">1</span>
-              </div>
-              <div className="flex-1 lg:flex-none">
-                <h3 className={`font-serif font-medium text-[16px] sm:text-[17px] lg:text-[19px] mb-1 lg:mb-2 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
-                  {isSpooky ? "Drop Your Notes" : "Upload or Paste"}
-                </h3>
-                <p className={`font-sans text-[12px] sm:text-[13px] lg:text-[14px] leading-[1.5] ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}`}>
-                  {isSpooky ? "Toss in PDFs, docs, or just paste your stuff" : "Drop your study materials - PDFs, documents, or paste text directly"}
-                </p>
-              </div>
-            </div>
-
-            {/* Connector */}
-            <div className={`hidden lg:block w-[40px] xl:w-[60px] h-[2px] flex-shrink-0 ${isSpooky ? "bg-purple-500/30" : "bg-[#171d2b]/20"}`} />
-
-            {/* Step 2 */}
-            <div className="flex flex-row lg:flex-col items-center lg:items-center text-left lg:text-center gap-4 lg:gap-0 w-full lg:w-auto lg:max-w-[260px] px-2">
-              <div className={`w-[50px] h-[50px] sm:w-[56px] sm:h-[56px] lg:w-[68px] lg:h-[68px] rounded-full flex items-center justify-center flex-shrink-0 lg:mb-4 ${isSpooky ? "bg-purple-600" : "bg-[#171d2b]"}`}>
-                <span className="font-serif text-[20px] sm:text-[22px] lg:text-[26px] text-white">2</span>
-              </div>
-              <div className="flex-1 lg:flex-none">
-                <h3 className={`font-serif font-medium text-[16px] sm:text-[17px] lg:text-[19px] mb-1 lg:mb-2 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
-                  {isSpooky ? "AI Does Its Thing" : "AI Processes"}
-                </h3>
-                <p className={`font-sans text-[12px] sm:text-[13px] lg:text-[14px] leading-[1.5] ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}`}>
-                  {isSpooky ? "We pull out the key stuff, make quizzes, and build flashcards" : "Our AI extracts key terms, generates practice tests, and creates flashcards"}
-                </p>
-              </div>
-            </div>
-
-            {/* Connector */}
-            <div className={`hidden lg:block w-[40px] xl:w-[60px] h-[2px] flex-shrink-0 ${isSpooky ? "bg-purple-500/30" : "bg-[#171d2b]/20"}`} />
-
-            {/* Step 3 */}
-            <div className="flex flex-row lg:flex-col items-center lg:items-center text-left lg:text-center gap-4 lg:gap-0 w-full lg:w-auto lg:max-w-[260px] px-2">
-              <div className={`w-[50px] h-[50px] sm:w-[56px] sm:h-[56px] lg:w-[68px] lg:h-[68px] rounded-full flex items-center justify-center flex-shrink-0 lg:mb-4 ${isSpooky ? "bg-purple-600" : "bg-[#171d2b]"}`}>
-                <span className="font-serif text-[20px] sm:text-[22px] lg:text-[26px] text-white">3</span>
-              </div>
-              <div className="flex-1 lg:flex-none">
-                <h3 className={`font-serif font-medium text-[16px] sm:text-[17px] lg:text-[19px] mb-1 lg:mb-2 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
-                  {isSpooky ? "Grind & Level Up" : "Study & Succeed"}
-                </h3>
-                <p className={`font-sans text-[12px] sm:text-[13px] lg:text-[14px] leading-[1.5] ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}`}>
-                  {isSpooky ? "Practice, track your stats, and watch your XP grow" : "Review, practice, and track your progress with gamified learning"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Feature Comparison Section */}
-        <section className="relative z-10 px-3 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
-          <h2 className={`font-serif text-[22px] sm:text-[28px] lg:text-[32px] text-center mb-2 sm:mb-3 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
-            {isSpooky ? "Why We Hit Different" : "Why Choose DeepTerm?"}
-          </h2>
-          <p className={`font-sans text-[13px] sm:text-[15px] lg:text-[16px] text-center mb-6 sm:mb-8 lg:mb-10 max-w-[500px] mx-auto px-2 ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}`}>
-            {isSpooky ? "Old school vs. the new wave" : "See how we compare to traditional study methods"}
-          </p>
-
-          {/* Mobile: Card-based comparison */}
-          <div className="sm:hidden space-y-4 max-w-[400px] mx-auto">
-            {[
-              { feature: "Note Extraction", trad: "Manual", other: "Basic", deep: "AI-Powered" },
-              { feature: "Practice Test Generation", trad: false, other: "Limited", deep: true },
-              { feature: "Flashcards", trad: "Manual", other: true, deep: true },
-              { feature: "Gamification", trad: false, other: false, deep: true },
-              { feature: "Price", trad: "Free", other: "$10-30/mo", deep: "Free" },
-            ].map((row, i) => (
-              <div key={i} className={`rounded-[16px] p-4 ${isSpooky ? "bg-purple-500/10 border border-purple-500/20" : "bg-[rgba(210,210,200,0.4)]"}`}>
-                <h4 className={`font-sans font-medium text-[14px] mb-3 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>{row.feature}</h4>
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div>
-                    <p className={`text-[10px] mb-1 ${isSpooky ? "text-purple-300/50" : "text-[#171d2b]/50"}`}>Traditional</p>
-                    <p className="text-[12px]">
-                      {row.trad === false ? <span className="text-[#ef4444]">X</span> :
-                        row.trad === true ? <span className="text-[#22c55e]">Y</span> :
-                          <span className={isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}>{row.trad}</span>}
-                    </p>
-                  </div>
-                  <div>
-                    <p className={`text-[10px] mb-1 ${isSpooky ? "text-purple-300/50" : "text-[#171d2b]/50"}`}>Other AI</p>
-                    <p className="text-[12px]">
-                      {row.other === false ? <span className="text-[#ef4444]">X</span> :
-                        row.other === true ? <span className="text-[#22c55e]">Y</span> :
-                          <span className={isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}>{row.other}</span>}
-                    </p>
-                  </div>
-                  <div className={`rounded-lg py-1 ${isSpooky ? "bg-purple-600/30" : "bg-[#171d2b]/10"}`}>
-                    <p className={`text-[10px] mb-1 ${isSpooky ? "text-purple-200/70" : "text-[#171d2b]/70"}`}>DeepTerm</p>
-                    <p className="text-[12px] font-medium">
-                      {row.deep === false ? <span className="text-[#ef4444]">X</span> :
-                        row.deep === true ? <span className="text-[#22c55e]">Y</span> :
-                          <span className={isSpooky ? "text-purple-100" : "text-[#171d2b]"}>{row.deep}</span>}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Tablet/Desktop: Table */}
-          <div className="hidden sm:block max-w-[800px] mx-auto overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className={`font-sans text-[12px] sm:text-[13px] lg:text-[14px] text-left py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "text-purple-300/60 border-purple-500/20" : "text-[#171d2b]/60 border-[#171d2b]/10"}`}>Feature</th>
-                  <th className={`font-sans text-[12px] sm:text-[13px] lg:text-[14px] text-center py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "text-purple-300/60 border-purple-500/20" : "text-[#171d2b]/60 border-[#171d2b]/10"}`}>Traditional</th>
-                  <th className={`font-sans text-[12px] sm:text-[13px] lg:text-[14px] text-center py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "text-purple-300/60 border-purple-500/20" : "text-[#171d2b]/60 border-[#171d2b]/10"}`}>Other AI</th>
-                  <th className={`font-sora text-[12px] sm:text-[13px] lg:text-[14px] text-center py-3 px-2 sm:px-3 lg:px-4 border-b rounded-t-lg ${isSpooky ? "text-purple-100 border-purple-500/20 bg-purple-600/20" : "text-[#171d2b] border-[#171d2b]/10 bg-[#171d2b]/5"}`}>DeepTerm</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className={`font-sans text-[12px] sm:text-[13px] lg:text-[14px] py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "text-purple-100 border-purple-500/20" : "text-[#171d2b] border-[#171d2b]/10"}`}>Note Extraction</td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b text-[12px] sm:text-[13px] ${isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10"}`}><span className={isSpooky ? "text-purple-300/40" : "text-[#171d2b]/40"}>Manual</span></td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b text-[12px] sm:text-[13px] ${isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10"}`}><span className={isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}>Basic</span></td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b text-[12px] sm:text-[13px] ${isSpooky ? "border-purple-500/20 bg-purple-600/20" : "border-[#171d2b]/10 bg-[#171d2b]/5"}`}><span className={`font-medium ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>AI-Powered</span></td>
-                </tr>
-                <tr>
-                  <td className={`font-sans text-[12px] sm:text-[13px] lg:text-[14px] py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "text-purple-100 border-purple-500/20" : "text-[#171d2b] border-[#171d2b]/10"}`}>Practice Test Generation</td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10"}`}><span className="text-[#ef4444]">X</span></td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b text-[12px] sm:text-[13px] ${isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10"}`}><span className={isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}>Limited</span></td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "border-purple-500/20 bg-purple-600/20" : "border-[#171d2b]/10 bg-[#171d2b]/5"}`}><span className="text-[#22c55e]">Y</span></td>
-                </tr>
-                <tr>
-                  <td className={`font-sans text-[12px] sm:text-[13px] lg:text-[14px] py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "text-purple-100 border-purple-500/20" : "text-[#171d2b] border-[#171d2b]/10"}`}>Flashcards</td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b text-[12px] sm:text-[13px] ${isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10"}`}><span className={isSpooky ? "text-purple-300/40" : "text-[#171d2b]/40"}>Manual</span></td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10"}`}><span className="text-[#22c55e]">Y</span></td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "border-purple-500/20 bg-purple-600/20" : "border-[#171d2b]/10 bg-[#171d2b]/5"}`}><span className="text-[#22c55e]">Y</span></td>
-                </tr>
-                <tr>
-                  <td className={`font-sans text-[12px] sm:text-[13px] lg:text-[14px] py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "text-purple-100 border-purple-500/20" : "text-[#171d2b] border-[#171d2b]/10"}`}>Gamification</td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10"}`}><span className="text-[#ef4444]">X</span></td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10"}`}><span className="text-[#ef4444]">X</span></td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "border-purple-500/20 bg-purple-600/20" : "border-[#171d2b]/10 bg-[#171d2b]/5"}`}><span className="text-[#22c55e]">Y</span></td>
-                </tr>
-                <tr>
-                  <td className={`font-sans text-[12px] sm:text-[13px] lg:text-[14px] py-3 px-2 sm:px-3 lg:px-4 border-b ${isSpooky ? "text-purple-100 border-purple-500/20" : "text-[#171d2b] border-[#171d2b]/10"}`}>Price</td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b text-[12px] sm:text-[13px] ${isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10"}`}><span className={isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}>Free</span></td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b text-[12px] sm:text-[13px] ${isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10"}`}><span className={isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}>$10-30/mo</span></td>
-                  <td className={`text-center py-3 px-2 sm:px-3 lg:px-4 border-b text-[12px] sm:text-[13px] ${isSpooky ? "border-purple-500/20 bg-purple-600/20" : "border-[#171d2b]/10 bg-[#171d2b]/5"}`}><span className={`font-medium ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>Free</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
+        {/* FAQ Section - Accordion */}
+        <FAQSection />
 
         {/* Final CTA Section */}
         <section className="relative z-10 mx-2 sm:mx-4 mb-6 sm:mb-8 rounded-[24px] sm:rounded-[40px] lg:rounded-[50px] overflow-hidden">
@@ -326,7 +174,7 @@ export default function Home() {
               {isSpooky ? "Start Free" : "Start Learning Free"}
             </button>
             <p className="font-sans text-[11px] sm:text-[12px] lg:text-[13px] text-white/60 mt-3 sm:mt-4 px-2">
-              {isSpooky ? "Free forever - Host your own Deepterm - Bad grades gone" : "No credit card required - No installation - Start in 30 seconds"}
+              {isSpooky ? "Interactive - Host your own Deepterm - Bad grades gone" : "No credit card required - No installation - Start in 30 seconds"}
             </p>
           </div>
         </section>

@@ -17,12 +17,18 @@ export interface StudySettings {
     autoNextDuration: number;
 }
 
+export interface SurvivalModeSettings {
+    enabled: boolean;
+    timePerQuestion: number; // seconds (default 10)
+}
+
 export interface PracticeSettings {
     cardCount: number | 'max';
     enabledQuestionTypes: PracticeQuestionType[];
     shuffleTerms: boolean;
     autoNextAfterAnswer: boolean;
     autoNextDuration: number;
+    survivalMode: SurvivalModeSettings;
 }
 
 interface StudySettingsState {
@@ -59,6 +65,10 @@ const DEFAULT_PRACTICE_SETTINGS: PracticeSettings = {
     shuffleTerms: true,
     autoNextAfterAnswer: true,
     autoNextDuration: 2,
+    survivalMode: {
+        enabled: false,
+        timePerQuestion: 10,
+    },
 };
 
 export const useStudySettingsStore = create<StudySettingsState>()(
@@ -90,6 +100,24 @@ export const useStudySettingsStore = create<StudySettingsState>()(
         }),
         {
             name: 'deepterm-study-settings',
+            version: 1, // Increment when schema changes
+            migrate: (persistedState, version) => {
+                const state = persistedState as StudySettingsState;
+                
+                // Migration from version 0 (no survivalMode) to version 1
+                if (version === 0 || !state.practiceSettings?.survivalMode) {
+                    return {
+                        ...state,
+                        practiceSettings: {
+                            ...DEFAULT_PRACTICE_SETTINGS,
+                            ...state.practiceSettings,
+                            survivalMode: DEFAULT_PRACTICE_SETTINGS.survivalMode,
+                        },
+                    };
+                }
+                
+                return state;
+            },
         }
     )
 );

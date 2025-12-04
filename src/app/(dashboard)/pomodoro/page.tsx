@@ -62,6 +62,8 @@ export default function PomodoroPage() {
   } = usePomodoroStore();
 
   const [newTaskInput, setNewTaskInput] = useState("");
+  const [newTaskReminder, setNewTaskReminder] = useState<string | null>(null);
+  const [showReminderInput, setShowReminderInput] = useState(false);
 
   // Sound state
   const [notificationVolume, setNotificationVolume] = useState(() =>
@@ -191,8 +193,10 @@ export default function PomodoroPage() {
 
   const handleAddTask = () => {
     if (!newTaskInput.trim()) return;
-    addTask(newTaskInput.trim());
+    addTask(newTaskInput.trim(), newTaskReminder);
     setNewTaskInput("");
+    setNewTaskReminder(null);
+    setShowReminderInput(false);
   };
 
   const currentDuration = phase === "work"
@@ -432,24 +436,72 @@ export default function PomodoroPage() {
               </h3>
 
               {/* Add Task */}
-              <div className="flex gap-2 mb-4">
-                <input
-                  type="text"
-                  value={newTaskInput}
-                  onChange={(e) => setNewTaskInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAddTask()}
-                  placeholder={isSpooky ? "Conjure a deed..." : "Add a task..."}
-                  className={`flex-1 h-[40px] px-3 rounded-lg border font-sans text-[13px] focus:outline-none transition-shadow focus:shadow-sm ${
-                    isSpooky 
-                      ? "border-purple-500/20 bg-[#0d0f14] text-purple-100 placeholder:text-purple-300/40 focus:border-purple-500/40"
-                      : "border-[#171d2b]/20 bg-white text-[#171d2b] placeholder:text-[#171d2b]/40 focus:border-[#171d2b]/40"
-                  }`}
-                />
-                <button onClick={handleAddTask} className={`w-[40px] h-[40px] text-white rounded-lg flex items-center justify-center transition-colors shadow-md hover:scale-105 active:scale-95 ${
-                  isSpooky ? "bg-purple-600 hover:bg-purple-500" : "bg-[#171d2b] hover:bg-[#2a3347]"
-                }`}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                </button>
+              <div className="mb-4 space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newTaskInput}
+                    onChange={(e) => setNewTaskInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && !showReminderInput && handleAddTask()}
+                    placeholder={isSpooky ? "Conjure a deed..." : "Add a task..."}
+                    className={`flex-1 h-[40px] px-3 rounded-lg border font-sans text-[13px] focus:outline-none transition-shadow focus:shadow-sm ${
+                      isSpooky 
+                        ? "border-purple-500/20 bg-[#0d0f14] text-purple-100 placeholder:text-purple-300/40 focus:border-purple-500/40"
+                        : "border-[#171d2b]/20 bg-white text-[#171d2b] placeholder:text-[#171d2b]/40 focus:border-[#171d2b]/40"
+                    }`}
+                  />
+                  <button 
+                    onClick={() => setShowReminderInput(!showReminderInput)} 
+                    title="Set reminder"
+                    className={`w-[40px] h-[40px] rounded-lg flex items-center justify-center transition-colors ${
+                      showReminderInput || newTaskReminder
+                        ? (isSpooky ? "bg-purple-600 text-white" : "bg-[#171d2b] text-white")
+                        : (isSpooky ? "bg-purple-500/20 text-purple-300 hover:bg-purple-500/30" : "bg-[#171d2b]/10 text-[#171d2b] hover:bg-[#171d2b]/20")
+                    }`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                  </button>
+                  <button onClick={handleAddTask} className={`w-[40px] h-[40px] text-white rounded-lg flex items-center justify-center transition-colors shadow-md hover:scale-105 active:scale-95 ${
+                    isSpooky ? "bg-purple-600 hover:bg-purple-500" : "bg-[#171d2b] hover:bg-[#2a3347]"
+                  }`}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                  </button>
+                </div>
+                
+                {/* Reminder Time Input */}
+                <AnimatePresence>
+                  {showReminderInput && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className={`flex items-center gap-2 p-2 rounded-lg ${isSpooky ? "bg-purple-500/10" : "bg-[#171d2b]/5"}`}>
+                        <svg className={`w-4 h-4 ${isSpooky ? "text-purple-400" : "text-[#171d2b]/60"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span className={`text-xs ${isSpooky ? "text-purple-300" : "text-[#171d2b]/70"}`}>Remind at:</span>
+                        <input
+                          type="time"
+                          value={newTaskReminder || ""}
+                          onChange={(e) => setNewTaskReminder(e.target.value || null)}
+                          className={`flex-1 h-[32px] px-2 rounded border font-sans text-[12px] focus:outline-none ${
+                            isSpooky 
+                              ? "border-purple-500/20 bg-[#0d0f14] text-purple-100 focus:border-purple-500/40"
+                              : "border-[#171d2b]/20 bg-white text-[#171d2b] focus:border-[#171d2b]/40"
+                          }`}
+                        />
+                        {newTaskReminder && (
+                          <button 
+                            onClick={() => setNewTaskReminder(null)}
+                            className={`p-1 rounded ${isSpooky ? "text-purple-400 hover:text-purple-300" : "text-[#171d2b]/50 hover:text-[#171d2b]"}`}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Task List */}
@@ -486,12 +538,24 @@ export default function PomodoroPage() {
                         >
                           {task.completed && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
                         </button>
-                        <span className={`flex-1 font-sans text-[13px] transition-all ${
-                          isSpooky
-                            ? (task.completed ? "line-through text-purple-300/50" : "text-purple-100")
-                            : (task.completed ? "line-through text-[#171d2b]/50" : "text-[#171d2b]")
-                        }`}>{task.text}</span>
-                        <button onClick={() => removeTask(task.id)} className={`w-6 h-6 transition-colors ${
+                        <div className="flex-1 min-w-0">
+                          <span className={`font-sans text-[13px] transition-all block ${
+                            isSpooky
+                              ? (task.completed ? "line-through text-purple-300/50" : "text-purple-100")
+                              : (task.completed ? "line-through text-[#171d2b]/50" : "text-[#171d2b]")
+                          }`}>{task.text}</span>
+                          {task.reminder?.enabled && task.reminder.time && !task.completed && (
+                            <span className={`flex items-center gap-1 text-[10px] mt-0.5 ${
+                              task.reminder.notified 
+                                ? (isSpooky ? "text-green-400/70" : "text-green-600/70")
+                                : (isSpooky ? "text-purple-400/70" : "text-[#171d2b]/50")
+                            }`}>
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                              {task.reminder.notified ? "Notified" : task.reminder.time}
+                            </span>
+                          )}
+                        </div>
+                        <button onClick={() => removeTask(task.id)} className={`w-6 h-6 transition-colors flex-shrink-0 ${
                           isSpooky ? "text-purple-300/40 hover:text-red-400" : "text-[#171d2b]/40 hover:text-[#ef4444]"
                         }`}>
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
