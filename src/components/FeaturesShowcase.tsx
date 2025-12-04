@@ -71,12 +71,18 @@ export default function FeaturesShowcase() {
       scrollTrigger: {
         trigger: container,
         pin: true,
+        pinSpacing: true,
         scrub: 1,
         start: "top 10%",
         end: () => `+=${scrollAmount}`,
         invalidateOnRefresh: true,
       },
     });
+
+    // Set z-index on pinned element immediately after creation
+    if (tween.scrollTrigger?.pin) {
+      (tween.scrollTrigger.pin as HTMLElement).style.zIndex = "10";
+    }
 
     // Refresh on resize for zoom handling
     const handleResize = () => {
@@ -212,12 +218,57 @@ export default function FeaturesShowcase() {
     );
   }, { dependencies: [isMobile] });
 
+  // Mobile horizontal scroll refs
+  const mobileScrollContainerRef = useRef<HTMLDivElement>(null);
+  const mobileWrapperRef = useRef<HTMLDivElement>(null);
+
+  // GSAP horizontal scroll for mobile
+  useGSAP(() => {
+    if (!isMobile) return;
+
+    const scrollContainer = mobileScrollContainerRef.current;
+    const wrapper = mobileWrapperRef.current;
+    if (!scrollContainer || !wrapper) return;
+
+    // Calculate scroll distance
+    const getScrollAmount = () => {
+      const containerWidth = wrapper.clientWidth || window.innerWidth;
+      const totalScroll = scrollContainer.scrollWidth - containerWidth;
+      return -totalScroll;
+    };
+
+    const scrollAmount = Math.abs(getScrollAmount());
+
+    const tween = gsap.to(scrollContainer, {
+      x: getScrollAmount,
+      ease: "none",
+      scrollTrigger: {
+        trigger: wrapper,
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        start: "top 15%",
+        end: () => `+=${scrollAmount}`,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    // Set z-index on pinned element immediately after creation
+    if (tween.scrollTrigger?.pin) {
+      (tween.scrollTrigger.pin as HTMLElement).style.zIndex = "10";
+    }
+
+    return () => {
+      tween.scrollTrigger?.kill();
+    };
+  }, { dependencies: [isMobile] });
+
   return (
     <>
-      {/* Mobile/Tablet: Vertical scroll layout - shown below lg breakpoint */}
-      <section ref={mobileSectionRef} className="lg:hidden relative pt-4 pb-12 sm:pt-6 sm:pb-16 px-4 sm:px-6">
+      {/* Mobile/Tablet: Horizontal scroll layout - shown below lg breakpoint */}
+      <section ref={mobileSectionRef} className="lg:hidden relative">
         {/* Section Header */}
-        <div ref={mobileHeaderRef} className="text-center mb-8 sm:mb-12">
+        <div ref={mobileHeaderRef} className="text-center pt-4 pb-6 sm:pt-6 sm:pb-8 px-4 sm:px-6">
           <h2 className={`font-serif text-3xl sm:text-4xl md:text-5xl leading-[1.1] mb-4 ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
             What you&apos;ll unlock <br />
             <span className={isSpooky ? "text-purple-400" : "text-[#171d2b]"} style={{ fontStyle: 'italic' }}>with Deepterm</span>
@@ -227,34 +278,36 @@ export default function FeaturesShowcase() {
           </p>
         </div>
 
-        {/* Vertical Feature Cards */}
-        <div ref={mobileCardsRef} className="flex flex-col gap-8 sm:gap-10 max-w-2xl mx-auto">
-          {features.map((feature) => (
-            <div key={feature.id} className="feature-card">
-              <div className="flex flex-col gap-3">
-                {/* Header */}
-                <h3 className={`font-sans font-bold text-lg sm:text-xl ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
-                  {feature.title}
-                </h3>
+        {/* Horizontal Scroll Container */}
+        <div ref={mobileWrapperRef} className="min-h-[450px] sm:min-h-[500px] flex items-center overflow-hidden">
+          <div ref={mobileScrollContainerRef} className="flex gap-4 sm:gap-6 pl-4 sm:pl-6 pr-4 sm:pr-6">
+            {features.map((feature) => (
+              <div key={feature.id} className="feature-card w-[85vw] sm:w-[70vw] md:w-[60vw] max-w-[500px] flex-shrink-0">
+                <div className="flex flex-col gap-3">
+                  {/* Header */}
+                  <h3 className={`font-sans font-bold text-lg sm:text-xl ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
+                    {feature.title}
+                  </h3>
 
-                {/* Visual Container */}
-                <div className={`w-full aspect-[16/10] rounded-lg overflow-hidden border relative ${
-                  isSpooky 
-                    ? "bg-[#0d0f14] border-white/10" 
-                    : "bg-gray-50 border-gray-200"
-                }`}>
-                  {feature.visual}
+                  {/* Visual Container */}
+                  <div className={`w-full aspect-[16/10] rounded-lg overflow-hidden border relative ${
+                    isSpooky 
+                      ? "bg-[#0d0f14] border-white/10" 
+                      : "bg-gray-50 border-gray-200"
+                  }`}>
+                    {feature.visual}
+                  </div>
+
+                  {/* Description */}
+                  <p className={`font-sans text-sm leading-relaxed ${
+                    isSpooky ? "text-gray-400" : "text-gray-600"
+                  }`}>
+                    {feature.description}
+                  </p>
                 </div>
-
-                {/* Description */}
-                <p className={`font-sans text-sm leading-relaxed ${
-                  isSpooky ? "text-gray-400" : "text-gray-600"
-                }`}>
-                  {feature.description}
-                </p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 

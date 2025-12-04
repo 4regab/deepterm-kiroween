@@ -14,7 +14,9 @@ import {
     Skull,
     Ghost,
     BookOpen,
-    FileText
+    FileText,
+    Pencil,
+    X
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMaterialsStore, useThemeStore } from "@/lib/stores";
@@ -85,6 +87,9 @@ export default function SpookyMaterialsClient({ initialItems }: SpookyMaterialsC
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [shareItem, setShareItem] = useState<MaterialItem | null>(null);
     const [showFilterMenu, setShowFilterMenu] = useState(false);
+    const [renameItem, setRenameItem] = useState<MaterialItem | null>(null);
+    const [newTitle, setNewTitle] = useState("");
+    const [isRenaming, setIsRenaming] = useState(false);
     
     const {
         items,
@@ -118,6 +123,34 @@ export default function SpookyMaterialsClient({ initialItems }: SpookyMaterialsC
         const table = item.type === "Flashcards" ? "flashcard_sets" : "reviewers";
         await supabase.from(table).delete().eq("id", item.id);
         removeItem(item.id);
+    };
+
+    const handleRename = async () => {
+        if (!renameItem || !newTitle.trim()) return;
+        setIsRenaming(true);
+        try {
+            const supabase = createClient();
+            const table = renameItem.type === "Flashcards" ? "flashcard_sets" : "reviewers";
+            await supabase.from(table).update({ title: newTitle.trim() }).eq("id", renameItem.id);
+            
+            // Update local state
+            const updatedItems = sourceItems.map(item => 
+                item.id === renameItem.id ? { ...item, title: newTitle.trim() } : item
+            );
+            setItems(updatedItems);
+            setRenameItem(null);
+            setNewTitle("");
+        } catch (error) {
+            console.error("Failed to rename:", error);
+        } finally {
+            setIsRenaming(false);
+        }
+    };
+
+    const openRenameModal = (item: MaterialItem) => {
+        setRenameItem(item);
+        setNewTitle(item.title);
+        setOpenMenuId(null);
     };
 
     // Theme colors
@@ -264,6 +297,18 @@ export default function SpookyMaterialsClient({ initialItems }: SpookyMaterialsC
                                                     }`}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
+                                                        openRenameModal(item);
+                                                    }}
+                                                >
+                                                    <Pencil size={14} />
+                                                    {isSpooky ? "Rename Tome" : "Rename"}
+                                                </button>
+                                                <button
+                                                    className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 ${
+                                                        isSpooky ? "text-purple-200 hover:bg-purple-500/10" : "text-[#171d2b] hover:bg-[#171d2b]/5"
+                                                    }`}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
                                                         setOpenMenuId(null);
                                                         setShareItem(item);
                                                     }}
@@ -314,6 +359,82 @@ export default function SpookyMaterialsClient({ initialItems }: SpookyMaterialsC
                     materialTitle={shareItem.title}
                 />
             )}
+
+            {/* Rename Modal */}
+            <AnimatePresence>
+                {renameItem && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+                        onClick={() => setRenameItem(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className={`rounded-2xl p-6 max-w-md w-full ${
+                                isSpooky ? "bg-[#1a1b26] border border-purple-500/20" : "bg-white"
+                            }`}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className={`text-lg font-sora font-semibold ${
+                                    isSpooky ? "text-white" : "text-[#171d2b]"
+                                }`}>
+                                    {isSpooky ? "Rename Tome" : "Rename Material"}
+                                </h3>
+                                <button
+                                    onClick={() => setRenameItem(null)}
+                                    className={`p-1 rounded-lg transition-colors ${
+                                        isSpooky ? "hover:bg-purple-500/10 text-purple-300" : "hover:bg-[#171d2b]/5 text-[#171d2b]/60"
+                                    }`}
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <input
+                                type="text"
+                                value={newTitle}
+                                onChange={(e) => setNewTitle(e.target.value)}
+                                placeholder={isSpooky ? "Enter new tome name..." : "Enter new title..."}
+                                className={`w-full px-4 py-3 rounded-xl border focus:outline-none mb-4 ${
+                                    isSpooky 
+                                        ? "bg-[#0d0e14] border-purple-500/30 text-white placeholder:text-purple-400/40 focus:border-purple-400" 
+                                        : "border-[#171d2b]/10 text-[#171d2b] placeholder:text-[#171d2b]/30 focus:border-[#171d2b]/30"
+                                }`}
+                                autoFocus
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" && newTitle.trim()) handleRename();
+                                    if (e.key === "Escape") setRenameItem(null);
+                                }}
+                            />
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setRenameItem(null)}
+                                    className={`flex-1 py-3 rounded-xl border transition-colors text-sm font-medium ${
+                                        isSpooky 
+                                            ? "border-purple-500/30 text-purple-300/60 hover:bg-purple-500/10" 
+                                            : "border-[#171d2b]/10 text-[#171d2b]/60 hover:bg-[#171d2b]/5"
+                                    }`}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleRename}
+                                    disabled={!newTitle.trim() || isRenaming}
+                                    className={`flex-1 py-3 rounded-xl text-white transition-colors text-sm font-medium disabled:opacity-50 ${
+                                        isSpooky ? "bg-purple-600 hover:bg-purple-500" : "bg-[#171d2b] hover:bg-[#171d2b]/90"
+                                    }`}
+                                >
+                                    {isRenaming ? "Saving..." : (isSpooky ? "Seal Name" : "Save")}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </>
     );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Confetti, EncouragementToast } from "@/components/EmotionalAssets";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePomodoroStore, useThemeStore } from "@/lib/stores";
@@ -13,6 +13,8 @@ import {
   DEFAULT_BACKGROUND_SOUND,
   type BackgroundSoundId,
 } from "@/lib/sounds";
+
+const POMODORO_BG_KEY = "pomodoro_custom_bg";
 
 const PHASE_LABELS: Record<TimerPhase, string> = {
   work: "Focus Time",
@@ -65,6 +67,100 @@ export default function PomodoroPage() {
   const [newTaskReminder, setNewTaskReminder] = useState<string | null>(null);
   const [showReminderInput, setShowReminderInput] = useState(false);
 
+  // Background image state
+  const [customBgImage, setCustomBgImage] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(POMODORO_BG_KEY);
+  });
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fullscreenRef = useRef<HTMLDivElement>(null);
+
+  // Handle background image upload with compression to avoid localStorage quota
+  const handleBgUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Max dimensions to keep image under localStorage limit (~5MB)
+    const MAX_WIDTH = 1920;
+    const MAX_HEIGHT = 1080;
+    const QUALITY = 0.7;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // Calculate new dimensions maintaining aspect ratio
+        let { width, height } = img;
+        if (width > MAX_WIDTH) {
+          height = (height * MAX_WIDTH) / width;
+          width = MAX_WIDTH;
+        }
+        if (height > MAX_HEIGHT) {
+          width = (width * MAX_HEIGHT) / height;
+          height = MAX_HEIGHT;
+        }
+        
+        // Compress using canvas
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressedDataUrl = canvas.toDataURL("image/jpeg", QUALITY);
+        
+        try {
+          localStorage.setItem(POMODORO_BG_KEY, compressedDataUrl);
+          setCustomBgImage(compressedDataUrl);
+        } catch (err) {
+          // If still too large, try lower quality
+          const lowerQualityUrl = canvas.toDataURL("image/jpeg", 0.4);
+          try {
+            localStorage.setItem(POMODORO_BG_KEY, lowerQualityUrl);
+            setCustomBgImage(lowerQualityUrl);
+          } catch {
+            console.error("Image too large for localStorage", err);
+            alert("Image is too large. Please choose a smaller image.");
+          }
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }, []);
+
+  // Remove background image
+  const removeBgImage = useCallback(() => {
+    setCustomBgImage(null);
+    localStorage.removeItem(POMODORO_BG_KEY);
+  }, []);
+
+  // Toggle fullscreen
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      fullscreenRef.current?.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  }, []);
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  // Theme
+  const theme = useThemeStore((state) => state.theme);
+  const isSpooky = theme === "spooky";
+
   // Sound state
   const [notificationVolume, setNotificationVolume] = useState(() =>
     getStoredValue(STORAGE_KEYS.NOTIFICATION_VOLUME, DEFAULT_NOTIFICATION_VOLUME)
@@ -75,6 +171,67 @@ export default function PomodoroPage() {
   const [selectedSound, setSelectedSound] = useState<BackgroundSoundId>(() =>
     getStoredValue(STORAGE_KEYS.BACKGROUND_SOUND, DEFAULT_BACKGROUND_SOUND)
   );
+
+  // Task reminder notification system
+  useEffect(() => {
+    // Request notification permission on mount
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+    }
+
+    // Check reminders every 5 seconds for better accuracy
+    const checkReminders = () => {
+      const now = new Date();
+      const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+      
+      tasks.forEach((task) => {
+        if (
+          task.reminder?.enabled &&
+          task.reminder.time === currentTime &&
+          !task.reminder.notified &&
+          !task.completed
+        ) {
+          console.log("[Reminder] Triggering notification for task:", task.text, "at", currentTime);
+          
+          // Show browser notification
+          if ("Notification" in window && Notification.permission === "granted") {
+            new Notification(isSpooky ? "Dark Deed Reminder" : "Task Reminder", {
+              body: task.text,
+              icon: "/favicon.ico",
+              tag: task.id,
+              requireInteraction: true,
+            });
+          } else {
+            console.log("[Reminder] Browser notification permission:", Notification.permission);
+          }
+          
+          // Show in-app toast - this should always work
+          usePomodoroStore.getState().setToastMessage(`⏰ Reminder: ${task.text}`);
+          usePomodoroStore.getState().setShowToast(true);
+          setTimeout(() => usePomodoroStore.getState().setShowToast(false), 8000);
+          
+          // Play notification sound using existing sound system
+          try {
+            const audio = new Audio("/sounds/complete.mp3");
+            audio.volume = notificationVolume;
+            audio.play().catch((e) => console.log("[Reminder] Audio play failed:", e));
+          } catch (e) {
+            console.log("[Reminder] Audio error:", e);
+          }
+          
+          // Mark as notified
+          usePomodoroStore.getState().markTaskNotified(task.id);
+        }
+      });
+    };
+
+    const interval = setInterval(checkReminders, 5000); // Check every 5 seconds
+    checkReminders(); // Check immediately on mount
+    
+    return () => clearInterval(interval);
+  }, [tasks, isSpooky, notificationVolume]);
 
 
 
@@ -206,9 +363,6 @@ export default function PomodoroPage() {
       : settings.longBreakDuration;
 
   const progress = ((currentDuration * 60 - timeLeft) / (currentDuration * 60)) * 100;
-
-  const theme = useThemeStore((state) => state.theme);
-  const isSpooky = theme === "spooky";
   const phaseLabels = isSpooky ? SPOOKY_PHASE_LABELS : PHASE_LABELS;
 
   return (
@@ -231,7 +385,54 @@ export default function PomodoroPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Timer Section */}
           <div className="lg:col-span-2">
-            <div className={`${getPhaseColor()} rounded-[24px] p-6 sm:p-10 text-center text-white relative overflow-hidden transition-colors duration-500`}>
+            {/* Hidden file input for background upload */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleBgUpload}
+              className="hidden"
+            />
+            
+            <div 
+              ref={fullscreenRef}
+              className={`${getPhaseColor()} rounded-[24px] p-6 sm:p-10 text-center text-white relative overflow-hidden transition-colors duration-500 ${isFullscreen ? "!rounded-none min-h-screen flex flex-col justify-center" : ""}`}
+              style={customBgImage ? {
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${customBgImage})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              } : undefined}
+            >
+              {/* Background & Fullscreen Controls */}
+              <div className="absolute top-4 right-4 flex gap-2 z-20">
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all"
+                  title={isSpooky ? "Change ritual backdrop" : "Change background"}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                </button>
+                {customBgImage && (
+                  <button
+                    onClick={removeBgImage}
+                    className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-red-500/50 transition-all"
+                    title="Remove background"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                )}
+                <button
+                  onClick={toggleFullscreen}
+                  className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all"
+                  title={isFullscreen ? "Exit fullscreen" : "Fullscreen mode"}
+                >
+                  {isFullscreen ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+                  )}
+                </button>
+              </div>
 
               {/* Phase Indicator */}
               <div className="flex justify-center gap-2 mb-6 relative z-10">
@@ -269,13 +470,15 @@ export default function PomodoroPage() {
               <div className="flex justify-center gap-4 relative z-10">
                 <button
                   onClick={handleToggleTimer}
-                  className={`w-[120px] h-[48px] rounded-full font-sans font-medium text-[15px] transition-all hover:scale-105 active:scale-95 shadow-lg ${
-                    isSpooky 
-                      ? "bg-purple-500 text-white hover:bg-purple-400" 
-                      : "bg-white text-[#171d2b] hover:bg-white/90"
+                  className={`px-6 h-[48px] rounded-full font-sans font-medium text-[14px] transition-all hover:scale-105 active:scale-95 ${
+                    isRunning
+                      ? "bg-white/20 text-white hover:bg-white/30"
+                      : (isSpooky 
+                          ? "bg-purple-500 text-white hover:bg-purple-400 shadow-lg" 
+                          : "bg-white text-[#171d2b] hover:bg-white/90 shadow-lg")
                   }`}
                 >
-                  {isRunning ? (isSpooky ? "Suspend" : "Pause") : (isSpooky ? "Begin Ritual" : "Start")}
+                  {isRunning ? (isSpooky ? "Suspend Ritual" : "Pause") : (isSpooky ? "Begin Ritual" : "Start")}
                 </button>
                 <button
                   onClick={handleResetTimer}
@@ -292,6 +495,47 @@ export default function PomodoroPage() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </button>
               </div>
+
+              {/* Fullscreen Settings Panel */}
+              <AnimatePresence>
+                {isFullscreen && showSettings && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    className="absolute bottom-4 left-4 right-4 max-w-md mx-auto bg-black/80 backdrop-blur-lg rounded-2xl p-5 z-30"
+                  >
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-sans font-medium text-[16px] text-white">
+                        {isSpooky ? "Ritual Settings" : "Timer Settings"}
+                      </h3>
+                      <button onClick={() => setShowSettings(false)} className="text-white/60 hover:text-white">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="font-sans text-[12px] text-white/70 block mb-1">
+                          {isSpooky ? "Summoning" : "Focus"}: {settings.workDuration}m
+                        </label>
+                        <input type="range" min="1" max="60" value={settings.workDuration} onChange={(e) => setSettings({ workDuration: Number(e.target.value) })} className="w-full accent-purple-500" />
+                      </div>
+                      <div>
+                        <label className="font-sans text-[12px] text-white/70 block mb-1">
+                          {isSpooky ? "Respite" : "Short Break"}: {settings.shortBreakDuration}m
+                        </label>
+                        <input type="range" min="1" max="30" value={settings.shortBreakDuration} onChange={(e) => setSettings({ shortBreakDuration: Number(e.target.value) })} className="w-full accent-purple-500" />
+                      </div>
+                      <div>
+                        <label className="font-sans text-[12px] text-white/70 block mb-1">
+                          {isSpooky ? "Slumber" : "Long Break"}: {settings.longBreakDuration}m
+                        </label>
+                        <input type="range" min="1" max="60" value={settings.longBreakDuration} onChange={(e) => setSettings({ longBreakDuration: Number(e.target.value) })} className="w-full accent-purple-500" />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Settings Panel */}
@@ -330,14 +574,22 @@ export default function PomodoroPage() {
                   </div>
 
                   {/* Sound Settings */}
-                  <h3 className="font-sans font-medium text-[16px] text-[#171d2b] mb-4 mt-6 pt-4 border-t border-[#171d2b]/10">Sound Settings</h3>
+                  <h3 className={`font-sans font-medium text-[16px] mb-4 mt-6 pt-4 border-t ${isSpooky ? "text-purple-100 border-purple-500/20" : "text-[#171d2b] border-[#171d2b]/10"}`}>
+                    {isSpooky ? "Ambient Sounds" : "Sound Settings"}
+                  </h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="font-sans text-[13px] text-[#171d2b]/70 block mb-2">Background Sound</label>
+                      <label className={`font-sans text-[13px] block mb-2 ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}`}>
+                        {isSpooky ? "Background Ambience" : "Background Sound"}
+                      </label>
                       <select
                         value={selectedSound}
                         onChange={(e) => handleSoundChange(e.target.value as BackgroundSoundId)}
-                        className="w-full h-[40px] px-3 rounded-lg border border-[#171d2b]/20 bg-white font-sans text-[13px] text-[#171d2b] focus:outline-none focus:border-[#171d2b]/40"
+                        className={`w-full h-[40px] px-3 rounded-lg border font-sans text-[13px] focus:outline-none ${
+                          isSpooky 
+                            ? "border-purple-500/30 bg-[#0d0f14] text-purple-100 focus:border-purple-500/50" 
+                            : "border-[#171d2b]/20 bg-white text-[#171d2b] focus:border-[#171d2b]/40"
+                        }`}
                       >
                         {BACKGROUND_SOUNDS.map((sound) => (
                           <option key={sound.id} value={sound.id}>{sound.name}</option>
@@ -345,7 +597,9 @@ export default function PomodoroPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="font-sans text-[13px] text-[#171d2b]/70 block mb-2">Background Volume: {Math.round(backgroundVolume * 100)}%</label>
+                      <label className={`font-sans text-[13px] block mb-2 ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}`}>
+                        {isSpooky ? "Ambience Volume" : "Background Volume"}: {Math.round(backgroundVolume * 100)}%
+                      </label>
                       <input
                         type="range"
                         min="0"
@@ -353,12 +607,14 @@ export default function PomodoroPage() {
                         step="0.1"
                         value={backgroundVolume}
                         onChange={(e) => handleBackgroundVolumeChange(Number(e.target.value))}
-                        className="w-full accent-[#171d2b]"
+                        className={`w-full ${isSpooky ? "accent-purple-500" : "accent-[#171d2b]"}`}
                         disabled={selectedSound === "none"}
                       />
                     </div>
                     <div>
-                      <label className="font-sans text-[13px] text-[#171d2b]/70 block mb-2">Notification Volume: {Math.round(notificationVolume * 100)}%</label>
+                      <label className={`font-sans text-[13px] block mb-2 ${isSpooky ? "text-purple-300/70" : "text-[#171d2b]/70"}`}>
+                        {isSpooky ? "Alert Volume" : "Notification Volume"}: {Math.round(notificationVolume * 100)}%
+                      </label>
                       <input
                         type="range"
                         min="0"
@@ -366,7 +622,7 @@ export default function PomodoroPage() {
                         step="0.1"
                         value={notificationVolume}
                         onChange={(e) => handleNotificationVolumeChange(Number(e.target.value))}
-                        className="w-full accent-[#171d2b]"
+                        className={`w-full ${isSpooky ? "accent-purple-500" : "accent-[#171d2b]"}`}
                       />
                     </div>
                   </div>

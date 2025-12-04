@@ -115,8 +115,8 @@ function SessionAwareHeader({ user, isLoading, className }: { user: User | null;
                             Dashboard
                         </Link>
                     ) : (
-                        <button
-                            onClick={handleLogin}
+                        <Link
+                            href="/login"
                             className={`relative h-[42px] rounded-[100px] px-6 font-sora text-[16px] overflow-hidden group flex items-center justify-center ${isSpooky ? "bg-white text-purple-950" : "bg-[#171d2b] text-[#fefeff] hover:bg-[#2a3347]"}`}
                         >
                             {isSpooky && (
@@ -125,7 +125,7 @@ function SessionAwareHeader({ user, isLoading, className }: { user: User | null;
                             <span className={`relative z-10 transition-colors duration-300 ${isSpooky ? "group-hover:text-white" : ""}`}>
                                 Log in
                             </span>
-                        </button>
+                        </Link>
                     )}
                 </nav>
 
@@ -185,8 +185,8 @@ function SessionAwareHeader({ user, isLoading, className }: { user: User | null;
                                         Dashboard
                                     </Link>
                                 ) : (
-                                    <button
-                                        onClick={handleLogin}
+                                    <Link
+                                        href="/login"
                                         className={`relative h-[42px] rounded-[100px] px-6 font-sora text-[16px] overflow-hidden group flex items-center justify-center w-full ${isSpooky ? "bg-white text-purple-950" : "bg-[#171d2b] text-[#fefeff] hover:bg-[#2a3347]"}`}
                                     >
                                         {isSpooky && (
@@ -195,7 +195,7 @@ function SessionAwareHeader({ user, isLoading, className }: { user: User | null;
                                         <span className={`relative z-10 transition-colors duration-300 ${isSpooky ? "group-hover:text-white" : ""}`}>
                                             Log in
                                         </span>
-                                    </button>
+                                    </Link>
                                 )}
                             </div>
                         </nav>
@@ -237,8 +237,10 @@ export default function Header({ className }: { className?: string }) {
     }, [checkUser]);
 
     return (
-        <div ref={mountRef} className="sticky top-2 sm:top-3 lg:top-4 z-50 w-full">
-            <SessionAwareHeader user={user} isLoading={isLoading} className={className} />
+        <div ref={mountRef} className="sticky top-0 z-50 w-full pt-2 sm:pt-3 lg:pt-4">
+            <div className="max-w-[1440px] mx-auto">
+                <SessionAwareHeader user={user} isLoading={isLoading} className={className} />
+            </div>
         </div>
     );
 }

@@ -25,14 +25,16 @@ export default function Home() {
 
   return (
     <PublicPageWrapper>
+      {/* Header outside constrained container for proper sticky behavior */}
+      <Header className="!mt-4 sm:!mt-5 lg:!mt-6" />
+      
       <div className="relative max-w-[1440px] min-h-screen mx-auto">
         <BackgroundPaths isSpooky={isSpooky} />
-        <Header className="!mt-4 sm:!mt-5 lg:!mt-6" />
 
         {/* Hero Section */}
         <section className="relative z-10 mx-auto pt-6 sm:pt-8 lg:pt-10 pb-8 sm:pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center overflow-visible min-h-[70vh] lg:min-h-[80vh]">
           {/* Planet positioned top-left - Large decorative element */}
-          <div className="absolute -left-[40px] sm:-left-[50px] lg:-left-[60px] top-[-2%] sm:top-[-2%] w-[100px] h-[100px] sm:w-[180px] sm:h-[180px] lg:w-[220px] lg:h-[220px] z-0 pointer-events-none">
+          <div className="absolute -left-[20px] sm:-left-[30px] lg:-left-[40px] top-[2%] sm:top-[3%] w-[150px] h-[150px] sm:w-[270px] sm:h-[270px] lg:w-[330px] lg:h-[330px] z-0 pointer-events-none">
             <Image
               alt=""
               src={planet2Src}
@@ -44,7 +46,7 @@ export default function Home() {
           </div>
 
           {/* Planet positioned bottom-right - Large decorative element */}
-          <div className="hidden sm:block absolute -right-[40px] lg:-right-[50px] bottom-[-5%] w-[160px] h-[160px] lg:w-[200px] lg:h-[200px] z-0 pointer-events-none">
+          <div className="hidden sm:block absolute -right-[20px] lg:-right-[30px] bottom-[0%] w-[240px] h-[240px] lg:w-[300px] lg:h-[300px] z-0 pointer-events-none">
             <Image
               alt=""
               src={planet1Src}
@@ -95,8 +97,8 @@ export default function Home() {
             {/* Subheadline */}
             <p className={`font-sans text-[15px] sm:text-[17px] lg:text-[18px] leading-[1.6] max-w-[520px] mx-auto mb-5 sm:mb-6 ${isSpooky ? "text-purple-300/80" : "text-[#171d2b]/70"}`}>
               {isSpooky
-                ? "Summon AI to transform your study materials into reviewer notes, flashcards, practice tests, and study guides."
-                : "Transform your PDFs into reviewer notes, flashcards, practice tests, and interactive study materials with AI."
+                ? "Your alternative to Quizlet and Gizmo. Transform any study material into cards, reviewers, and exams instantly."
+                : "Your alternative to Quizlet and Gizmo. Transform any study material into cards, reviewers, and exams instantly."
               }
             </p>
 

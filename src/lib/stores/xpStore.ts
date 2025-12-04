@@ -41,12 +41,21 @@ export const useXPStore = create<XPStore>()((set) => ({
 
     try {
       const supabase = createClient()
+      
+      // DEBUG: Check current user
+      const { data: { user } } = await supabase.auth.getUser()
+      console.log('[XPStore] Current user ID:', user?.id)
+      
       const { data, error } = await supabase.rpc('get_user_xp_stats')
+      
+      // DEBUG: Log results
+      console.log('[XPStore] RPC result:', { data, error })
 
       if (error) throw error
 
       if (data && data.length > 0) {
         const row = data[0]
+        console.log('[XPStore] Setting stats from row:', row)
         set({
           stats: {
             totalXp: row.total_xp || 0,
@@ -57,9 +66,11 @@ export const useXPStore = create<XPStore>()((set) => ({
           loading: false,
         })
       } else {
+        console.log('[XPStore] No data, using defaults')
         set({ stats: DEFAULT_STATS, loading: false })
       }
     } catch (error) {
+      console.error('[XPStore] Fetch error:', error)
       set({ error: error as Error, loading: false, stats: DEFAULT_STATS })
     }
   },

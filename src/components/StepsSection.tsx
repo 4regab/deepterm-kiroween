@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useThemeStore } from "@/lib/stores";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -13,30 +13,105 @@ export default function StepsSection() {
   const theme = useThemeStore((state) => state.theme);
   const isSpooky = theme === "spooky";
   const sectionRef = useRef<HTMLElement>(null);
-  const cardsContainerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const desktopCardsRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(true);
 
-  // Fade in animation for mobile cards only
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Fade in animation for header (both mobile and desktop)
   useGSAP(() => {
-    if (!cardsContainerRef.current) return;
+    if (!headerRef.current) return;
     
-    const mobileCards = cardsContainerRef.current.querySelectorAll('.step-card-mobile');
-    
-    gsap.fromTo(mobileCards,
-      { opacity: 0, y: 60 },
+    gsap.fromTo(headerRef.current,
+      { opacity: 0, y: 50 },
       {
         opacity: 1,
         y: 0,
         duration: 0.8,
-        stagger: 0.2,
         ease: "power3.out",
         scrollTrigger: {
-          trigger: cardsContainerRef.current,
-          start: "top 80%",
+          trigger: headerRef.current,
+          start: "top 90%",
           toggleActions: "play none none none",
         }
       }
     );
   }, { scope: sectionRef });
+
+  // Mobile horizontal scroll refs
+  const mobileScrollContainerRef = useRef<HTMLDivElement>(null);
+  const mobileWrapperRef = useRef<HTMLDivElement>(null);
+
+  // GSAP horizontal scroll for mobile
+  useGSAP(() => {
+    if (!isMobile) return;
+
+    const scrollContainer = mobileScrollContainerRef.current;
+    const wrapper = mobileWrapperRef.current;
+    if (!scrollContainer || !wrapper) return;
+
+    // Calculate scroll distance
+    const getScrollAmount = () => {
+      const containerWidth = wrapper.clientWidth || window.innerWidth;
+      const totalScroll = scrollContainer.scrollWidth - containerWidth;
+      return -totalScroll;
+    };
+
+    const scrollAmount = Math.abs(getScrollAmount());
+
+    const tween = gsap.to(scrollContainer, {
+      x: getScrollAmount,
+      ease: "none",
+      scrollTrigger: {
+        trigger: wrapper,
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        start: "top 15%",
+        end: () => `+=${scrollAmount}`,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    // Set z-index on pinned element immediately after creation
+    if (tween.scrollTrigger?.pin) {
+      (tween.scrollTrigger.pin as HTMLElement).style.zIndex = "10";
+    }
+
+    return () => {
+      tween.scrollTrigger?.kill();
+    };
+  }, { scope: sectionRef, dependencies: [isMobile] });
+
+  // Fade in animation for desktop cards
+  useGSAP(() => {
+    if (isMobile || !desktopCardsRef.current) return;
+    
+    const desktopCards = desktopCardsRef.current.querySelectorAll('.step-card-desktop');
+    
+    gsap.fromTo(desktopCards,
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.15,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: desktopCardsRef.current,
+          start: "top 85%",
+          toggleActions: "play none none none",
+        }
+      }
+    );
+  }, { scope: sectionRef, dependencies: [isMobile] });
 
   const steps = [
     {
@@ -48,12 +123,29 @@ export default function StepsSection() {
       bgClass: isSpooky ? "bg-[#1a0a2e]" : "bg-[#171d2b]",
       numberClass: isSpooky ? "text-purple-500/50" : "text-white/20",
       visual: (
-        <div className={`rounded-2xl p-4 sm:p-6 ${isSpooky ? "bg-purple-900/60 border border-purple-500/30" : "bg-white/10 border border-white/20"}`}>
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${isSpooky ? "bg-purple-500" : "bg-white/30"}`}>
-            <FileText className="w-6 h-6 text-white" />
+        <div className={`rounded-2xl p-5 ${isSpooky ? "bg-purple-900/40 border border-purple-500/30" : "bg-white/10 border border-white/20"}`}>
+          {/* File upload mockup */}
+          <div className={`border-2 border-dashed rounded-xl p-6 text-center ${isSpooky ? "border-purple-500/40" : "border-white/30"}`}>
+            <div className={`w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-3 ${isSpooky ? "bg-purple-500" : "bg-white/20"}`}>
+              <FileText className="w-7 h-7 text-white" />
+            </div>
+            <p className={`text-sm font-medium mb-1 ${isSpooky ? "text-purple-200" : "text-white/90"}`}>
+              {isSpooky ? "Drop your scrolls here" : "Drop files here"}
+            </p>
+            <p className={`text-xs ${isSpooky ? "text-purple-300/60" : "text-white/50"}`}>
+              PDF, DOCX, or paste text
+            </p>
           </div>
-          <div className={`h-3 rounded-full mb-3 ${isSpooky ? "bg-purple-400/70" : "bg-white/30"}`} style={{ width: '80%' }} />
-          <div className={`h-3 rounded-full ${isSpooky ? "bg-purple-400/50" : "bg-white/20"}`} style={{ width: '60%' }} />
+          {/* Recent file indicator */}
+          <div className={`mt-4 flex items-center gap-3 p-3 rounded-lg ${isSpooky ? "bg-purple-800/40" : "bg-white/10"}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSpooky ? "bg-purple-500/50" : "bg-white/20"}`}>
+              <FileText className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className={`h-2.5 rounded-full mb-1.5 ${isSpooky ? "bg-purple-400/60" : "bg-white/40"}`} style={{ width: '75%' }} />
+              <div className={`h-2 rounded-full ${isSpooky ? "bg-purple-400/30" : "bg-white/20"}`} style={{ width: '50%' }} />
+            </div>
+          </div>
         </div>
       ),
     },
@@ -66,18 +158,32 @@ export default function StepsSection() {
       bgClass: isSpooky ? "bg-[#2d1b4e]" : "bg-[#2a3347]",
       numberClass: isSpooky ? "text-purple-400/50" : "text-white/20",
       visual: (
-        <div className="rounded-2xl p-4 sm:p-6 shadow-lg bg-white">
+        <div className={`rounded-2xl p-5 shadow-lg ${isSpooky ? "bg-purple-900/40 border border-purple-500/30" : "bg-white"}`}>
+          {/* Window chrome */}
           <div className="flex items-center gap-1.5 mb-4">
-            <div className="w-3 h-3 rounded-full bg-red-400" />
-            <div className="w-3 h-3 rounded-full bg-yellow-400" />
-            <div className="w-3 h-3 rounded-full bg-green-400" />
+            <div className={`w-3 h-3 rounded-full ${isSpooky ? "bg-purple-400" : "bg-red-400"}`} />
+            <div className={`w-3 h-3 rounded-full ${isSpooky ? "bg-purple-300" : "bg-yellow-400"}`} />
+            <div className={`w-3 h-3 rounded-full ${isSpooky ? "bg-purple-200" : "bg-green-400"}`} />
           </div>
-          <div className={`flex items-center gap-2 mb-3 ${isSpooky ? "text-purple-600" : "text-[#171d2b]"}`}>
+          {/* AI status */}
+          <div className={`flex items-center gap-2 mb-4 ${isSpooky ? "text-purple-200" : "text-[#171d2b]"}`}>
             <Brain className="w-5 h-5" />
-            <span className="text-[13px] font-medium">AI Generating...</span>
+            <span className="text-[13px] font-medium">{isSpooky ? "Conjuring knowledge..." : "AI Generating..."}</span>
           </div>
-          <div className={`h-2 rounded-full ${isSpooky ? "bg-purple-100" : "bg-gray-100"}`}>
-            <div className={`h-full rounded-full ${isSpooky ? "bg-purple-500" : "bg-[#171d2b]"}`} style={{ width: '70%' }} />
+          {/* Progress bar */}
+          <div className={`h-2 rounded-full mb-4 ${isSpooky ? "bg-purple-800/50" : "bg-gray-100"}`}>
+            <div className={`h-full rounded-full ${isSpooky ? "bg-purple-400" : "bg-[#171d2b]"}`} style={{ width: '70%' }} />
+          </div>
+          {/* Generated items preview */}
+          <div className="space-y-2">
+            <div className={`flex items-center gap-2 p-2 rounded-lg ${isSpooky ? "bg-purple-800/50" : "bg-gray-50"}`}>
+              <div className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold ${isSpooky ? "bg-purple-500 text-white" : "bg-[#171d2b] text-white"}`}>12</div>
+              <span className={`text-xs ${isSpooky ? "text-purple-200" : "text-[#171d2b]"}`}>{isSpooky ? "Spells created" : "Flashcards created"}</span>
+            </div>
+            <div className={`flex items-center gap-2 p-2 rounded-lg ${isSpooky ? "bg-purple-800/50" : "bg-gray-50"}`}>
+              <div className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold ${isSpooky ? "bg-purple-400 text-white" : "bg-gray-600 text-white"}`}>5</div>
+              <span className={`text-xs ${isSpooky ? "text-purple-200" : "text-[#171d2b]"}`}>{isSpooky ? "Grimoire sections" : "Review sections"}</span>
+            </div>
           </div>
         </div>
       ),
@@ -91,13 +197,38 @@ export default function StepsSection() {
       bgClass: isSpooky ? "bg-[#4a2c7a]" : "bg-[#3d4a5f]",
       numberClass: isSpooky ? "text-purple-300/50" : "text-white/20",
       visual: (
-        <div className="flex flex-col items-center gap-3">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center ${isSpooky ? "bg-purple-400 text-purple-900" : "bg-white text-[#171d2b]"}`}>
-            <Gamepad2 className="w-7 h-7" />
+        <div className={`rounded-2xl p-5 ${isSpooky ? "bg-purple-800/40 border border-purple-500/30" : "bg-white/10 border border-white/20"}`}>
+          {/* XP Progress */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isSpooky ? "bg-purple-400 text-purple-900" : "bg-white text-[#171d2b]"}`}>
+                <Gamepad2 className="w-5 h-5" />
+              </div>
+              <div>
+                <p className={`text-sm font-semibold ${isSpooky ? "text-purple-100" : "text-white"}`}>Level 7</p>
+                <p className={`text-xs ${isSpooky ? "text-purple-300/70" : "text-white/60"}`}>1,250 XP</p>
+              </div>
+            </div>
+            <div className={`px-3 py-1 rounded-full text-xs font-medium ${isSpooky ? "bg-purple-500 text-white" : "bg-white/20 text-white"}`}>
+              +50 XP
+            </div>
           </div>
-          <div className={`px-4 py-2 rounded-full text-[13px] font-medium flex items-center gap-2 ${isSpooky ? "bg-white text-purple-700" : "bg-white text-[#171d2b] shadow-md"}`}>
-            <div className="w-2 h-2 rounded-full bg-green-500" />
-            Ready to Study
+          {/* XP bar */}
+          <div className={`h-2 rounded-full mb-4 ${isSpooky ? "bg-purple-900/50" : "bg-white/20"}`}>
+            <div className={`h-full rounded-full ${isSpooky ? "bg-purple-400" : "bg-white/70"}`} style={{ width: '65%' }} />
+          </div>
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: isSpooky ? "Streak" : "Streak", value: "7 days" },
+              { label: isSpooky ? "Mastered" : "Mastered", value: "24" },
+              { label: isSpooky ? "Sessions" : "Sessions", value: "42" },
+            ].map((stat, i) => (
+              <div key={i} className={`text-center p-2 rounded-lg ${isSpooky ? "bg-purple-900/40" : "bg-white/10"}`}>
+                <p className={`text-sm font-bold ${isSpooky ? "text-purple-200" : "text-white"}`}>{stat.value}</p>
+                <p className={`text-[10px] ${isSpooky ? "text-purple-300/60" : "text-white/50"}`}>{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       ),
@@ -107,7 +238,7 @@ export default function StepsSection() {
   return (
     <section ref={sectionRef} className="relative z-10 px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
       {/* Section Header */}
-      <div className="text-center mb-10 sm:mb-12 lg:mb-16">
+      <div ref={headerRef} className="text-center mb-10 sm:mb-12 lg:mb-16">
         <h2 className={`font-serif text-[28px] sm:text-[36px] lg:text-[44px] leading-[1.1] mb-3 sm:mb-4 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
           {isSpooky ? "Start Your Ritual" : "Simple Process"}
         </h2>
@@ -116,12 +247,13 @@ export default function StepsSection() {
         </p>
       </div>
 
-      {/* Mobile: Simple stacked cards */}
-      <div ref={cardsContainerRef} className="lg:hidden max-w-[900px] mx-auto flex flex-col gap-5 sm:gap-6">
-        {steps.map((step, index) => (
+      {/* Mobile: Horizontal scroll cards */}
+      <div ref={mobileWrapperRef} className="lg:hidden min-h-[420px] sm:min-h-[480px] flex items-center overflow-hidden -mx-4 sm:-mx-6">
+        <div ref={mobileScrollContainerRef} className="flex gap-4 sm:gap-6 pl-4 sm:pl-6 pr-4 sm:pr-6">
+          {steps.map((step, index) => (
             <div
               key={index}
-              className={`step-card-mobile rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 relative overflow-hidden ${step.bgClass}`}
+              className={`step-card-mobile w-[85vw] sm:w-[70vw] md:w-[60vw] max-w-[500px] flex-shrink-0 rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 relative overflow-hidden ${step.bgClass}`}
             >
               <div className="flex flex-col gap-6">
                 <div className="flex-1">
@@ -140,17 +272,18 @@ export default function StepsSection() {
                 </div>
               </div>
             </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Desktop: Sticky stacking cards */}
-      <div className="hidden lg:block max-w-[900px] mx-auto relative" style={{ height: `${steps.length * 280 + 100}px` }}>
+      <div ref={desktopCardsRef} className="hidden lg:block max-w-[900px] mx-auto relative" style={{ height: `${steps.length * 320 + 150}px` }}>
         {steps.map((step, index) => (
             <div
               key={index}
-              className="sticky"
+              className="step-card-desktop sticky mb-6"
               style={{ 
-                top: `${100 + index * 20}px`,
+                top: `${100 + index * 24}px`,
                 zIndex: 10 + index,
               }}
             >

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Skull, Flame, Trophy, Ghost, Clock } from "lucide-react";
 import { useProfileStore, useXPStore, useActivityStore, useThemeStore } from "@/lib/stores";
@@ -61,9 +62,16 @@ function SpookyHeaderSkeleton() {
 
 export function SpookyDashboardHeader({ greeting }: SpookyDashboardHeaderProps) {
     const theme = useThemeStore((state) => state.theme);
-    const { profile, loading: profileLoading } = useProfileStore();
-    const { stats: xpStats, loading: xpLoading } = useXPStore();
-    const { stats: activityStats, loading: activityLoading } = useActivityStore();
+    const { profile, loading: profileLoading, fetchProfile } = useProfileStore();
+    const { stats: xpStats, loading: xpLoading, fetchXPStats } = useXPStore();
+    const { stats: activityStats, loading: activityLoading, fetchActivity } = useActivityStore();
+
+    // Fetch fresh data on mount
+    useEffect(() => {
+        fetchProfile();
+        fetchXPStats();
+        fetchActivity();
+    }, [fetchProfile, fetchXPStats, fetchActivity]);
 
     if (profileLoading || xpLoading) {
         return <SpookyHeaderSkeleton />;

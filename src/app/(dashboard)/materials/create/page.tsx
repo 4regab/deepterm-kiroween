@@ -475,28 +475,28 @@ export default function CreatePage() {
                 {/* Extraction Mode Selection - Only for reviewer type */}
                 {createType === "reviewer" && reviewerStep === "input" && (
                     <div className="mb-6">
-                        <label className="block text-sm font-medium text-[#171d2b]/60 mb-3 text-left">
-                            Extraction Mode
+                        <label className={`block text-sm font-medium mb-3 text-left ${textMuted}`}>
+                            {isSpooky ? "Dark Extraction Mode" : "Extraction Mode"}
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {[
-                                { id: "full", label: "Full Mode", desc: "Complete definitions & examples" },
-                                { id: "sentence", label: "Sentence Mode", desc: "Concise summaries" },
-                                { id: "keywords", label: "Keywords Mode", desc: "Key phrases only" }
+                                { id: "full", label: isSpooky ? "Full Ritual" : "Full Mode", desc: isSpooky ? "Complete dark knowledge & examples" : "Complete definitions & examples" },
+                                { id: "sentence", label: isSpooky ? "Swift Curse" : "Sentence Mode", desc: isSpooky ? "Concise dark summaries" : "Concise summaries" },
+                                { id: "keywords", label: isSpooky ? "Shadow Words" : "Keywords Mode", desc: isSpooky ? "Key dark phrases only" : "Key phrases only" }
                             ].map((mode) => (
                                 <button
                                     key={mode.id}
                                     onClick={() => setExtractionMode(mode.id as ExtractionMode)}
                                     className={`p-3 rounded-xl border text-left transition-all ${extractionMode === mode.id
-                                        ? "border-[#171d2b] bg-[#171d2b]/5"
-                                        : "border-[#171d2b]/10 hover:border-[#171d2b]/30 bg-white"
+                                        ? (isSpooky ? "border-purple-500 bg-purple-900/20" : "border-[#171d2b] bg-[#171d2b]/5")
+                                        : (isSpooky ? "border-purple-500/20 hover:border-purple-500/40 bg-[#1a1b26]" : "border-[#171d2b]/10 hover:border-[#171d2b]/30 bg-white")
                                         }`}
                                 >
                                     <div className="flex items-center justify-between mb-1">
-                                        <span className="font-sora font-semibold text-[#171d2b] text-sm">{mode.label}</span>
-                                        {extractionMode === mode.id && <Check size={14} className="text-[#171d2b]" />}
+                                        <span className={`font-sora font-semibold text-sm ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>{mode.label}</span>
+                                        {extractionMode === mode.id && <Check size={14} className={isSpooky ? "text-purple-400" : "text-[#171d2b]"} />}
                                     </div>
-                                    <p className="text-xs text-[#171d2b]/60">{mode.desc}</p>
+                                    <p className={`text-xs ${isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}`}>{mode.desc}</p>
                                 </button>
                             ))}
                         </div>
@@ -800,9 +800,9 @@ export default function CreatePage() {
 
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
-                                    <h2 className="text-xl font-sora font-bold text-[#171d2b]">Extraction Complete</h2>
-                                    <p className="text-[#171d2b]/60 text-sm">
-                                        Found {totalReviewerTerms} key terms across {reviewerResults.length} categories.
+                                    <h2 className={`text-xl font-sora font-bold ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>{isSpooky ? "Dark Extraction Complete" : "Extraction Complete"}</h2>
+                                    <p className={`text-sm ${textMuted}`}>
+                                        Found {totalReviewerTerms} {isSpooky ? "forbidden terms" : "key terms"} across {reviewerResults.length} {isSpooky ? "dark categories" : "categories"}.
                                     </p>
                                 </div>
                                 <div className="flex gap-3 w-full sm:w-auto">
@@ -977,13 +977,17 @@ export default function CreatePage() {
                                 initial={{ scale: 0.9, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 exit={{ scale: 0.9, opacity: 0 }}
-                                className="bg-white rounded-2xl p-6 sm:p-8 text-center max-w-sm w-full"
+                                className={`rounded-2xl p-6 sm:p-8 text-center max-w-sm w-full ${isSpooky ? "bg-[#1a1b26] border border-purple-500/20" : "bg-white"}`}
                             >
-                                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                                    <Check size={32} className="text-green-600" />
+                                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isSpooky ? "bg-purple-600/20" : "bg-green-100"}`}>
+                                    <Check size={32} className={isSpooky ? "text-purple-400" : "text-green-600"} />
                                 </div>
-                                <h3 className="text-xl font-sora font-bold text-[#171d2b] mb-2">Material Saved!</h3>
-                                <p className="text-[#171d2b]/60 text-sm">Redirecting to your materials...</p>
+                                <h3 className={`text-xl font-sora font-bold mb-2 ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
+                                    {isSpooky ? "Dark Knowledge Sealed!" : "Material Saved!"}
+                                </h3>
+                                <p className={`text-sm ${isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}`}>
+                                    {isSpooky ? "Returning to your grimoire..." : "Redirecting to your materials..."}
+                                </p>
                             </motion.div>
                         </motion.div>
                     )}

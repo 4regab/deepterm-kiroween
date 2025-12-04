@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Clock, Flame, Trophy } from "lucide-react";
 import { useProfileStore, useXPStore, useActivityStore } from "@/lib/stores";
@@ -7,19 +8,6 @@ import { getRankTitle, calculateProgressPercent } from "@/utils/xp";
 
 interface DashboardHeaderProps {
     greeting: string;
-}
-
-// Module-level flag for one-time fetch
-let dashboardFetchTriggered = false;
-function triggerDashboardFetch() {
-    if (!dashboardFetchTriggered) {
-        dashboardFetchTriggered = true;
-        queueMicrotask(() => {
-            useProfileStore.getState().fetchProfile();
-            useXPStore.getState().fetchXPStats();
-            useActivityStore.getState().fetchActivity();
-        });
-    }
 }
 
 // Skeleton component for loading states
@@ -55,12 +43,16 @@ function HeaderSkeleton() {
 }
 
 export function DashboardHeader({ greeting }: DashboardHeaderProps) {
-    const { profile, loading: profileLoading } = useProfileStore();
-    const { stats: xpStats, loading: xpLoading } = useXPStore();
-    const { stats: activityStats, loading: activityLoading } = useActivityStore();
+    const { profile, loading: profileLoading, fetchProfile } = useProfileStore();
+    const { stats: xpStats, loading: xpLoading, fetchXPStats } = useXPStore();
+    const { stats: activityStats, loading: activityLoading, fetchActivity } = useActivityStore();
 
-    // Trigger fetch once (deferred to avoid render-time issues)
-    triggerDashboardFetch();
+    // Fetch fresh data on mount
+    useEffect(() => {
+        fetchProfile();
+        fetchXPStats();
+        fetchActivity();
+    }, []);
 
     // Show skeleton during initial load
     if (profileLoading || xpLoading) {
