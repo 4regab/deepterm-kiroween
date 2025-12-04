@@ -18,6 +18,8 @@ interface PomodoroState {
   // Global notification state for when timer completes
   pendingPhasePrompt: boolean
   pendingNextPhase: TimerPhase | null
+  // Global task reminder notification state
+  pendingTaskReminder: { taskId: string; taskText: string } | null
 }
 
 interface PomodoroActions {
@@ -31,6 +33,8 @@ interface PomodoroActions {
   removeTask: (id: string) => void
   updateTaskReminder: (id: string, reminderTime: string | null) => void
   markTaskNotified: (id: string) => void
+  setPendingTaskReminder: (reminder: { taskId: string; taskText: string } | null) => void
+  dismissTaskReminder: () => void
   setShowSettings: (show: boolean) => void
   setShowToast: (show: boolean) => void
   setToastMessage: (message: string) => void
@@ -71,6 +75,7 @@ export const usePomodoroStore = create<PomodoroStore>()((set, get) => ({
   showConfetti: false,
   pendingPhasePrompt: false,
   pendingNextPhase: null,
+  pendingTaskReminder: null,
 
   setSettings: (newSettings) => {
     set((state) => {
@@ -146,6 +151,10 @@ export const usePomodoroStore = create<PomodoroStore>()((set, get) => ({
         : task
     )
   })),
+
+  setPendingTaskReminder: (reminder) => set({ pendingTaskReminder: reminder }),
+
+  dismissTaskReminder: () => set({ pendingTaskReminder: null }),
 
   setShowSettings: (show) => set({ showSettings: show }),
 

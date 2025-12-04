@@ -219,7 +219,7 @@ export default function SharePreviewClient({ data, shareCode }: Props) {
             <div className="w-[28px] h-[28px] flex items-center justify-center">
               <div className="rotate-[292deg]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="DeepTerm Logo" className="w-[22px] h-[22px]" src="/assets/logo.svg" />
+                <img alt="DeepTerm Logo" className="w-[22px] h-[22px]" src="/assets/logo2.svg" />
               </div>
             </div>
             <span className={`font-sora text-xl ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>

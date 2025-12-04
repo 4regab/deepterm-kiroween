@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import { useUIStore, useThemeStore } from "@/lib/stores";
 import PomodoroNotification from "@/components/PomodoroNotification";
 import TaskReminderNotification from "@/components/TaskReminderNotification";
-import { ThemeProvider, SpookyEffects, SpookyAmbientSound } from "@/components/SpookyTheme";
+import { ThemeProvider, SpookyEffects } from "@/components/SpookyTheme";
 
 // Dynamic import for Sidebar
 const Sidebar = dynamic(() => import("@/components/Sidebar"), {
@@ -49,7 +49,6 @@ export default function DashboardLayout({
             }`}>
                 {/* Spooky ambient effects */}
                 <SpookyEffects />
-                <SpookyAmbientSound />
                 
                 <PomodoroNotification />
                 <TaskReminderNotification />

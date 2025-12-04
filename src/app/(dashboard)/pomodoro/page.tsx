@@ -13,6 +13,7 @@ import {
   DEFAULT_BACKGROUND_SOUND,
   type BackgroundSoundId,
 } from "@/lib/sounds";
+import { Timer, Play, X, Bell, Check } from "lucide-react";
 
 const POMODORO_BG_KEY = "pomodoro_custom_bg";
 
@@ -39,6 +40,156 @@ const getStoredValue = <T,>(key: string, defaultValue: T): T => {
     return defaultValue;
   }
 };
+
+// Phase labels for notifications
+const NOTIFICATION_PHASE_LABELS: Record<TimerPhase, string> = {
+  work: "Focus Time",
+  shortBreak: "Short Break",
+  longBreak: "Long Break",
+};
+
+// Fullscreen-compatible notifications component
+function FullscreenNotifications({ isSpooky }: { isSpooky: boolean }) {
+  const {
+    pendingPhasePrompt,
+    pendingNextPhase,
+    phase: currentPhase,
+    startNextPhase,
+    dismissPhasePrompt,
+    pendingTaskReminder,
+    dismissTaskReminder,
+  } = usePomodoroStore();
+
+  const handleDismissPhase = () => {
+    dismissPhasePrompt();
+  };
+
+  const handleStartNextPhase = () => {
+    startNextPhase();
+  };
+
+  const handleDismissTask = () => {
+    dismissTaskReminder();
+  };
+
+  return (
+    <>
+      {/* Pomodoro Phase Prompt */}
+      <AnimatePresence>
+        {pendingPhasePrompt && pendingNextPhase && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="absolute top-16 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-md"
+          >
+            <div className={`rounded-2xl shadow-2xl overflow-hidden ${
+              isSpooky ? "bg-[#1a1625] border border-purple-500/30" : "bg-[#171d2b]"
+            } text-white`}>
+              <div className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    isSpooky ? "bg-purple-500/20" : "bg-white/10"
+                  }`}>
+                    <Timer size={20} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-sora font-semibold text-base mb-1">
+                      {NOTIFICATION_PHASE_LABELS[currentPhase]} Complete!
+                    </h3>
+                    <p className="text-white/70 text-sm">
+                      Ready to start {NOTIFICATION_PHASE_LABELS[pendingNextPhase].toLowerCase()}?
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleDismissPhase}
+                    className="p-1.5 hover:bg-white/10 rounded-lg transition-colors flex-shrink-0"
+                    aria-label="Dismiss"
+                  >
+                    <X size={18} className="text-white/60" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex border-t border-white/10">
+                <button
+                  onClick={handleDismissPhase}
+                  className="flex-1 py-3 text-sm font-medium text-white/70 hover:bg-white/5 transition-colors"
+                >
+                  Later
+                </button>
+                <button
+                  onClick={handleStartNextPhase}
+                  className="flex-1 py-3 text-sm font-medium bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Play size={14} />
+                  Start {NOTIFICATION_PHASE_LABELS[pendingNextPhase]}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Task Reminder */}
+      <AnimatePresence>
+        {pendingTaskReminder && !pendingPhasePrompt && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="absolute top-16 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-md"
+          >
+            <div className={`rounded-2xl shadow-2xl overflow-hidden ${
+              isSpooky ? "bg-[#1a1625] border border-purple-500/30" : "bg-[#171d2b]"
+            } text-white`}>
+              <div className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    isSpooky ? "bg-purple-500/20" : "bg-white/10"
+                  }`}>
+                    <Bell size={20} className={isSpooky ? "text-purple-300" : "text-white"} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className={`font-sora font-semibold text-base mb-1 ${
+                      isSpooky ? "text-purple-100" : "text-white"
+                    }`}>
+                      {isSpooky ? "Dark Deed Reminder" : "Task Reminder"}
+                    </h3>
+                    <p className={`text-sm ${isSpooky ? "text-purple-300/70" : "text-white/70"}`}>
+                      {pendingTaskReminder.taskText}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleDismissTask}
+                    className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${
+                      isSpooky ? "hover:bg-purple-500/20" : "hover:bg-white/10"
+                    }`}
+                    aria-label="Dismiss"
+                  >
+                    <X size={18} className={isSpooky ? "text-purple-300/60" : "text-white/60"} />
+                  </button>
+                </div>
+              </div>
+              <div className={`flex border-t ${isSpooky ? "border-purple-500/20" : "border-white/10"}`}>
+                <button
+                  onClick={handleDismissTask}
+                  className={`flex-1 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                    isSpooky 
+                      ? "bg-purple-500/10 hover:bg-purple-500/20 text-purple-100" 
+                      : "bg-white/10 hover:bg-white/20 text-white"
+                  }`}
+                >
+                  <Check size={14} />
+                  Got it
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
 
 export default function PomodoroPage() {
   const {
@@ -68,12 +219,13 @@ export default function PomodoroPage() {
   const [showReminderInput, setShowReminderInput] = useState(false);
   const [showFullscreenTasks, setShowFullscreenTasks] = useState(false);
 
-  // Background image state - initialize from localStorage lazily to avoid hydration mismatch
+  // Background image state - lazy initialization from localStorage
   const [customBgImage, setCustomBgImage] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
     return localStorage.getItem(POMODORO_BG_KEY);
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fullscreenRef = useRef<HTMLDivElement>(null);
 
@@ -149,11 +301,12 @@ export default function PomodoroPage() {
     }
   }, []);
 
-  // Listen for fullscreen changes
+  // Listen for fullscreen changes using useEffect
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
+    
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
@@ -384,6 +537,11 @@ export default function PomodoroPage() {
                   )}
                 </button>
               </div>
+
+              {/* Fullscreen Notifications - Rendered inside fullscreen container */}
+              {isFullscreen && (
+                <FullscreenNotifications isSpooky={isSpooky} />
+              )}
 
               {/* Phase Indicator - Added top margin on mobile to avoid overlap with controls */}
               <div className="flex justify-center gap-1 sm:gap-2 mb-6 relative z-10 mt-10 sm:mt-0 flex-wrap px-2">

@@ -117,23 +117,40 @@ export async function POST(request: NextRequest) {
     }
 
     // Build prompt for card generation
-    const systemPrompt = `You are an expert study material creator. Extract ALL key terms and their definitions from the provided content.
+const systemPrompt = `You are a high-precision Educational Data Extraction Engine. Your sole purpose is to convert unstructured study material into a strict, verbatim JSON dataset.
 
-CRITICAL INSTRUCTION: You MUST process the ENTIRE text from beginning to END without skipping ANY content.
-Output ONLY a valid JSON array of objects with "term" and "definition" fields.
-1. ONLY Extract EVERY key term with DEFINITION that appears in the text (including  subterms, technical terms, examples with meaning, important concepts, and defined phrases)
-2. Do NOT limit yourself to a small number - capture ALL educational terms and definition content
-3. Terms and definition should be VERBATIM from document/study material
-4. Do NOT include any other content in the JSON array.
-5. MANDATORY: Ensure that all sections until the end are ALWAYS extracted completely
-6. MANDATORY:The output format should be a valid JSON array of objects with "term" and "definition" fields.
-7. Term and Definition must be always verbatim.
+Before generating the final JSON, you must internally execute the following logic phases to ensure zero data loss:
 
-Example output format:
+### PHASE 1: CONTENT TOPOLOGY & PLANNING
+1.  **Scan the Input:** Acknowledge the full length of the provided text from the first word to the very last period.
+2.  **Segmentation Strategy:** Mentally divide the text into logical sections (headers, paragraphs, bullet points) to ensure the extraction process reaches the absolute end of the document.
+3.  **Laziness Inhibition:** You are explicitly FORBIDDEN from summarizing, skipping, or "speed-reading" the middle or end sections. Every sentence must be evaluated.
+
+### PHASE 2: EXTRACTION CRITERIA (The "Strict Filter")
+You will extract an entity only if it meets these conditions:
+1.  **Explicit Definition:** The text explicitly assigns a meaning to a term (e.g., "X is Y," "X refers to Y," "X: Y").
+2.  **Implicit Context:** The text introduces a concept and immediately explains its function or mechanism.
+3.  **Sub-terms:** You must extract nested terms (e.g., if "Mitosis" is the main topic, extract "Prophase," "Metaphase," etc., if they are defined).
+
+### PHASE 3: VERBATIM INTEGRITY PROTOCOL
+1.  **No Paraphrasing:** The "term" and "definition" values must be exact string matches from the source text.
+2.  **No Hallucination:** Do not add outside knowledge. If the text says "Photosynthesis is cool," do not change it to "Photosynthesis is the process of converting light..." unless the text actually says that.
+3.  **Preserve Examples:** If the definition in the text includes an example (e.g., "like a ball"), include it in the definition field.
+
+### PHASE 4: OUTPUT CONSTRUCTION
+Return ONLY a valid JSON array. Do not wrap it in markdown code blocks like \`\`\`json. Do not add introductory text.
+
+Format Rules:
+- Keys must be exactly: "term", "definition"
+- Escape special characters properly for JSON.
+
+Example Structure:
 [
-  {"term": "Photosynthesis", "definition": "The process by which plants convert sunlight into energy"},
-  {"term": "Chlorophyll", "definition": "Green pigment in plants that absorbs light for photosynthesis. Example:  "}
-]`;
+  {"term": "Mitochondria", "definition": "The powerhouse of the cell, responsible for energy production."},
+  {"term": "ATP", "definition": "Adenosine Triphosphate; the energy currency of the cell."}
+]
+
+Begin processing now. Ensure the final object in your array corresponds to the final concept in the input text.`;;
 
     const contents: Array<{ role: string; parts: Array<{ text?: string; fileData?: { fileUri: string; mimeType: string } }> }> = [];
 

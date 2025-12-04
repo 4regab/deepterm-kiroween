@@ -8,7 +8,7 @@
 A free, open-source alternative to Quizlet and Gizmo. It transforms PDFs and study materials into flashcards and reviewer notes. Built with spaced repetition at its core, cards progress through stages (new, learning, review, mastered) to optimize long-term retention. Unlike paid alternatives, DeepTerm combines AI generation with rich productivity features including an integrated Pomodoro timer, task reminders, ambient sounds, and gamified learning through XP progression, achievements, and study streaks - all completely free.
 <img width="1797" height="947" alt="image" src="https://github.com/user-attachments/assets/61fbd873-a6d0-43c8-9c54-fd01190dc8a8" />
 
-**[Live Demo](https://deepterm.me)**
+[![Live Demo](https://img.shields.io/badge/Live_Demo-deepterm.me-blue?style=for-the-badge&logo=vercel)](https://deepterm.me)
 
 ## Features
 
@@ -181,4 +181,4 @@ AI generation is rate-limited to 10 requests per user per day to manage API cost
 5. Submit a pull request
 
 #
-Submitted for the [Kiroween Hackathon](https://kiroween.devpost.com/) by [Kiro](https://kiro.dev/).
+Submitted to [Kiroween Hackathon](https://kiroween.devpost.com/) organized by AWS [Kiro](https://kiro.dev/)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, X, Check } from "lucide-react";
 import { usePomodoroStore, useThemeStore } from "@/lib/stores";
@@ -23,23 +23,9 @@ function getStoredValue<T>(key: string, defaultValue: T): T {
   }
 }
 
-// Request browser notification permission
-function requestNotificationPermission(): Promise<NotificationPermission> {
-  if (!("Notification" in window)) {
-    return Promise.resolve("denied" as NotificationPermission);
-  }
-  if (Notification.permission === "granted") {
-    return Promise.resolve("granted");
-  }
-  if (Notification.permission !== "denied") {
-    return Notification.requestPermission();
-  }
-  return Promise.resolve(Notification.permission);
-}
-
 // Show browser notification
 function showBrowserNotification(title: string, body: string, onClick?: () => void) {
-  if (Notification.permission === "granted") {
+  if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
     const notification = new Notification(title, {
       body,
       icon: "/favicon-32x32.png",
@@ -72,21 +58,11 @@ function shouldTriggerReminder(reminderTimeStr: string): boolean {
   return nowTimestamp >= reminderTimestamp && nowTimestamp - reminderTimestamp < 60000;
 }
 
-interface PendingReminder {
-  taskId: string;
-  taskText: string;
-}
-
 export default function TaskReminderNotification() {
-  const tasks = usePomodoroStore((state) => state.tasks);
-  const markTaskNotified = usePomodoroStore((state) => state.markTaskNotified);
-  const permissionRequested = useRef(false);
-  const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingTaskReminder = usePomodoroStore((state) => state.pendingTaskReminder);
+  const dismissTaskReminder = usePomodoroStore((state) => state.dismissTaskReminder);
   const theme = useThemeStore((state) => state.theme);
   const isSpooky = theme === "spooky";
-  
-  // Pending reminder for in-app notification popup
-  const [pendingReminder, setPendingReminder] = useState<PendingReminder | null>(null);
   
   // Get notification volume from localStorage
   const [notificationVolume] = useState(() =>
@@ -97,16 +73,13 @@ export default function TaskReminderNotification() {
     volume: notificationVolume,
   });
 
-  // Request permission on mount
-  useEffect(() => {
-    if (!permissionRequested.current) {
-      permissionRequested.current = true;
-      requestNotificationPermission();
-    }
-  }, []);
-
+  // Check reminders function
   const checkReminders = useCallback(() => {
-    tasks.forEach((task) => {
+    const currentTasks = usePomodoroStore.getState().tasks;
+    const currentTheme = useThemeStore.getState().theme;
+    const currentIsSpooky = currentTheme === "spooky";
+    
+    currentTasks.forEach((task) => {
       if (
         task.reminder &&
         task.reminder.enabled &&
@@ -117,45 +90,57 @@ export default function TaskReminderNotification() {
         if (shouldTriggerReminder(task.reminder.time)) {
           // Show browser notification
           showBrowserNotification(
-            isSpooky ? "Dark Deed Reminder" : "Task Reminder",
+            currentIsSpooky ? "Dark Deed Reminder" : "Task Reminder",
             task.text,
             () => window.focus()
           );
           
-          // Show in-app notification popup and play sound
-          setPendingReminder({ taskId: task.id, taskText: task.text });
+          // Set global pending task reminder and play sound
+          usePomodoroStore.getState().setPendingTaskReminder({ taskId: task.id, taskText: task.text });
           playNotification();
           
           // Mark as notified
-          markTaskNotified(task.id);
+          usePomodoroStore.getState().markTaskNotified(task.id);
         }
       }
     });
-  }, [tasks, markTaskNotified, isSpooky, playNotification]);
+  }, [playNotification]);
 
-  // Check reminders every 10 seconds
+  // Initialize interval and permission request in useEffect (proper side effect handling)
   useEffect(() => {
-    checkReminders(); // Check immediately
+    // Request notification permission once
+    if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+      Notification.requestPermission();
+    }
     
-    checkIntervalRef.current = setInterval(checkReminders, 10000);
+    // Run initial check
+    checkReminders();
     
-    return () => {
-      if (checkIntervalRef.current) {
-        clearInterval(checkIntervalRef.current);
-      }
-    };
+    // Set up interval to check reminders
+    const intervalId = setInterval(checkReminders, 10000);
+    
+    return () => clearInterval(intervalId);
   }, [checkReminders]);
+
+  // Stop sound when reminder is dismissed (from any source - global or fullscreen component)
+  const prevPendingRef = useRef(pendingTaskReminder);
+  useEffect(() => {
+    if (prevPendingRef.current && !pendingTaskReminder) {
+      stopNotification();
+    }
+    prevPendingRef.current = pendingTaskReminder;
+  }, [pendingTaskReminder, stopNotification]);
 
   // Dismiss handler
   const handleDismiss = useCallback(() => {
     stopNotification();
-    setPendingReminder(null);
-  }, [stopNotification]);
+    dismissTaskReminder();
+  }, [stopNotification, dismissTaskReminder]);
 
   // Render in-app notification popup (similar to PomodoroNotification)
   return (
     <AnimatePresence>
-      {pendingReminder && (
+      {pendingTaskReminder && (
         <motion.div
           initial={{ opacity: 0, y: -20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -179,7 +164,7 @@ export default function TaskReminderNotification() {
                     {isSpooky ? "Dark Deed Reminder" : "Task Reminder"}
                   </h3>
                   <p className={`text-sm ${isSpooky ? "text-purple-300/70" : "text-white/70"}`}>
-                    {pendingReminder.taskText}
+                    {pendingTaskReminder.taskText}
                   </p>
                 </div>
                 <button

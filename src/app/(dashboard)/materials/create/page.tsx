@@ -711,6 +711,10 @@ export default function CreatePage() {
                                 <p className={`text-sm ${textMuted}`}>
                                     {isSpooky ? "Upload a scroll and let dark forces extract forbidden knowledge" : "Upload a document and let AI extract terms automatically"}
                                 </p>
+                                <p className={`text-xs mt-2 flex items-center gap-1.5 ${isSpooky ? "text-purple-400/60" : "text-amber-600/80"}`}>
+                                    <Info size={12} />
+                                    {isSpooky ? "Dark forces may make mistakes. Verify the extracted knowledge." : "AI may make mistakes. Please review and verify the output."}
+                                </p>
                             </div>
 
                             <input
@@ -803,6 +807,10 @@ export default function CreatePage() {
                                     <h2 className={`text-xl font-sora font-bold ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>{isSpooky ? "Dark Extraction Complete" : "Extraction Complete"}</h2>
                                     <p className={`text-sm ${textMuted}`}>
                                         Found {totalReviewerTerms} {isSpooky ? "forbidden terms" : "key terms"} across {reviewerResults.length} {isSpooky ? "dark categories" : "categories"}.
+                                    </p>
+                                    <p className={`text-xs mt-1 flex items-center gap-1.5 ${isSpooky ? "text-purple-400/60" : "text-amber-600/80"}`}>
+                                        <Info size={12} />
+                                        {isSpooky ? "Dark forces may err. Verify before saving." : "AI may make mistakes. Please review before saving."}
                                     </p>
                                 </div>
                                 <div className="flex gap-3 w-full sm:w-auto">
