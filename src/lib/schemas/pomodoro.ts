@@ -5,7 +5,7 @@ export type TimerPhase = z.infer<typeof TimerPhaseSchema>
 
 export const TaskReminderSchema = z.object({
   enabled: z.boolean(),
-  time: z.string().nullable(), // ISO time string (HH:mm format)
+  time: z.string().nullable(), // ISO datetime string for full date+time support
   notified: z.boolean(),
 })
 

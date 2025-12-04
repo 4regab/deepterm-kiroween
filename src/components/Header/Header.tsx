@@ -30,20 +30,6 @@ function SessionAwareHeader({ user, isLoading, className }: { user: User | null;
         setProfileMenuOpen: setIsLearnOpen
     } = useUIStore();
 
-    const handleLogin = async () => {
-        const supabase = createClient();
-        await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
-                queryParams: {
-                    access_type: 'offline',
-                    prompt: 'consent',
-                },
-            },
-        });
-    };
-
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
     const toggleLearn = () => setIsLearnOpen(!isLearnOpen);
 

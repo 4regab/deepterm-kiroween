@@ -16,6 +16,9 @@ import {
   Trophy,
   Calendar,
   TrendingUp,
+  GraduationCap,
+  Palette,
+  Keyboard,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -53,19 +56,19 @@ const categories: CategoryContent[] = [
           "Click 'Log in' or 'Start Learning Free' to access your personal dashboard where all tools are available.",
       },
       {
-        title: "Choose Your Tool",
+        title: "Create Materials",
         description:
-          "Select from Reviewer Maker, Practice Test Maker, Flashcard Maker, or Pomodoro Timer based on your study needs.",
+          "Go to Materials and click the + button to create new flashcards or reviewers. Choose between manual entry, bulk import, or AI generation.",
       },
       {
-        title: "Upload or Paste Content",
+        title: "Choose Your Study Mode",
         description:
-          "Upload PDF/DOCX files or paste text directly. Our AI will process your content automatically.",
+          "Open any material and select from 4 study modes: Flashcards, Learn, Match, or Practice to study in different ways.",
       },
       {
-        title: "Study and Track Progress",
+        title: "Track Your Progress",
         description:
-          "Use the generated materials to study and track your progress on your dashboard.",
+          "View your study calendar, XP progress, achievements, and streaks on your dashboard.",
       },
     ],
     faqs: [
@@ -77,12 +80,17 @@ const categories: CategoryContent[] = [
       {
         question: "What file formats are supported?",
         answer:
-          "DeepTerm supports PDF, DOCX, and plain text. You can also paste content directly into the text input area.",
+          "DeepTerm supports PDF files for AI generation. You can also paste text directly or manually enter terms and definitions.",
       },
       {
         question: "How do I sign in?",
         answer:
           "Click the 'Log in' button in the header and sign in with your Google account. It's quick and secure.",
+      },
+      {
+        question: "What are the 4 study modes?",
+        answer:
+          "Flashcards (flip cards to test recall), Learn (adaptive questions with MCQ/True-False/Written), Match (memory matching game), and Practice (customizable quiz).",
       },
     ],
   },
@@ -91,109 +99,123 @@ const categories: CategoryContent[] = [
     id: "reviewer",
     title: "Reviewer Maker",
     icon: FileText,
-    description: "Transform documents into organized, learnable knowledge.",
+    description: "Transform documents into organized, categorized notes.",
     content:
-      "The Reviewer Maker uses AI to extract key terms, definitions, and concepts from your study materials. It organizes information into structured notes that are easy to review and memorize. Choose from different modes to customize how your content is processed.",
+      "The Reviewer Maker uses AI to extract key terms, definitions, and concepts from your study materials. It organizes information into categories with expandable sections. Choose from three extraction modes to customize how your content is processed.",
     features: [
       "AI-powered term and definition extraction",
       "Three modes: Full, Sentence, and Keywords",
-      "Automatic category grouping",
+      "Automatic category grouping with colors",
+      "Expandable/collapsible category sections",
+      "Search/filter terms within reviewer",
       "Export to PDF or DOCX format",
-      "Edit and customize extracted content",
-      "Save reviewers for later access",
+      "Edit, add, and delete terms and categories",
+      "Share reviewers with shareable links",
     ],
     steps: [
       {
-        title: "Upload Your Material",
+        title: "Create a Reviewer",
         description:
-          "Upload a PDF, DOCX file, or paste your study text directly into the input area.",
+          "Go to Materials → Create. Choose 'Reviewer' type and upload a PDF file.",
       },
       {
-        title: "Select Processing Mode",
+        title: "Select Extraction Mode",
         description:
-          "Choose Full mode for comprehensive extraction, Sentence mode for key sentences, or Keywords mode for essential terms only.",
+          "Choose Full mode for comprehensive definitions, Sentence mode for concise summaries, or Keywords mode for key phrases only.",
       },
       {
         title: "Review and Edit",
         description:
-          "Review the AI-extracted content and make any necessary edits or additions.",
+          "Expand categories to see terms. Click edit icons to modify terms, or use + to add new terms to any category.",
       },
       {
-        title: "Export or Save",
+        title: "Export or Share",
         description:
-          "Export your reviewer as PDF/DOCX or save it to your dashboard for future study sessions.",
+          "Click the download icon to export as PDF/DOCX, or use the share button to generate a shareable link.",
       },
     ],
     faqs: [
       {
         question: "What's the difference between the three modes?",
         answer:
-          "Full mode extracts comprehensive definitions and explanations. Sentence mode pulls key sentences containing important information. Keywords mode focuses on essential terms and brief definitions.",
+          "Full mode extracts comprehensive definitions with examples. Sentence mode pulls concise one-sentence summaries. Keywords mode focuses on essential terms and brief key phrases only.",
       },
       {
         question: "Can I edit the extracted content?",
         answer:
-          "Yes, all extracted content is fully editable. You can modify, add, or remove any terms and definitions before saving or exporting.",
+          "Yes! Click the edit icon on any term to modify it. You can also add new terms to categories, delete terms, or delete entire categories.",
+      },
+      {
+        question: "How do I search within a reviewer?",
+        answer:
+          "Use the search/filter bar at the top of the reviewer. It filters terms across all categories in real-time as you type.",
       },
       {
         question: "What's the maximum file size?",
         answer:
-          "We support files up to 10MB. For larger documents, consider splitting them into smaller sections for better processing.",
+          "We support PDF files up to 20MB. For larger documents, consider splitting them into smaller sections for better processing.",
       },
     ],
   },
   {
     id: "quiz",
-    title: "Practice Test Maker",
+    title: "Practice Test",
     icon: BrainCircuit,
-    description: "Generate AI-powered quizzes from your study materials.",
+    description: "Test yourself with customizable quizzes.",
     content:
-      "The Practice Test Maker creates relevant questions from your study materials to reinforce knowledge through active recall. The AI analyzes your content and generates various question types to test your understanding comprehensively.",
+      "Practice mode creates quizzes from your flashcard sets with multiple question types. Configure the number of questions and enable specific question types to test your knowledge.",
     features: [
-      "Multiple question types (multiple choice, true/false, fill-in-blank)",
-      "AI determines optimal question count",
-      "Verbatim mode for exact text matching",
-      "Manual question creation option",
-      "Save tests for repeated practice",
-      "Track your test performance",
+      "Multiple choice questions (4 options)",
+      "True/False questions with term-definition matching",
+      "Fill-in-the-blank questions",
+      "Configurable question count (5-50 or max)",
+      "Auto-next after answering (configurable delay)",
+      "Keyboard shortcuts (1-4 for MCQ, A/B for T/F)",
+      "Results page showing incorrect answers",
+      "XP rewards for correct answers",
     ],
     steps: [
       {
-        title: "Input Your Content",
+        title: "Open Practice Mode",
         description:
-          "Upload study materials or paste text that you want to be tested on.",
+          "Open any flashcard set and click the Practice button to start.",
       },
       {
         title: "Configure Settings",
         description:
-          "Choose question types, enable/disable verbatim mode, and set the number of questions (or let AI decide).",
+          "A settings modal appears. Choose question types and number of cards for your test.",
       },
       {
-        title: "Generate Test",
+        title: "Take the Test",
         description:
-          "Click generate and the AI will create a practice test based on your content.",
+          "Answer questions using mouse clicks or keyboard shortcuts. Feedback shows after each answer.",
       },
       {
-        title: "Take and Review",
+        title: "Review Results",
         description:
-          "Take the test, review your answers, and identify areas that need more study.",
+          "After completing the test, see your score and review any questions you got wrong.",
       },
     ],
     faqs: [
       {
-        question: "What is Verbatim mode?",
+        question: "How do True/False questions work?",
         answer:
-          "Verbatim mode generates questions that require exact answers from your source material. This is useful for memorizing specific definitions or facts.",
+          "You're shown a definition and a term. You must decide if the term correctly matches the definition (True) or if it's a different term (False).",
       },
       {
-        question: "Can I create my own questions?",
+        question: "What keyboard shortcuts can I use?",
         answer:
-          "Yes, you can manually add custom questions to any generated test or create entirely manual tests.",
+          "MCQ: Press 1-4 for options A-D. True/False: Press A (or 1) for True, B (or 2) for False. Fill-blank: Type answer and press Enter.",
       },
       {
-        question: "How many questions can I generate?",
+        question: "Can I retry the test?",
         answer:
-          "You can let the AI determine the optimal number based on your content, or manually specify anywhere from 5 to 50 questions.",
+          "Yes! On the results page, click 'Try Again' to retake the test with newly shuffled questions, or 'Exit' to return to the material.",
+      },
+      {
+        question: "How many questions can I have?",
+        answer:
+          "You can choose between 5, 10, 15, 20, 25, or 50 questions, or select 'max' to use all available cards from your set.",
       },
     ],
   },
@@ -203,91 +225,284 @@ const categories: CategoryContent[] = [
     icon: Zap,
     description: "Master any subject with active recall using flashcards.",
     content:
-      "The Flashcard Maker extracts key terms and definitions to create flashcard sets for spaced repetition learning. This proven study technique helps you retain information longer by testing yourself at optimal intervals.",
+      "The Flashcard Maker extracts key terms and definitions to create flashcard sets for spaced repetition learning. This proven study technique helps you retain information longer by testing yourself at optimal intervals. Cards progress through stages: New, Learning, Review, and Mastered.",
     features: [
-      "AI-powered term and definition extraction",
-      "Manual flashcard creation",
-      "Flip animation for self-testing",
-      "Organize cards into sets",
-      "Track cards you've mastered",
-      "Support for TXT, PDF, and DOCX",
+      "AI-powered term and definition extraction from PDFs",
+      "Manual entry or bulk import (term - definition format)",
+      "4 study modes: Flashcards, Learn, Match, Practice",
+      "Card progress tracking (New → Learning → Review → Mastered)",
+      "Customizable settings (cards per round, front side, auto-next)",
+      "Keyboard shortcuts for faster studying",
+      "Share materials with shareable links",
+      "Rename, edit, and delete cards anytime",
     ],
     steps: [
       {
-        title: "Add Your Content",
+        title: "Create a New Set",
         description:
-          "Upload a document or paste text containing the terms and concepts you want to learn.",
+          "Go to Materials → Create. Choose 'Cards' type and enter a title for your set.",
       },
       {
-        title: "Generate Flashcards",
+        title: "Add Cards",
         description:
-          "The AI identifies key terms and their definitions, creating flashcards automatically.",
+          "Use Manual Entry to add cards one by one, Bulk Add to paste multiple (term - definition format), or AI Generate to extract from a PDF.",
       },
       {
-        title: "Review and Customize",
+        title: "Study Your Cards",
         description:
-          "Edit generated cards or add your own custom flashcards to the set.",
+          "Open your set and choose a study mode. Flashcards mode lets you flip cards and rate yourself.",
       },
       {
-        title: "Study with Spaced Repetition",
+        title: "Track Mastery",
         description:
-          "Use the flashcard viewer to test yourself, marking cards as known or needs review.",
+          "Cards move through stages as you study. View your progress on the material detail page.",
       },
     ],
     faqs: [
       {
-        question: "How does spaced repetition work?",
+        question: "How does card progression work?",
         answer:
-          "Spaced repetition shows you cards at increasing intervals based on how well you know them. Cards you struggle with appear more frequently, while mastered cards appear less often.",
+          "Cards start as 'New'. Correct answers move them to 'Learning', then 'Review' (Almost Done), then 'Mastered'. Incorrect answers move cards back to 'Learning'.",
       },
       {
-        question: "Can I import existing flashcards?",
+        question: "What's the bulk import format?",
         answer:
-          "Currently, you can create flashcards from documents or manually. We're working on import features for popular flashcard formats.",
+          "Use 'term - definition' format, one per line. Supported separators: dash (-), colon (:), semicolon (;), or tab. Example: 'Photosynthesis - Process plants use to convert sunlight to energy'.",
       },
       {
-        question: "Is there a limit to flashcard sets?",
+        question: "Can I customize study settings?",
         answer:
-          "There's no limit to the number of flashcard sets you can create. Organize them by subject or topic for easy access.",
+          "Yes! Click the settings/options button during study to adjust cards per round (5-50), front side (term or definition), question types, and auto-next timing.",
+      },
+      {
+        question: "What keyboard shortcuts are available?",
+        answer:
+          "Flashcards: Space to flip, 1 for 'didn't know', 2 for 'knew it'. MCQ: 1-4 for options A-D. True/False: A/1 for True, B/2 for False. Any key to continue after answering.",
       },
     ],
   },
 
+  {
+    id: "study-modes",
+    title: "Study Modes",
+    icon: GraduationCap,
+    description: "Four different ways to study your materials effectively.",
+    content:
+      "DeepTerm offers four distinct study modes for every material: Flashcards for simple flip-and-review, Learn for adaptive questioning, Match for memory games, and Practice for customizable quizzes. Each mode tracks your progress and awards XP.",
+    features: [
+      "Flashcards: Classic flip cards with self-rating",
+      "Learn: Adaptive MCQ, True/False, and Written questions",
+      "Match: Memory matching game with timer",
+      "Practice: Customizable quiz with multiple question types",
+      "Progress tracking across all modes",
+      "Keyboard shortcuts for faster studying",
+      "XP rewards for correct answers",
+      "Session results with detailed breakdown",
+    ],
+    steps: [
+      {
+        title: "Open a Material",
+        description:
+          "Go to Materials and click on any flashcard set or reviewer to open it.",
+      },
+      {
+        title: "Choose a Study Mode",
+        description:
+          "Click one of the four study mode buttons: Flashcards, Learn, Match, or Practice.",
+      },
+      {
+        title: "Configure Settings",
+        description:
+          "Click Options/Settings to customize cards per round, question types, front side, and more.",
+      },
+      {
+        title: "Study and Earn XP",
+        description:
+          "Answer questions correctly to earn XP and progress cards through mastery stages.",
+      },
+    ],
+    faqs: [
+      {
+        question: "What's the difference between Learn and Practice?",
+        answer:
+          "Learn mode adapts question types based on card mastery (new cards get MCQ, mastered cards get written). Practice mode lets you configure everything upfront including question types and count.",
+      },
+      {
+        question: "How does the Match game work?",
+        answer:
+          "Match shows 12 cards (6 pairs of terms and definitions). Click cards to flip them and find matching pairs. A timer tracks how fast you complete the game.",
+      },
+      {
+        question: "Do all modes track the same progress?",
+        answer:
+          "Yes! All modes update the same card mastery status (New → Learning → Review → Mastered) and contribute to your XP and achievements.",
+      },
+      {
+        question: "Can I customize study settings?",
+        answer:
+          "Yes! Each mode has an Options/Settings button where you can adjust cards per round, front side (term or definition), enabled question types, and auto-next timing.",
+      },
+    ],
+  },
+
+  {
+    id: "keyboard-shortcuts",
+    title: "Keyboard Shortcuts",
+    icon: Keyboard,
+    description: "Speed up your studying with keyboard controls.",
+    content:
+      "DeepTerm supports keyboard shortcuts across all study modes to help you study faster without reaching for your mouse. Learn these shortcuts to maximize your study efficiency.",
+    features: [
+      "Number keys (1-4) for MCQ options A-D",
+      "A/B or 1/2 for True/False questions",
+      "Space to flip flashcards",
+      "1/2 for flashcard self-rating",
+      "Enter to submit written answers",
+      "Any key to continue after feedback",
+    ],
+    steps: [
+      {
+        title: "Start a Study Session",
+        description:
+          "Open any material and choose a study mode to begin.",
+      },
+      {
+        title: "Use Number Keys for MCQ",
+        description:
+          "Press 1, 2, 3, or 4 to select options A, B, C, or D in multiple choice questions.",
+      },
+      {
+        title: "Use A/B for True/False",
+        description:
+          "Press A (or 1) for True, B (or 2) for False in true/false questions.",
+      },
+      {
+        title: "Continue with Any Key",
+        description:
+          "After seeing feedback, press any key to move to the next question.",
+      },
+    ],
+    faqs: [
+      {
+        question: "What shortcuts work in Flashcards mode?",
+        answer:
+          "Space to flip the card. After flipping: 1 for 'didn't know it' (incorrect), 2 for 'knew it' (correct).",
+      },
+      {
+        question: "What shortcuts work in Learn mode?",
+        answer:
+          "MCQ: 1-4 for options. True/False: A/1 for True, B/2 for False. Written: Enter to submit. Any key to continue after feedback.",
+      },
+      {
+        question: "What shortcuts work in Practice mode?",
+        answer:
+          "Same as Learn mode: 1-4 for MCQ, A/B for True/False, Enter for fill-in-blank. Any key to continue.",
+      },
+      {
+        question: "Can I disable keyboard shortcuts?",
+        answer:
+          "Keyboard shortcuts are always enabled but won't interfere with text input fields. They only activate when not typing in an input.",
+      },
+    ],
+  },
+  {
+    id: "themes",
+    title: "Themes & Customization",
+    icon: Palette,
+    description: "Switch between normal and spooky dark mode themes.",
+    content:
+      "DeepTerm features two distinct themes: the default light theme and a spooky dark theme with purple accents. The spooky theme transforms the entire UI with themed text, icons, and atmospheric effects.",
+    features: [
+      "Light theme: Clean, minimal design",
+      "Spooky theme: Dark purple aesthetic",
+      "Themed UI text and labels",
+      "Ambient visual effects in spooky mode",
+      "Optional ambient sounds",
+      "Theme persists across sessions",
+      "Flashlight effect in study modes (spooky)",
+    ],
+    steps: [
+      {
+        title: "Access Theme Toggle",
+        description:
+          "Look for the theme toggle in the sidebar or settings area.",
+      },
+      {
+        title: "Switch Themes",
+        description:
+          "Click to toggle between normal and spooky themes. The change applies immediately.",
+      },
+      {
+        title: "Enjoy Themed Content",
+        description:
+          "In spooky mode, UI labels change (e.g., 'Materials' becomes 'Forbidden Archives', 'Cards' becomes 'Dark Spells').",
+      },
+      {
+        title: "Experience Study Effects",
+        description:
+          "Spooky mode adds a flashlight effect in study modes, creating an immersive dark atmosphere.",
+      },
+    ],
+    faqs: [
+      {
+        question: "What changes in spooky mode?",
+        answer:
+          "Colors shift to dark purple, UI text gets themed (e.g., 'Achievements' → 'Soul Trophies'), ambient effects appear, and study modes get a flashlight spotlight effect.",
+      },
+      {
+        question: "Does the theme affect functionality?",
+        answer:
+          "No, themes are purely visual. All features work identically in both themes.",
+      },
+      {
+        question: "Is my theme preference saved?",
+        answer:
+          "Yes, your theme choice is saved and will persist when you return to DeepTerm.",
+      },
+      {
+        question: "What is the flashlight effect?",
+        answer:
+          "In spooky mode during study sessions, the screen darkens except for a spotlight that follows your cursor, creating an atmospheric studying experience.",
+      },
+    ],
+  },
   {
     id: "pomodoro",
     title: "Pomodoro Timer",
     icon: Timer,
     description: "Boost productivity with focused work sessions.",
     content:
-      "The Pomodoro Timer helps you maintain focus using the proven Pomodoro Technique. Work in focused intervals with short breaks to maximize productivity and prevent burnout. Track your streaks and link sessions to specific tasks.",
+      "The Pomodoro Timer helps you maintain focus using the proven Pomodoro Technique. Work in focused intervals with short breaks to maximize productivity and prevent burnout. Features include custom backgrounds, fullscreen mode, ambient sounds, and task management with reminders.",
     features: [
-      "Customizable focus and break durations",
+      "Customizable focus and break durations (1-60 minutes)",
       "Default 25/5/15 minute intervals",
-      "Daily streak tracking",
-      "Task integration",
-      "Session history",
-      "Audio notifications",
+      "Custom background images with compression",
+      "Fullscreen distraction-free mode",
+      "Ambient background sounds (rain, cafe, nature, etc.)",
+      "Task list with scheduled reminders",
+      "Session counter (4 sessions = long break)",
+      "Audio notifications with volume control",
     ],
     steps: [
       {
         title: "Set Your Timer",
         description:
-          "Choose your focus duration (default 25 minutes) and break lengths (5 min short, 15 min long).",
+          "Click the settings gear to customize focus duration (default 25 min), short break (5 min), and long break (15 min).",
       },
       {
-        title: "Link a Task (Optional)",
+        title: "Add Tasks (Optional)",
         description:
-          "Connect your session to a specific task or study goal for better tracking.",
+          "Add tasks in the sidebar. Click the bell icon to set a reminder time for each task.",
+      },
+      {
+        title: "Customize Your Environment",
+        description:
+          "Upload a custom background image, enable fullscreen mode, and choose ambient sounds to help you focus.",
       },
       {
         title: "Start Focusing",
         description:
-          "Hit start and focus on your work. The timer will notify you when it's break time.",
-      },
-      {
-        title: "Take Breaks",
-        description:
-          "Short breaks after each session, longer breaks after 4 sessions. Stay consistent to build streaks.",
+          "Hit Start and focus on your work. After 4 work sessions, you'll get a longer break.",
       },
     ],
     faqs: [
@@ -297,14 +512,24 @@ const categories: CategoryContent[] = [
           "The Pomodoro Technique is a time management method that uses focused work intervals (typically 25 minutes) followed by short breaks. It helps maintain concentration and prevents mental fatigue.",
       },
       {
-        question: "Can I customize the timer durations?",
+        question: "How do I use fullscreen mode?",
         answer:
-          "Yes, you can adjust focus time, short break, and long break durations to match your preferences and work style.",
+          "Click the fullscreen icon in the top-right corner of the timer. In fullscreen, you can access settings and tasks via the floating buttons. Press Escape or click X to exit.",
       },
       {
-        question: "How do streaks work?",
+        question: "What background sounds are available?",
         answer:
-          "Complete at least one Pomodoro session each day to maintain your streak. Streaks help motivate consistent study habits.",
+          "Choose from various ambient sounds including rain, coffee shop, nature sounds, and more. Adjust the volume separately from notification sounds.",
+      },
+      {
+        question: "How do task reminders work?",
+        answer:
+          "When adding a task, click the bell icon to set a reminder time. You'll receive a browser notification at the scheduled time. Make sure to allow notifications when prompted.",
+      },
+      {
+        question: "Can I upload custom backgrounds?",
+        answer:
+          "Yes! Click the image icon in the timer to upload your own background. Images are automatically compressed to fit within storage limits.",
       },
     ],
   },

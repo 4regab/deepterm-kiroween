@@ -25,6 +25,17 @@ const SPOOKY_QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
     flashcard: 'Spell Card',
 };
 
+// Help text descriptions for each option
+const HELP_TEXTS: Record<string, string> = {
+    lengthOfRounds: "Number of cards to study in each round before showing progress",
+    answerWithTerm: "Show the definition and ask you to recall the term",
+    answerWithDefinition: "Show the term and ask you to recall the definition",
+    smartGrading: "Accept answers that are close but not exact matches (typos, minor differences)",
+    retypeAnswers: "When you get an answer wrong, you'll need to type the correct answer to continue",
+    autoNext: "Automatically move to the next question after answering",
+    flashlightMode: "Creates a dark overlay where only the area around your cursor is visible",
+};
+
 // Moved outside component to avoid "creating components during render" error
 const Toggle = ({ checked, onChange, isSpooky }: { checked: boolean; onChange: () => void; isSpooky?: boolean }) => (
     <button
@@ -39,10 +50,43 @@ const Toggle = ({ checked, onChange, isSpooky }: { checked: boolean; onChange: (
     </button>
 );
 
-const SectionHeader = ({ title, helpText, isSpooky }: { title: string; helpText?: string; isSpooky?: boolean }) => (
+// Tooltip component with click to show/hide
+const HelpTooltip = ({ text, isSpooky }: { text: string; isSpooky?: boolean }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    
+    return (
+        <div className="relative inline-flex">
+            <button
+                type="button"
+                onClick={() => setIsVisible(!isVisible)}
+                onBlur={() => setTimeout(() => setIsVisible(false), 150)}
+                className={`p-0.5 rounded-full transition-colors ${
+                    isSpooky 
+                        ? "text-purple-400/40 hover:text-purple-300 hover:bg-purple-500/20" 
+                        : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                }`}
+            >
+                <HelpCircle size={14} />
+            </button>
+            {isVisible && (
+                <div className={`absolute z-50 left-6 top-0 w-56 p-2.5 rounded-lg shadow-lg text-xs leading-relaxed ${
+                    isSpooky 
+                        ? "bg-purple-900 text-purple-100 border border-purple-500/30" 
+                        : "bg-gray-800 text-white"
+                }`}>
+                    {text}
+                    <div className={`absolute left-[-6px] top-2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ${
+                        isSpooky ? "border-r-[6px] border-r-purple-900" : "border-r-[6px] border-r-gray-800"
+                    }`} />
+                </div>
+            )}
+        </div>
+    );
+};
+
+const SectionHeader = ({ title, isSpooky }: { title: string; isSpooky?: boolean }) => (
     <div className="flex items-center gap-2 mb-4">
         <h3 className={`font-sora font-semibold text-sm ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>{title}</h3>
-        {helpText && <HelpCircle size={14} className={isSpooky ? "text-purple-400/40" : "text-gray-400"} />}
     </div>
 );
 
@@ -87,7 +131,6 @@ export default function StudySettingsModal({ isOpen, onClose, onSave }: Props) {
     };
 
     const textColor = isSpooky ? "text-purple-200/80" : "text-[#171d2b]/80";
-    const helpColor = isSpooky ? "text-purple-400/40" : "text-gray-400";
     const labels = isSpooky ? SPOOKY_QUESTION_TYPE_LABELS : QUESTION_TYPE_LABELS;
 
     return (
@@ -111,7 +154,7 @@ export default function StudySettingsModal({ isOpen, onClose, onSave }: Props) {
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <span className={`text-sm font-medium flex items-center gap-2 ${textColor}`}>
-                                    {isSpooky ? "Spells per Round" : "Length of Rounds"} <HelpCircle size={14} className={helpColor} />
+                                    {isSpooky ? "Spells per Round" : "Length of Rounds"} <HelpTooltip text={HELP_TEXTS.lengthOfRounds} isSpooky={isSpooky} />
                                 </span>
                                 <select
                                     value={settings.cardsPerRound}
@@ -151,7 +194,7 @@ export default function StudySettingsModal({ isOpen, onClose, onSave }: Props) {
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <span className={`text-sm font-medium flex items-center gap-2 ${textColor}`}>
-                                    {isSpooky ? "Answer with Incantation" : "Answer with Term"} <HelpCircle size={14} className={helpColor} />
+                                    {isSpooky ? "Answer with Incantation" : "Answer with Term"} <HelpTooltip text={HELP_TEXTS.answerWithTerm} isSpooky={isSpooky} />
                                 </span>
                                 <Toggle
                                     checked={settings.frontSide === 'definition'}
@@ -161,7 +204,7 @@ export default function StudySettingsModal({ isOpen, onClose, onSave }: Props) {
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className={`text-sm font-medium flex items-center gap-2 ${textColor}`}>
-                                    {isSpooky ? "Answer with Dark Knowledge" : "Answer with Definition"} <HelpCircle size={14} className={helpColor} />
+                                    {isSpooky ? "Answer with Dark Knowledge" : "Answer with Definition"} <HelpTooltip text={HELP_TEXTS.answerWithDefinition} isSpooky={isSpooky} />
                                 </span>
                                 <Toggle
                                     checked={settings.frontSide === 'term'}
@@ -176,6 +219,18 @@ export default function StudySettingsModal({ isOpen, onClose, onSave }: Props) {
                     <div>
                         <SectionHeader title={isSpooky ? "Ritual Options" : "Learning Options"} isSpooky={isSpooky} />
                         <div className="space-y-3">
+                            {isSpooky && (
+                                <div className="flex items-center justify-between">
+                                    <span className={`text-sm font-medium flex items-center gap-2 ${textColor}`}>
+                                        Flashlight Mode <HelpTooltip text={HELP_TEXTS.flashlightMode} isSpooky={isSpooky} />
+                                    </span>
+                                    <Toggle
+                                        checked={settings.darkStudyMode}
+                                        onChange={() => setSettings(prev => ({ ...prev, darkStudyMode: !prev.darkStudyMode }))}
+                                        isSpooky={isSpooky}
+                                    />
+                                </div>
+                            )}
                             <div className="flex items-center justify-between">
                                 <span className={`text-sm font-medium ${textColor}`}>{isSpooky ? "Shuffle spells" : "Shuffle terms"}</span>
                                 <Toggle
@@ -186,7 +241,7 @@ export default function StudySettingsModal({ isOpen, onClose, onSave }: Props) {
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className={`text-sm font-medium flex items-center gap-2 ${textColor}`}>
-                                    {isSpooky ? "Dark grading" : "Smart grading"} <HelpCircle size={14} className={helpColor} />
+                                    {isSpooky ? "Dark grading" : "Smart grading"} <HelpTooltip text={HELP_TEXTS.smartGrading} isSpooky={isSpooky} />
                                 </span>
                                 <Toggle
                                     checked={settings.smartGrading}
@@ -196,7 +251,7 @@ export default function StudySettingsModal({ isOpen, onClose, onSave }: Props) {
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className={`text-sm font-medium flex items-center gap-2 ${textColor}`}>
-                                    {isSpooky ? "Re-inscribe answers" : "Re-type answers"} <HelpCircle size={14} className={helpColor} />
+                                    {isSpooky ? "Re-inscribe answers" : "Re-type answers"} <HelpTooltip text={HELP_TEXTS.retypeAnswers} isSpooky={isSpooky} />
                                 </span>
                                 <Toggle
                                     checked={settings.retypeAnswers}
@@ -214,7 +269,7 @@ export default function StudySettingsModal({ isOpen, onClose, onSave }: Props) {
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className={`text-sm font-medium flex items-center gap-2 ${textColor}`}>
-                                    {isSpooky ? "Auto-proceed after cast" : "Auto next after answer"} <HelpCircle size={14} className={helpColor} />
+                                    {isSpooky ? "Auto-proceed after cast" : "Auto next after answer"} <HelpTooltip text={HELP_TEXTS.autoNext} isSpooky={isSpooky} />
                                 </span>
                                 <Toggle
                                     checked={settings.autoNextAfterAnswer}

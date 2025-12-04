@@ -856,9 +856,11 @@ export default function LearnPage() {
         </div>
     );
 
-    // Wrap with flashlight effect in spooky mode
+    // Wrap with flashlight effect in spooky mode (only if darkStudyMode is enabled)
+    const isDarkModeActive = isSpooky && settings.darkStudyMode;
+    
     return (
-        <DarkStudyMode enabled={isSpooky}>
+        <DarkStudyMode enabled={isDarkModeActive}>
             {content}
         </DarkStudyMode>
     );

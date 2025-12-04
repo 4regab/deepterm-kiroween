@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, HelpCircle, Skull, Clock } from "lucide-react";
+import { X, HelpCircle } from "lucide-react";
 import { useThemeStore, useStudySettingsStore } from "@/lib/stores";
 import type { PracticeSettings, PracticeQuestionType } from "@/lib/stores";
 
@@ -12,13 +12,20 @@ interface Props {
     onClose: () => void;
     onSave: (settings: PracticeSettings) => void;
     totalCards: number;
-    currentSettings?: PracticeSettings; // Optional - store is source of truth
+    currentSettings?: PracticeSettings;
 }
 
 const QUESTION_TYPE_LABELS: Record<PracticeQuestionType, string> = {
     multipleChoice: "Multiple Choice",
     trueFalse: "True / False",
     fillBlank: "Fill in Blank",
+};
+
+// Help text descriptions for each option
+const HELP_TEXTS: Record<string, string> = {
+    numberOfQuestions: "Number of questions to include in this practice test",
+    flashlightMode: "Creates a dark overlay where only the area around your cursor is visible",
+    autoNext: "Automatically move to the next question after answering",
 };
 
 const Toggle = ({ checked, onChange, isSpooky }: { checked: boolean; onChange: () => void; isSpooky?: boolean }) => (
@@ -30,38 +37,59 @@ const Toggle = ({ checked, onChange, isSpooky }: { checked: boolean; onChange: (
     </button>
 );
 
-const SectionHeader = ({ title, helpText, isSpooky }: { title: string; helpText?: string; isSpooky?: boolean }) => (
+// Tooltip component with click to show/hide
+const HelpTooltip = ({ text, isSpooky }: { text: string; isSpooky?: boolean }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    
+    return (
+        <div className="relative inline-flex">
+            <button
+                type="button"
+                onClick={() => setIsVisible(!isVisible)}
+                onBlur={() => setTimeout(() => setIsVisible(false), 150)}
+                className={`p-0.5 rounded-full transition-colors ${
+                    isSpooky 
+                        ? "text-purple-400/40 hover:text-purple-300 hover:bg-purple-500/20" 
+                        : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                }`}
+            >
+                <HelpCircle size={14} />
+            </button>
+            {isVisible && (
+                <div className={`absolute z-50 left-6 top-0 w-56 p-2.5 rounded-lg shadow-lg text-xs leading-relaxed ${
+                    isSpooky 
+                        ? "bg-purple-900 text-purple-100 border border-purple-500/30" 
+                        : "bg-gray-800 text-white"
+                }`}>
+                    {text}
+                    <div className={`absolute left-[-6px] top-2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ${
+                        isSpooky ? "border-r-[6px] border-r-purple-900" : "border-r-[6px] border-r-gray-800"
+                    }`} />
+                </div>
+            )}
+        </div>
+    );
+};
+
+const SectionHeader = ({ title, isSpooky }: { title: string; isSpooky?: boolean }) => (
     <div className="flex items-center gap-2 mb-4">
         <h3 className={`font-sora font-semibold text-sm ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>{title}</h3>
-        {helpText && <HelpCircle size={14} className={isSpooky ? "text-purple-400/50" : "text-gray-400"} />}
     </div>
 );
-
-// Default survival mode settings for migration
-const DEFAULT_SURVIVAL_MODE = { enabled: false, timePerQuestion: 10 };
 
 export default function PracticeSettingsModal({ isOpen, onClose, onSave, totalCards }: Props) {
     const storeSettings = useStudySettingsStore((state) => state.practiceSettings);
     const updatePracticeSettings = useStudySettingsStore((state) => state.updatePracticeSettings);
     
-    // Ensure survivalMode has defaults (handles migration from old persisted state)
-    const safeStoreSettings: PracticeSettings = {
-        ...storeSettings,
-        survivalMode: storeSettings.survivalMode ?? DEFAULT_SURVIVAL_MODE,
-    };
-    
-    const [settings, setSettings] = useState<PracticeSettings>(safeStoreSettings);
+    const [settings, setSettings] = useState<PracticeSettings>(storeSettings);
     const [wasOpen, setWasOpen] = useState(false);
     const theme = useThemeStore((state) => state.theme);
     const isSpooky = theme === "spooky";
 
-    // Sync local state when modal opens (not continuously during render)
+    // Sync local state when modal opens
     if (isOpen && !wasOpen) {
         setWasOpen(true);
-        setSettings({
-            ...storeSettings,
-            survivalMode: storeSettings.survivalMode ?? DEFAULT_SURVIVAL_MODE,
-        });
+        setSettings(storeSettings);
     } else if (!isOpen && wasOpen) {
         setWasOpen(false);
     }
@@ -109,7 +137,7 @@ export default function PracticeSettingsModal({ isOpen, onClose, onSave, totalCa
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <span className={`text-sm font-medium flex items-center gap-2 ${textMuted}`}>
-                                    {isSpooky ? "Number of Spells" : "Number of Questions"} <HelpCircle size={14} className={isSpooky ? "text-purple-400/50" : "text-gray-400"} />
+                                    {isSpooky ? "Number of Spells" : "Number of Questions"} <HelpTooltip text={HELP_TEXTS.numberOfQuestions} isSpooky={isSpooky} />
                                 </span>
                                 <select
                                     value={settings.cardCount}
@@ -149,6 +177,18 @@ export default function PracticeSettingsModal({ isOpen, onClose, onSave, totalCa
                     <div>
                         <SectionHeader title={isSpooky ? "Ritual Options" : "Practice Options"} isSpooky={isSpooky} />
                         <div className="space-y-3">
+                            {isSpooky && (
+                                <div className="flex items-center justify-between">
+                                    <span className={`text-sm font-medium flex items-center gap-2 ${textMuted}`}>
+                                        Flashlight Mode <HelpTooltip text={HELP_TEXTS.flashlightMode} isSpooky={isSpooky} />
+                                    </span>
+                                    <Toggle
+                                        checked={settings.darkStudyMode}
+                                        onChange={() => setSettings(prev => ({ ...prev, darkStudyMode: !prev.darkStudyMode }))}
+                                        isSpooky={isSpooky}
+                                    />
+                                </div>
+                            )}
                             <div className="flex items-center justify-between">
                                 <span className={`text-sm font-medium ${textMuted}`}>{isSpooky ? "Shuffle incantations" : "Shuffle terms"}</span>
                                 <Toggle
@@ -159,7 +199,7 @@ export default function PracticeSettingsModal({ isOpen, onClose, onSave, totalCa
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className={`text-sm font-medium flex items-center gap-2 ${textMuted}`}>
-                                    {isSpooky ? "Auto continue ritual" : "Auto next after answer"} <HelpCircle size={14} className={isSpooky ? "text-purple-400/50" : "text-gray-400"} />
+                                    {isSpooky ? "Auto continue ritual" : "Auto next after answer"} <HelpTooltip text={HELP_TEXTS.autoNext} isSpooky={isSpooky} />
                                 </span>
                                 <Toggle
                                     checked={settings.autoNextAfterAnswer}
@@ -186,61 +226,6 @@ export default function PracticeSettingsModal({ isOpen, onClose, onSave, totalCa
                         </div>
                     </div>
 
-                    {/* Survival Mode */}
-                    <div>
-                        <SectionHeader title="Survival Mode" isSpooky={isSpooky} />
-                        <div className={`rounded-xl p-4 mb-4 ${isSpooky ? "bg-red-950/30 border border-red-500/30" : "bg-red-50 border border-red-200"}`}>
-                            <div className="flex items-start gap-3">
-                                <Skull size={20} className={isSpooky ? "text-red-400 mt-0.5" : "text-red-500 mt-0.5"} />
-                                <div>
-                                    <p className={`text-sm font-medium ${isSpooky ? "text-red-300" : "text-red-700"}`}>
-                                        Race against time
-                                    </p>
-                                    <p className={`text-xs mt-1 ${isSpooky ? "text-red-400/70" : "text-red-600/70"}`}>
-                                        Answer before time runs out or your session ends. The pressure is real.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <span className={`text-sm font-medium flex items-center gap-2 ${textMuted}`}>
-                                    <Skull size={14} className={settings.survivalMode.enabled ? (isSpooky ? "text-red-400" : "text-red-500") : ""} />
-                                    Enable Survival Mode
-                                </span>
-                                <Toggle
-                                    checked={settings.survivalMode.enabled}
-                                    onChange={() => setSettings(prev => ({ 
-                                        ...prev, 
-                                        survivalMode: { ...prev.survivalMode, enabled: !prev.survivalMode.enabled }
-                                    }))}
-                                    isSpooky={isSpooky}
-                                />
-                            </div>
-                            {settings.survivalMode.enabled && (
-                                <div className="flex items-center justify-between">
-                                    <span className={`text-sm font-medium flex items-center gap-2 ${textMuted}`}>
-                                        <Clock size={14} />
-                                        Time per question
-                                    </span>
-                                    <select
-                                        value={settings.survivalMode.timePerQuestion}
-                                        onChange={(e) => setSettings(prev => ({ 
-                                            ...prev, 
-                                            survivalMode: { ...prev.survivalMode, timePerQuestion: Number(e.target.value) }
-                                        }))}
-                                        className={`p-2 border rounded-lg text-sm focus:outline-none ${inputBg} ${isSpooky ? "focus:border-purple-400" : "focus:border-[#171d2b]"}`}
-                                    >
-                                        <option value={5}>5 seconds</option>
-                                        <option value={10}>10 seconds</option>
-                                        <option value={15}>15 seconds</option>
-                                        <option value={20}>20 seconds</option>
-                                        <option value={30}>30 seconds</option>
-                                    </select>
-                                </div>
-                            )}
-                        </div>
-                    </div>
                 </div>
 
                 <div className={`p-6 border-t flex items-center justify-end ${headerBorder} ${isSpooky ? "bg-[#1a1b26]" : "bg-white"}`}>

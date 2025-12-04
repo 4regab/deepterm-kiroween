@@ -125,8 +125,8 @@ export default function FeaturesShowcase() {
     },
     {
       id: "04",
-      title: "Persistent Focus Timer",
-      description: "Stay in the zone with a timer that follows you. Whether you're reviewing notes or taking a practice test, your Pomodoro session persists across pages.",
+      title: "Productivity Hub",
+      description: "Customize your pomodoro environment with background images, ambient sounds, and fullscreen mode. Manage tasks with reminders and track your sessions across pages.",
       visual: <TimerVisual isSpooky={isSpooky} />
     },
     {
@@ -279,18 +279,18 @@ export default function FeaturesShowcase() {
         </div>
 
         {/* Horizontal Scroll Container */}
-        <div ref={mobileWrapperRef} className="min-h-[450px] sm:min-h-[500px] flex items-center overflow-hidden">
+        <div ref={mobileWrapperRef} className="min-h-[520px] sm:min-h-[550px] flex items-center overflow-hidden">
           <div ref={mobileScrollContainerRef} className="flex gap-4 sm:gap-6 pl-4 sm:pl-6 pr-4 sm:pr-6">
             {features.map((feature) => (
-              <div key={feature.id} className="feature-card w-[85vw] sm:w-[70vw] md:w-[60vw] max-w-[500px] flex-shrink-0">
+              <div key={feature.id} className="feature-card w-[88vw] sm:w-[75vw] md:w-[65vw] max-w-[520px] flex-shrink-0">
                 <div className="flex flex-col gap-3">
                   {/* Header */}
                   <h3 className={`font-sans font-bold text-lg sm:text-xl ${isSpooky ? "text-white" : "text-[#171d2b]"}`}>
                     {feature.title}
                   </h3>
 
-                  {/* Visual Container */}
-                  <div className={`w-full aspect-[16/10] rounded-lg overflow-hidden border relative ${
+                  {/* Visual Container - taller aspect ratio on mobile for full content visibility */}
+                  <div className={`w-full aspect-[4/3] sm:aspect-[16/10] rounded-lg overflow-hidden border relative ${
                     isSpooky 
                       ? "bg-[#0d0f14] border-white/10" 
                       : "bg-gray-50 border-gray-200"
@@ -364,40 +364,40 @@ export default function FeaturesShowcase() {
 
 function MaterialsVisual({ isSpooky }: { isSpooky: boolean }) {
   return (
-    <div className="w-full h-full p-6 flex items-center justify-center">
-      <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
+    <div className="w-full h-full p-2 sm:p-6 flex items-center justify-center">
+      <div className="grid grid-cols-2 gap-2 sm:gap-4 w-full max-w-2xl">
         {[
           { title: "Biology 101: Cell Structure", type: "Reviewer", count: 12, date: "2h ago" },
           { title: "Chemistry Finals Deck", type: "Flashcards", count: 45, date: "5h ago" },
           { title: "History: World War II", type: "Reviewer", count: 8, date: "1d ago" },
           { title: "Physics Formulas", type: "Flashcards", count: 24, date: "2d ago" },
         ].map((item, i) => (
-          <div key={i} className={`rounded-xl p-4 border transition-all cursor-pointer group relative ${
+          <div key={i} className={`rounded-lg sm:rounded-xl p-2 sm:p-4 border transition-all cursor-pointer group relative ${
             isSpooky 
               ? "bg-[#151821] border-purple-500/10 hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/10" 
               : "bg-white border-[#171d2b]/5 hover:border-[#171d2b]/20 hover:shadow-lg"
           }`}>
-            <div className="flex justify-between items-start mb-3">
-              <span className={`px-2 py-0.5 rounded-md text-[10px] font-medium uppercase tracking-wider flex items-center gap-1 ${
+            <div className="flex justify-between items-start mb-1.5 sm:mb-3">
+              <span className={`px-1.5 sm:px-2 py-0.5 rounded-md text-[8px] sm:text-[10px] font-medium uppercase tracking-wider flex items-center gap-0.5 sm:gap-1 ${
                 item.type === "Reviewer"
                   ? (isSpooky ? "bg-purple-600 text-white" : "bg-[#171d2b] text-white")
                   : (isSpooky ? "bg-purple-500/20 text-purple-300" : "bg-[#171d2b]/10 text-[#171d2b]")
               }`}>
-                {item.type === "Reviewer" ? <FileText size={10} /> : <Copy size={10} />}
-                {item.type === "Flashcards" ? (isSpooky ? "Spells" : "Cards") : (isSpooky ? "Grimoire" : "Reviewer")} · {item.count}
+                {item.type === "Reviewer" ? <FileText size={8} className="sm:w-[10px] sm:h-[10px]" /> : <Copy size={8} className="sm:w-[10px] sm:h-[10px]" />}
+                <span className="hidden sm:inline">{item.type === "Flashcards" ? (isSpooky ? "Spells" : "Cards") : (isSpooky ? "Grimoire" : "Reviewer")} · </span>{item.count}
               </span>
-              <div className={`p-1 rounded-full ${isSpooky ? "text-purple-300/30" : "text-[#171d2b]/30"}`}>
-                <GripVertical size={14} />
+              <div className={`p-0.5 sm:p-1 rounded-full ${isSpooky ? "text-purple-300/30" : "text-[#171d2b]/30"}`}>
+                <GripVertical size={10} className="sm:w-[14px] sm:h-[14px]" />
               </div>
             </div>
-            <div className="mb-3">
-              <h3 className={`font-sans font-semibold text-sm line-clamp-2 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+            <div className="mb-1.5 sm:mb-3">
+              <h3 className={`font-sans font-semibold text-[10px] sm:text-sm line-clamp-2 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
                 {item.title}
               </h3>
             </div>
-            <div className={`flex items-center text-xs ${isSpooky ? "text-purple-300/40" : "text-[#171d2b]/40"}`}>
-              <div className="flex items-center gap-1">
-                <ScanLine size={12} />
+            <div className={`flex items-center text-[8px] sm:text-xs ${isSpooky ? "text-purple-300/40" : "text-[#171d2b]/40"}`}>
+              <div className="flex items-center gap-0.5 sm:gap-1">
+                <ScanLine size={8} className="sm:w-[12px] sm:h-[12px]" />
                 <span>{item.date}</span>
               </div>
             </div>
@@ -487,47 +487,47 @@ function SpookyLearnVisual({ isSpooky }: { isSpooky: boolean }) {
     <div 
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className={`w-full h-full relative overflow-hidden cursor-none flex items-center justify-center p-8 ${isSpooky ? "bg-black" : "bg-gray-900"}`}
+      className={`w-full h-full relative overflow-hidden cursor-none flex items-center justify-center p-3 sm:p-8 ${isSpooky ? "bg-black" : "bg-gray-900"}`}
     >
       <div 
-        className="absolute inset-0 flex items-center justify-center p-8"
+        className="absolute inset-0 flex items-center justify-center p-3 sm:p-8"
         style={{
           maskImage: `radial-gradient(circle 250px at ${mousePos.x}px ${mousePos.y}px, black 0%, transparent 100%)`,
           WebkitMaskImage: `radial-gradient(circle 250px at ${mousePos.x}px ${mousePos.y}px, black 0%, transparent 100%)`,
         }}
       >
-        <div className={`w-full max-w-2xl rounded-3xl border p-8 flex flex-col gap-6 ${
+        <div className={`w-full max-w-2xl rounded-2xl sm:rounded-3xl border p-3 sm:p-6 lg:p-8 flex flex-col gap-3 sm:gap-6 ${
           isSpooky ? "bg-[#1a1b26] border-purple-500/20" : "bg-white border-gray-200"
         }`}>
           <div className="flex justify-between items-start">
-            <span className={`text-sm font-medium ${isSpooky ? "text-purple-400/70" : "text-gray-500"}`}>
+            <span className={`text-[10px] sm:text-sm font-medium ${isSpooky ? "text-purple-400/70" : "text-gray-500"}`}>
               {isSpooky ? "Dark Knowledge" : "Definition"}
             </span>
-            <span className={`px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1 ${
+            <span className={`px-2 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-xs font-bold rounded-full flex items-center gap-1 ${
               isSpooky ? "bg-purple-900/50 text-purple-300" : "bg-pink-100 text-pink-600"
             }`}>
-              <div className={`w-2 h-2 rounded-full border-2 ${isSpooky ? "border-purple-400" : "border-pink-600"}`} />
+              <div className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full border-2 ${isSpooky ? "border-purple-400" : "border-pink-600"}`} />
               {isSpooky ? "New spell" : "New cards"}
             </span>
           </div>
 
-          <p className={`text-xl font-sora font-medium leading-relaxed ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+          <p className={`text-xs sm:text-base lg:text-xl font-sora font-medium leading-relaxed ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
             Process of nuclear division in eukaryotic cells that occurs when a parent cell divides to produce two identical daughter cells.
           </p>
 
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 mt-1 sm:mt-4">
             {["Meiosis", "Mitosis", "Cytokinesis", "Interphase"].map((opt, i) => (
-              <div key={i} className={`p-4 border rounded-2xl flex items-center gap-4 ${
+              <div key={i} className={`p-2 sm:p-4 border rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-4 ${
                 isSpooky 
                   ? "bg-[#1a1b26] border-purple-500/30 text-purple-100" 
                   : "bg-white border-gray-200 text-[#171d2b]"
               }`}>
-                <div className={`w-8 h-8 rounded-full font-bold flex items-center justify-center text-sm ${
+                <div className={`w-5 h-5 sm:w-8 sm:h-8 rounded-full font-bold flex items-center justify-center text-[10px] sm:text-sm ${
                   isSpooky ? "bg-purple-900/50 text-purple-300" : "bg-blue-100 text-blue-600"
                 }`}>
                   {String.fromCharCode(65 + i)}
                 </div>
-                <span className="font-medium">{opt}</span>
+                <span className="font-medium text-[10px] sm:text-sm">{opt}</span>
               </div>
             ))}
           </div>
@@ -535,7 +535,7 @@ function SpookyLearnVisual({ isSpooky }: { isSpooky: boolean }) {
       </div>
 
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-        <p className="text-white/20 font-mono text-sm uppercase tracking-[0.2em]">Move cursor to reveal</p>
+        <p className="text-white/20 font-mono text-[10px] sm:text-sm uppercase tracking-[0.2em]">Move cursor to reveal</p>
       </div>
 
       <div 
@@ -548,15 +548,31 @@ function SpookyLearnVisual({ isSpooky }: { isSpooky: boolean }) {
 
 function TimerVisual({ isSpooky }: { isSpooky: boolean }) {
   return (
-    <div className="w-full h-full p-8 flex items-center justify-center">
-      <div className={`relative w-full max-w-[320px] aspect-square rounded-[32px] p-6 text-center text-white overflow-hidden flex flex-col items-center justify-between ${
-        isSpooky ? "bg-gradient-to-br from-purple-900 to-purple-950" : "bg-[#171d2b]"
-      }`}>
+    <div className="w-full h-full p-4 flex items-center justify-center gap-4">
+      {/* Timer Card with Custom Background */}
+      <div 
+        className="relative w-[55%] h-full rounded-[20px] p-4 text-center text-white overflow-hidden flex flex-col items-center justify-between"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('/assets/studyart.webp')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* Top Controls - Background & Fullscreen */}
+        <div className="absolute top-3 right-3 flex gap-1.5 z-20">
+          <div className="w-7 h-7 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center cursor-pointer hover:bg-white/25 transition-all" title="Change background">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+          </div>
+          <div className="w-7 h-7 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center cursor-pointer hover:bg-white/25 transition-all" title="Fullscreen">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+          </div>
+        </div>
+
         {/* Phase Indicators */}
-        <div className="flex gap-2 relative z-10 w-full justify-center">
+        <div className="flex gap-1.5 relative z-10 w-full justify-center mt-1">
           {["Summoning", "Respite", "Slumber"].map((label, i) => (
-             <div key={i} className={`px-3 py-1 rounded-full text-[10px] font-medium transition-all ${
-               i === 0 ? "bg-white/20 scale-105" : "bg-white/5 opacity-70"
+             <div key={i} className={`px-2 py-0.5 rounded-full text-[9px] font-medium transition-all backdrop-blur-sm ${
+               i === 0 ? "bg-white/25 scale-105" : "bg-white/10 opacity-70"
              }`}>
                {isSpooky ? label : ["Focus", "Short", "Long"][i]}
              </div>
@@ -564,33 +580,105 @@ function TimerVisual({ isSpooky }: { isSpooky: boolean }) {
         </div>
 
         {/* Timer Display */}
-        <div className="relative w-40 h-40 flex-shrink-0 my-2">
+        <div className="relative w-28 h-28 flex-shrink-0">
           <svg className="w-full h-full -rotate-90">
-            <circle cx="50%" cy="50%" r="45%" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6" />
-            <circle cx="50%" cy="50%" r="45%" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="6" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 45}%`} strokeDashoffset={`${2 * Math.PI * 45 * 0.25}%`} />
+            <circle cx="50%" cy="50%" r="45%" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="5" />
+            <circle cx="50%" cy="50%" r="45%" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="5" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 45}%`} strokeDashoffset={`${2 * Math.PI * 45 * 0.25}%`} />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className={`font-mono text-4xl font-light tracking-wider ${isSpooky ? "text-purple-100" : "text-white"}`}>18:45</span>
-            <span className="text-[10px] text-white/70 uppercase tracking-widest mt-1">{isSpooky ? "Summoning" : "Focus"}</span>
+            <span className="font-mono text-2xl font-light tracking-wider text-white">18:45</span>
+            <span className="text-[8px] text-white/70 uppercase tracking-widest mt-0.5">{isSpooky ? "Summoning" : "Focus"}</span>
           </div>
         </div>
 
         {/* Session Dots */}
-        <div className="flex gap-2 mb-2">
+        <div className="flex gap-1.5 mb-1">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className={`w-2 h-2 rounded-full ${i <= 2 ? "bg-white" : "bg-white/20"}`} />
+            <div key={i} className={`w-1.5 h-1.5 rounded-full ${i <= 2 ? "bg-white" : "bg-white/25"}`} />
           ))}
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-3 w-full justify-center">
-          <div className={`h-10 px-6 rounded-full flex items-center justify-center font-medium text-sm shadow-lg cursor-pointer transition-transform hover:scale-105 ${
+        <div className="flex items-center gap-2 w-full justify-center">
+          <div className={`h-8 px-4 rounded-full flex items-center justify-center font-medium text-xs shadow-lg cursor-pointer transition-transform hover:scale-105 ${
             isSpooky ? "bg-purple-500 text-white" : "bg-white text-[#171d2b]"
           }`}>
             {isSpooky ? "Suspend" : "Pause"}
           </div>
-          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center cursor-pointer hover:bg-white/20">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          <div className="w-8 h-8 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-white/25">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Tasks Panel */}
+      <div className={`w-[40%] h-full rounded-[16px] p-3 flex flex-col overflow-hidden ${
+        isSpooky ? "bg-[#151821] border border-purple-500/20" : "bg-white border border-[#171d2b]/10"
+      }`}>
+        <div className="flex items-center justify-between mb-2">
+          <h4 className={`font-sans font-semibold text-xs ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>
+            {isSpooky ? "Dark Deeds" : "Tasks"}
+          </h4>
+          <div className={`w-5 h-5 rounded-full flex items-center justify-center cursor-pointer ${
+            isSpooky ? "bg-purple-500/20 text-purple-400" : "bg-[#171d2b]/5 text-[#171d2b]"
+          }`}>
+            <Plus size={12} />
+          </div>
+        </div>
+        
+        {/* Task List */}
+        <div className="flex-1 space-y-1.5 overflow-hidden">
+          {[
+            { text: "Review Chapter 5", completed: true, reminder: null },
+            { text: "Practice problems", completed: false, reminder: "14:30" },
+            { text: "Write summary notes", completed: false, reminder: null },
+          ].map((task, i) => (
+            <div key={i} className={`flex items-start gap-2 p-2 rounded-lg transition-all ${
+              isSpooky 
+                ? "bg-purple-500/5 hover:bg-purple-500/10" 
+                : "bg-[#171d2b]/[0.02] hover:bg-[#171d2b]/5"
+            }`}>
+              <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center mt-0.5 ${
+                task.completed 
+                  ? (isSpooky ? "bg-purple-500 border-purple-500" : "bg-[#171d2b] border-[#171d2b]")
+                  : (isSpooky ? "border-purple-500/40" : "border-[#171d2b]/30")
+              }`}>
+                {task.completed && (
+                  <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className={`text-[10px] leading-tight block ${
+                  task.completed 
+                    ? (isSpooky ? "text-purple-300/40 line-through" : "text-[#171d2b]/40 line-through")
+                    : (isSpooky ? "text-purple-100" : "text-[#171d2b]")
+                }`}>
+                  {task.text}
+                </span>
+                {task.reminder && (
+                  <span className={`text-[8px] flex items-center gap-0.5 mt-0.5 ${
+                    isSpooky ? "text-purple-400/60" : "text-[#171d2b]/50"
+                  }`}>
+                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {task.reminder}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Add Task Input Preview */}
+        <div className={`mt-2 pt-2 border-t ${isSpooky ? "border-purple-500/10" : "border-[#171d2b]/5"}`}>
+          <div className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-[9px] ${
+            isSpooky ? "bg-purple-500/10 text-purple-300/50" : "bg-[#171d2b]/5 text-[#171d2b]/40"
+          }`}>
+            <Plus size={10} />
+            <span>{isSpooky ? "Add dark deed..." : "Add task..."}</span>
           </div>
         </div>
       </div>

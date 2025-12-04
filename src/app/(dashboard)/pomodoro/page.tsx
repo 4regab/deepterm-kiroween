@@ -66,6 +66,7 @@ export default function PomodoroPage() {
   const [newTaskInput, setNewTaskInput] = useState("");
   const [newTaskReminder, setNewTaskReminder] = useState<string | null>(null);
   const [showReminderInput, setShowReminderInput] = useState(false);
+  const [showFullscreenTasks, setShowFullscreenTasks] = useState(false);
 
   // Background image state
   const [customBgImage, setCustomBgImage] = useState<string | null>(() => {
@@ -172,66 +173,7 @@ export default function PomodoroPage() {
     getStoredValue(STORAGE_KEYS.BACKGROUND_SOUND, DEFAULT_BACKGROUND_SOUND)
   );
 
-  // Task reminder notification system
-  useEffect(() => {
-    // Request notification permission on mount
-    if (typeof window !== "undefined" && "Notification" in window) {
-      if (Notification.permission === "default") {
-        Notification.requestPermission();
-      }
-    }
-
-    // Check reminders every 5 seconds for better accuracy
-    const checkReminders = () => {
-      const now = new Date();
-      const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
-      
-      tasks.forEach((task) => {
-        if (
-          task.reminder?.enabled &&
-          task.reminder.time === currentTime &&
-          !task.reminder.notified &&
-          !task.completed
-        ) {
-          console.log("[Reminder] Triggering notification for task:", task.text, "at", currentTime);
-          
-          // Show browser notification
-          if ("Notification" in window && Notification.permission === "granted") {
-            new Notification(isSpooky ? "Dark Deed Reminder" : "Task Reminder", {
-              body: task.text,
-              icon: "/favicon.ico",
-              tag: task.id,
-              requireInteraction: true,
-            });
-          } else {
-            console.log("[Reminder] Browser notification permission:", Notification.permission);
-          }
-          
-          // Show in-app toast - this should always work
-          usePomodoroStore.getState().setToastMessage(`⏰ Reminder: ${task.text}`);
-          usePomodoroStore.getState().setShowToast(true);
-          setTimeout(() => usePomodoroStore.getState().setShowToast(false), 8000);
-          
-          // Play notification sound using existing sound system
-          try {
-            const audio = new Audio("/sounds/complete.mp3");
-            audio.volume = notificationVolume;
-            audio.play().catch((e) => console.log("[Reminder] Audio play failed:", e));
-          } catch (e) {
-            console.log("[Reminder] Audio error:", e);
-          }
-          
-          // Mark as notified
-          usePomodoroStore.getState().markTaskNotified(task.id);
-        }
-      });
-    };
-
-    const interval = setInterval(checkReminders, 5000); // Check every 5 seconds
-    checkReminders(); // Check immediately on mount
-    
-    return () => clearInterval(interval);
-  }, [tasks, isSpooky, notificationVolume]);
+  // Task reminder notifications are handled globally by TaskReminderNotification component
 
 
 
@@ -403,44 +345,53 @@ export default function PomodoroPage() {
                 backgroundPosition: "center",
               } : undefined}
             >
-              {/* Background & Fullscreen Controls */}
-              <div className="absolute top-4 right-4 flex gap-2 z-20">
+              {/* Background & Fullscreen Controls - Responsive positioning */}
+              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex gap-1.5 sm:gap-2 z-20">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all"
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all"
                   title={isSpooky ? "Change ritual backdrop" : "Change background"}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </button>
                 {customBgImage && (
                   <button
                     onClick={removeBgImage}
-                    className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-red-500/50 transition-all"
+                    className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-red-500/50 transition-all"
                     title="Remove background"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                )}
+                {isFullscreen && (
+                  <button
+                    onClick={() => setShowFullscreenTasks(!showFullscreenTasks)}
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all ${showFullscreenTasks ? "bg-white text-[#171d2b]" : "bg-white/10 hover:bg-white/20"}`}
+                    title={isSpooky ? "Dark Deeds" : "Tasks"}
+                  >
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
                   </button>
                 )}
                 <button
                   onClick={toggleFullscreen}
-                  className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all"
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all"
                   title={isFullscreen ? "Exit fullscreen" : "Fullscreen mode"}
                 >
                   {isFullscreen ? (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                   ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
                   )}
                 </button>
               </div>
 
-              {/* Phase Indicator */}
-              <div className="flex justify-center gap-2 mb-6 relative z-10">
+              {/* Phase Indicator - Added top margin on mobile to avoid overlap with controls */}
+              <div className="flex justify-center gap-1 sm:gap-2 mb-6 relative z-10 mt-10 sm:mt-0 flex-wrap px-2">
                 {["work", "shortBreak", "longBreak"].map((p) => (
                   <button
                     key={p}
                     onClick={() => handleSwitchPhase(p as TimerPhase)}
-                    className={`px-4 py-2 rounded-full text-[13px] sm:text-[14px] transition-all ${phase === p ? "bg-white/20 scale-105 font-medium" : "bg-white/5 hover:bg-white/10"}`}
+                    className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-[14px] transition-all ${phase === p ? "bg-white/20 scale-105 font-medium" : "bg-white/5 hover:bg-white/10"}`}
                   >
                     {phaseLabels[p as TimerPhase]}
                   </button>
@@ -503,7 +454,7 @@ export default function PomodoroPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
-                    className="absolute bottom-4 left-4 right-4 max-w-md mx-auto bg-black/80 backdrop-blur-lg rounded-2xl p-5 z-30"
+                    className="absolute bottom-4 left-4 right-4 max-w-lg mx-auto bg-black/80 backdrop-blur-lg rounded-2xl p-5 z-30 max-h-[70vh] overflow-y-auto"
                   >
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="font-sans font-medium text-[16px] text-white">
@@ -533,6 +484,216 @@ export default function PomodoroPage() {
                         <input type="range" min="1" max="60" value={settings.longBreakDuration} onChange={(e) => setSettings({ longBreakDuration: Number(e.target.value) })} className="w-full accent-purple-500" />
                       </div>
                     </div>
+                    
+                    {/* Sound Settings in Fullscreen */}
+                    <div className="mt-4 pt-4 border-t border-white/10">
+                      <h4 className="font-sans font-medium text-[14px] text-white mb-3">
+                        {isSpooky ? "Ambient Sounds" : "Sound Settings"}
+                      </h4>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="font-sans text-[12px] text-white/70 block mb-1">
+                            {isSpooky ? "Background Ambience" : "Background Sound"}
+                          </label>
+                          <select
+                            value={selectedSound}
+                            onChange={(e) => handleSoundChange(e.target.value as BackgroundSoundId)}
+                            className="w-full h-[36px] px-3 rounded-lg border border-white/20 bg-white/10 text-white font-sans text-[12px] focus:outline-none focus:border-purple-500/50"
+                          >
+                            {BACKGROUND_SOUNDS.map((sound) => (
+                              <option key={sound.id} value={sound.id} className="bg-[#1a1b26] text-white">{sound.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="font-sans text-[12px] text-white/70 block mb-1">
+                            {isSpooky ? "Ambience Volume" : "Background Volume"}: {Math.round(backgroundVolume * 100)}%
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={backgroundVolume}
+                            onChange={(e) => handleBackgroundVolumeChange(Number(e.target.value))}
+                            className="w-full accent-purple-500"
+                            disabled={selectedSound === "none"}
+                          />
+                        </div>
+                        <div>
+                          <label className="font-sans text-[12px] text-white/70 block mb-1">
+                            {isSpooky ? "Alert Volume" : "Notification Volume"}: {Math.round(notificationVolume * 100)}%
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={notificationVolume}
+                            onChange={(e) => handleNotificationVolumeChange(Number(e.target.value))}
+                            className="w-full accent-purple-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Fullscreen Tasks Panel */}
+              <AnimatePresence>
+                {isFullscreen && showFullscreenTasks && (
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="absolute top-14 right-0 bottom-0 w-[320px] bg-black/40 p-4 z-20 flex flex-col"
+                  >
+
+                    {/* Add Task */}
+                    <div className="mb-4 space-y-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newTaskInput}
+                          onChange={(e) => setNewTaskInput(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && !showReminderInput && handleAddTask()}
+                          placeholder={isSpooky ? "Conjure a deed..." : "Add a task..."}
+                          className="flex-1 h-[36px] px-3 rounded-full bg-white/5 text-white font-sans text-[12px] placeholder:text-white/40 focus:outline-none focus:bg-white/10"
+                        />
+                        <button 
+                          onClick={() => {
+                            const newState = !showReminderInput;
+                            setShowReminderInput(newState);
+                            if (newState && !newTaskReminder) {
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              setNewTaskReminder(today.toISOString().slice(0, 16));
+                            }
+                          }} 
+                          title="Set reminder"
+                          className={`w-[36px] h-[36px] rounded-full flex items-center justify-center transition-colors ${
+                            showReminderInput || newTaskReminder
+                              ? "bg-purple-600 text-white"
+                              : "bg-white/5 text-white/70 hover:bg-white/10"
+                          }`}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                        </button>
+                        <button onClick={handleAddTask} className="w-[36px] h-[36px] bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                        </button>
+                      </div>
+                      
+                      {/* Reminder Input */}
+                      <AnimatePresence>
+                        {showReminderInput && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="flex flex-col gap-2 p-2 rounded-lg bg-white/5">
+                              <div className="flex items-center gap-2">
+                                <svg className="w-3 h-3 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                <span className="text-[10px] font-medium text-white/60">
+                                  {isSpooky ? "Summon reminder at:" : "Remind me at:"}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="datetime-local"
+                                  value={newTaskReminder || ""}
+                                  onChange={(e) => setNewTaskReminder(e.target.value || null)}
+                                  min={new Date().toISOString().slice(0, 16)}
+                                  className="flex-1 h-[32px] px-2 rounded bg-white/5 text-white font-sans text-[11px] focus:outline-none focus:bg-white/10 [color-scheme:dark]"
+                                />
+                                {newTaskReminder && (
+                                  <button 
+                                    onClick={() => setNewTaskReminder(null)}
+                                    className="p-1 rounded text-white/50 hover:text-white hover:bg-white/10"
+                                  >
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Task List */}
+                    <div className="space-y-1.5 flex-1 overflow-y-auto">
+                      <AnimatePresence initial={false}>
+                        {tasks.length === 0 ? (
+                          <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="font-sans text-[12px] text-center py-6 text-white/40"
+                          >
+                            {isSpooky ? "No dark deeds yet." : "No tasks yet."}
+                          </motion.p>
+                        ) : (
+                          tasks.map((task) => (
+                            <motion.div
+                              key={task.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className={`flex items-center gap-2 p-2 rounded-lg transition-all ${
+                                task.completed ? "opacity-50" : "hover:bg-white/5"
+                              }`}
+                            >
+                              <button
+                                onClick={() => toggleTask(task.id)}
+                                className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                                  task.completed 
+                                    ? "bg-purple-600 border-purple-600"
+                                    : "border-white/30 hover:border-purple-500"
+                                }`}
+                              >
+                                {task.completed && <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                              </button>
+                              <div className="flex-1 min-w-0 text-left">
+                                <span className={`font-sans text-[12px] transition-all block truncate ${
+                                  task.completed ? "line-through text-white/40" : "text-white/90"
+                                }`}>{task.text}</span>
+                                {task.reminder?.enabled && task.reminder.time && !task.completed && (
+                                  <span className={`flex items-center gap-1 text-[9px] mt-0.5 ${
+                                    task.reminder.notified ? "text-green-400/60" : "text-white/40"
+                                  }`}>
+                                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                                    {task.reminder.notified ? "Notified" : new Date(task.reminder.time).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                )}
+                              </div>
+                              <button onClick={() => removeTask(task.id)} className="w-5 h-5 text-white/30 hover:text-red-400 transition-colors flex-shrink-0">
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                              </button>
+                            </motion.div>
+                          ))
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Progress */}
+                    {tasks.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-white/5">
+                        <p className="font-sans text-[11px] flex justify-between text-white/40">
+                          <span>{isSpooky ? "Corruption" : "Progress"}</span>
+                          <span>{Math.round((tasks.filter((t) => t.completed).length / tasks.length) * 100)}%</span>
+                        </p>
+                        <div className="w-full h-1 rounded-full mt-1.5 overflow-hidden bg-white/5">
+                          <motion.div
+                            className="h-full bg-purple-500/70"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(tasks.filter((t) => t.completed).length / tasks.length) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -707,7 +868,15 @@ export default function PomodoroPage() {
                     }`}
                   />
                   <button 
-                    onClick={() => setShowReminderInput(!showReminderInput)} 
+                    onClick={() => {
+                      const newState = !showReminderInput;
+                      setShowReminderInput(newState);
+                      if (newState && !newTaskReminder) {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        setNewTaskReminder(today.toISOString().slice(0, 16));
+                      }
+                    }} 
                     title="Set reminder"
                     className={`w-[40px] h-[40px] rounded-lg flex items-center justify-center transition-colors ${
                       showReminderInput || newTaskReminder
@@ -724,7 +893,7 @@ export default function PomodoroPage() {
                   </button>
                 </div>
                 
-                {/* Reminder Time Input */}
+                {/* Reminder DateTime Input */}
                 <AnimatePresence>
                   {showReminderInput && (
                     <motion.div
@@ -733,27 +902,34 @@ export default function PomodoroPage() {
                       exit={{ opacity: 0, height: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className={`flex items-center gap-2 p-2 rounded-lg ${isSpooky ? "bg-purple-500/10" : "bg-[#171d2b]/5"}`}>
-                        <svg className={`w-4 h-4 ${isSpooky ? "text-purple-400" : "text-[#171d2b]/60"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span className={`text-xs ${isSpooky ? "text-purple-300" : "text-[#171d2b]/70"}`}>Remind at:</span>
-                        <input
-                          type="time"
-                          value={newTaskReminder || ""}
-                          onChange={(e) => setNewTaskReminder(e.target.value || null)}
-                          className={`flex-1 h-[32px] px-2 rounded border font-sans text-[12px] focus:outline-none ${
-                            isSpooky 
-                              ? "border-purple-500/20 bg-[#0d0f14] text-purple-100 focus:border-purple-500/40"
-                              : "border-[#171d2b]/20 bg-white text-[#171d2b] focus:border-[#171d2b]/40"
-                          }`}
-                        />
-                        {newTaskReminder && (
-                          <button 
-                            onClick={() => setNewTaskReminder(null)}
-                            className={`p-1 rounded ${isSpooky ? "text-purple-400 hover:text-purple-300" : "text-[#171d2b]/50 hover:text-[#171d2b]"}`}
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                          </button>
-                        )}
+                      <div className={`flex flex-col gap-2 p-3 rounded-lg ${isSpooky ? "bg-purple-500/10" : "bg-[#171d2b]/5"}`}>
+                        <div className="flex items-center gap-2">
+                          <svg className={`w-4 h-4 ${isSpooky ? "text-purple-400" : "text-[#171d2b]/60"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                          <span className={`text-xs font-medium ${isSpooky ? "text-purple-300" : "text-[#171d2b]/70"}`}>
+                            {isSpooky ? "Summon reminder at:" : "Remind me at:"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="datetime-local"
+                            value={newTaskReminder || ""}
+                            onChange={(e) => setNewTaskReminder(e.target.value || null)}
+                            min={new Date().toISOString().slice(0, 16)}
+                            className={`flex-1 h-[36px] px-2 rounded border font-sans text-[12px] focus:outline-none ${
+                              isSpooky 
+                                ? "border-purple-500/20 bg-[#0d0f14] text-purple-100 focus:border-purple-500/40 [color-scheme:dark]"
+                                : "border-[#171d2b]/20 bg-white text-[#171d2b] focus:border-[#171d2b]/40"
+                            }`}
+                          />
+                          {newTaskReminder && (
+                            <button 
+                              onClick={() => setNewTaskReminder(null)}
+                              className={`p-1.5 rounded ${isSpooky ? "text-purple-400 hover:text-purple-300 hover:bg-purple-500/20" : "text-[#171d2b]/50 hover:text-[#171d2b] hover:bg-[#171d2b]/10"}`}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </motion.div>
                   )}
@@ -807,7 +983,7 @@ export default function PomodoroPage() {
                                 : (isSpooky ? "text-purple-400/70" : "text-[#171d2b]/50")
                             }`}>
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                              {task.reminder.notified ? "Notified" : task.reminder.time}
+                              {task.reminder.notified ? "Notified" : new Date(task.reminder.time).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                             </span>
                           )}
                         </div>

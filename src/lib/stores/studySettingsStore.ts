@@ -15,11 +15,7 @@ export interface StudySettings {
     overrideWrong: boolean;
     autoNextAfterAnswer: boolean;
     autoNextDuration: number;
-}
-
-export interface SurvivalModeSettings {
-    enabled: boolean;
-    timePerQuestion: number; // seconds (default 10)
+    darkStudyMode: boolean;
 }
 
 export interface PracticeSettings {
@@ -28,7 +24,7 @@ export interface PracticeSettings {
     shuffleTerms: boolean;
     autoNextAfterAnswer: boolean;
     autoNextDuration: number;
-    survivalMode: SurvivalModeSettings;
+    darkStudyMode: boolean;
 }
 
 interface StudySettingsState {
@@ -57,6 +53,7 @@ const DEFAULT_STUDY_SETTINGS: StudySettings = {
     overrideWrong: true,
     autoNextAfterAnswer: true,
     autoNextDuration: 2,
+    darkStudyMode: true,
 };
 
 const DEFAULT_PRACTICE_SETTINGS: PracticeSettings = {
@@ -65,10 +62,7 @@ const DEFAULT_PRACTICE_SETTINGS: PracticeSettings = {
     shuffleTerms: true,
     autoNextAfterAnswer: true,
     autoNextDuration: 2,
-    survivalMode: {
-        enabled: false,
-        timePerQuestion: 10,
-    },
+    darkStudyMode: true,
 };
 
 export const useStudySettingsStore = create<StudySettingsState>()(
@@ -100,24 +94,7 @@ export const useStudySettingsStore = create<StudySettingsState>()(
         }),
         {
             name: 'deepterm-study-settings',
-            version: 1, // Increment when schema changes
-            migrate: (persistedState, version) => {
-                const state = persistedState as StudySettingsState;
-                
-                // Migration from version 0 (no survivalMode) to version 1
-                if (version === 0 || !state.practiceSettings?.survivalMode) {
-                    return {
-                        ...state,
-                        practiceSettings: {
-                            ...DEFAULT_PRACTICE_SETTINGS,
-                            ...state.practiceSettings,
-                            survivalMode: DEFAULT_PRACTICE_SETTINGS.survivalMode,
-                        },
-                    };
-                }
-                
-                return state;
-            },
+            version: 5,
         }
     )
 );

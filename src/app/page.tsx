@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import FeaturesShowcase from "@/components/FeaturesShowcase";
 import StepsSection from "@/components/StepsSection";
 import FAQSection from "@/components/FAQSection";
-import BackgroundPaths from "@/components/BackgroundPaths";
+
 import { PublicPageWrapper } from "@/components/SpookyTheme";
 import { useThemeStore } from "@/lib/stores";
 import SpookyLogo from "@/components/SpookyLogo";
@@ -29,12 +29,11 @@ export default function Home() {
       <Header className="!mt-4 sm:!mt-5 lg:!mt-6" />
       
       <div className="relative max-w-[1440px] min-h-screen mx-auto">
-        <BackgroundPaths isSpooky={isSpooky} />
 
         {/* Hero Section */}
-        <section className="relative z-10 mx-auto pt-6 sm:pt-8 lg:pt-10 pb-8 sm:pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center overflow-visible min-h-[70vh] lg:min-h-[80vh]">
-          {/* Planet positioned top-left - Large decorative element */}
-          <div className="absolute -left-[20px] sm:-left-[30px] lg:-left-[40px] top-[2%] sm:top-[3%] w-[150px] h-[150px] sm:w-[270px] sm:h-[270px] lg:w-[330px] lg:h-[330px] z-0 pointer-events-none">
+        <section className="relative z-10 mx-auto pt-4 sm:pt-8 lg:pt-10 pb-8 sm:pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center overflow-visible min-h-[75vh] sm:min-h-[70vh] lg:min-h-[80vh]">
+          {/* Planet positioned top-left - Hidden on mobile, visible on sm+ */}
+          <div className="hidden sm:block absolute -left-[30px] lg:-left-[40px] top-[3%] w-[270px] h-[270px] lg:w-[330px] lg:h-[330px] z-0 pointer-events-none">
             <Image
               alt=""
               src={planet2Src}
@@ -58,19 +57,19 @@ export default function Home() {
           </div>
 
           {/* Main Hero Content */}
-          <div className="relative z-10 text-center max-w-[900px] lg:max-w-[1100px] mx-auto">
+          <div className="relative z-10 text-center max-w-[900px] lg:max-w-[1100px] mx-auto px-2 sm:px-0">
             {/* Main Headline - Creative Typography */}
             <h1 className="relative mb-4 sm:mb-5">
               {isSpooky ? (
                 <>
                   <span
-                    className="block text-[44px] sm:text-[64px] lg:text-[88px] xl:text-[110px] leading-[1.2] tracking-tight text-purple-100"
+                    className="block text-[46px] sm:text-[64px] lg:text-[88px] xl:text-[110px] leading-[1.1] tracking-tight text-purple-100"
                     style={{ fontFamily: '"Source Serif 4", serif', fontWeight: 400 }}
                   >
                     Ghost your
                   </span>
                   <span
-                    className="inline-block text-[48px] sm:text-[72px] lg:text-[100px] xl:text-[130px] leading-[1.3] tracking-tight text-purple-400"
+                    className="inline-block text-[52px] sm:text-[72px] lg:text-[100px] xl:text-[130px] leading-[1.15] tracking-tight text-purple-400"
                     style={{ fontFamily: '"Source Serif 4", serif', fontWeight: 400, fontStyle: 'italic' }}
                   >
                     bad grades
@@ -79,13 +78,13 @@ export default function Home() {
               ) : (
                 <>
                   <span
-                    className="block text-[44px] sm:text-[64px] lg:text-[88px] xl:text-[110px] leading-[1.2] tracking-tight text-[#171d2b]"
+                    className="block text-[46px] sm:text-[64px] lg:text-[88px] xl:text-[110px] leading-[1.1] tracking-tight text-[#171d2b]"
                     style={{ fontFamily: '"Source Serif 4", serif', fontWeight: 400 }}
                   >
                     Study smarter
                   </span>
                   <span
-                    className="inline-block text-[48px] sm:text-[72px] lg:text-[100px] xl:text-[130px] leading-[1.3] tracking-tight text-[#171d2b]"
+                    className="inline-block text-[42px] sm:text-[72px] lg:text-[100px] xl:text-[130px] leading-[1.2] tracking-tight text-[#171d2b]"
                     style={{ fontFamily: '"Source Serif 4", serif', fontWeight: 400, fontStyle: 'italic' }}
                   >
                     not harder
@@ -95,7 +94,7 @@ export default function Home() {
             </h1>
 
             {/* Subheadline */}
-            <p className={`font-sans text-[15px] sm:text-[17px] lg:text-[18px] leading-[1.6] max-w-[520px] mx-auto mb-5 sm:mb-6 ${isSpooky ? "text-purple-300/80" : "text-[#171d2b]/70"}`}>
+            <p className={`font-sans text-[14px] sm:text-[17px] lg:text-[18px] leading-[1.6] max-w-[320px] sm:max-w-[520px] mx-auto mb-6 sm:mb-6 ${isSpooky ? "text-purple-300/80" : "text-[#171d2b]/70"}`}>
               {isSpooky
                 ? "Your alternative to Quizlet and Gizmo. Transform any study material into cards, reviewers, and exams instantly."
                 : "Your alternative to Quizlet and Gizmo. Transform any study material into cards, reviewers, and exams instantly."
@@ -103,10 +102,10 @@ export default function Home() {
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-5 sm:mb-6">
+            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4 mb-6 sm:mb-6 w-full">
               <a
                 href="/auth/callback"
-                className={`group relative h-[52px] sm:h-[56px] rounded-full px-8 sm:px-10 font-sora text-[15px] sm:text-[16px] font-medium transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02] ${isSpooky ? "bg-purple-600 text-white hover:bg-purple-500" : "bg-[#171d2b] text-white hover:bg-[#2a3347]"}`}
+                className={`group relative h-[48px] sm:h-[56px] w-full sm:w-auto rounded-full px-6 sm:px-10 font-sora text-[14px] sm:text-[16px] font-medium transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02] ${isSpooky ? "bg-purple-600 text-white hover:bg-purple-500" : "bg-[#171d2b] text-white hover:bg-[#2a3347]"}`}
               >
                 Start Learning Free
                 <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -114,10 +113,10 @@ export default function Home() {
                 </svg>
               </a>
               <a
-                href="https://github.com/4regab/deepterm"
+                href="https://github.com/4regab/deepterm-kiroween"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`h-[52px] sm:h-[56px] rounded-full px-8 sm:px-10 font-sora text-[15px] sm:text-[16px] font-medium transition-all duration-300 flex items-center gap-2 border-2 hover:scale-[1.02] ${isSpooky ? "border-purple-500/30 text-purple-200 hover:bg-purple-500/10" : "border-[#171d2b]/20 text-[#171d2b] hover:bg-[#171d2b]/5"}`}
+                className={`h-[48px] sm:h-[56px] w-full sm:w-auto rounded-full px-6 sm:px-10 font-sora text-[14px] sm:text-[16px] font-medium transition-all duration-300 flex items-center justify-center gap-2 border-2 hover:scale-[1.02] ${isSpooky ? "border-purple-500/30 text-purple-200 hover:bg-purple-500/10" : "border-[#171d2b]/20 text-[#171d2b] hover:bg-[#171d2b]/5"}`}
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /></svg>
                 View on GitHub
@@ -172,9 +171,12 @@ export default function Home() {
             <p className="font-sans text-[13px] sm:text-[15px] lg:text-[16px] text-white/80 mb-5 sm:mb-6 lg:mb-8 max-w-[400px] mx-auto px-2">
               {isSpooky ? "Study smarter, not harder. No cap." : "Start studying smarter, not harder."}
             </p>
-            <button className={`h-[44px] sm:h-[50px] lg:h-[54px] rounded-[100px] px-6 sm:px-8 lg:px-10 font-sora text-[14px] sm:text-[16px] lg:text-[18px] transition-colors shadow-lg ${isSpooky ? "bg-purple-100 text-purple-900 hover:bg-white" : "bg-white text-[#171d2b] hover:bg-[#f0f0ea]"}`}>
+            <a
+              href="/auth/callback"
+              className={`inline-block h-[44px] sm:h-[50px] lg:h-[54px] rounded-[100px] px-6 sm:px-8 lg:px-10 font-sora text-[14px] sm:text-[16px] lg:text-[18px] transition-colors shadow-lg leading-[44px] sm:leading-[50px] lg:leading-[54px] ${isSpooky ? "bg-purple-100 text-purple-900 hover:bg-white" : "bg-white text-[#171d2b] hover:bg-[#f0f0ea]"}`}
+            >
               {isSpooky ? "Start Free" : "Start Learning Free"}
-            </button>
+            </a>
             <p className="font-sans text-[11px] sm:text-[12px] lg:text-[13px] text-white/60 mt-3 sm:mt-4 px-2">
               {isSpooky ? "Interactive - Host your own Deepterm - Bad grades gone" : "No credit card required - No installation - Start in 30 seconds"}
             </p>

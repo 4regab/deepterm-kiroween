@@ -591,7 +591,7 @@ export default function MaterialDetailClient(props: Props) {
             <div className="mb-5">
                 <div className="flex items-center justify-between mb-3">
                     <button onClick={() => router.back()} className={`flex items-center gap-2 transition-colors ${
-                        isSpooky ? "text-purple-400/50 hover:text-purple-300" : "text-[#171d2b]/50 hover:text-[#171d2b]"
+                        isSpooky ? "text-purple-200 hover:text-white" : "text-[#171d2b]/50 hover:text-[#171d2b]"
                     }`}>
                         <ArrowLeft size={16} /><span className="font-sans text-sm">{isSpooky ? "Return to Archives" : "Back to Materials"}</span>
                     </button>
@@ -661,7 +661,7 @@ export default function MaterialDetailClient(props: Props) {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                     <div>
                         <h1 className={`text-2xl md:text-3xl font-sora font-bold mb-1 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>{material.title}</h1>
-                        <div className={`flex flex-wrap items-center gap-2 text-xs ${isSpooky ? "text-purple-400/50" : "text-[#171d2b]/50"}`}>
+                        <div className={`flex flex-wrap items-center gap-2 text-xs ${isSpooky ? "text-purple-200" : "text-[#171d2b]/50"}`}>
                             <span>{materialType === 'flashcard' ? terms.length : categories.reduce((sum, c) => sum + c.terms.length, 0)} {isSpooky ? "incantations" : "terms"}</span><span>•</span><span>Last updated {formatTimeAgo(new Date(material.updated_at))}</span>
                         </div>
                     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Clock, Flame, Trophy } from "lucide-react";
 import { useProfileStore, useXPStore, useActivityStore } from "@/lib/stores";
@@ -47,12 +47,17 @@ export function DashboardHeader({ greeting }: DashboardHeaderProps) {
     const { stats: xpStats, loading: xpLoading, fetchXPStats } = useXPStore();
     const { stats: activityStats, loading: activityLoading, fetchActivity } = useActivityStore();
 
-    // Fetch fresh data on mount
-    useEffect(() => {
+    // Stable fetch function
+    const fetchData = useCallback(() => {
         fetchProfile();
         fetchXPStats();
         fetchActivity();
-    }, []);
+    }, [fetchProfile, fetchXPStats, fetchActivity]);
+
+    // Fetch fresh data on mount
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     // Show skeleton during initial load
     if (profileLoading || xpLoading) {
