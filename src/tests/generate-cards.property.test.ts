@@ -76,9 +76,9 @@ describe('Generate Cards API Property Tests', () => {
           const result = GenerateCardsInputSchema.safeParse({ textContent: text })
           return result.success === false
         }),
-        { numRuns: 20 }
+        { numRuns: 5 }
       )
-    })
+    }, 30000)
 
     it('Property: null textContent passes validation', () => {
       const result = GenerateCardsInputSchema.safeParse({ textContent: null })

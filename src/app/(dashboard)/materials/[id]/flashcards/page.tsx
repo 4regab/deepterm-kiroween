@@ -228,7 +228,8 @@ export default function FlashcardsPage() {
     };
 
     const content = (
-        <div className={`min-h-screen flex flex-col max-w-5xl mx-auto px-4 sm:px-8 py-8 ${bgColor}`}>
+        <div className={`min-h-screen ${bgColor}`}>
+            <div className="flex flex-col max-w-5xl mx-auto px-4 sm:px-8 py-8">
             <EncouragementToast message={toastMessage} isVisible={showToast} onClose={() => setShowToast(false)} />
             <ExitPopup
                 isOpen={showExitPopup}
@@ -346,12 +347,15 @@ export default function FlashcardsPage() {
                     )}
                 </div>
             </div>
+            </div>
         </div>
     );
 
-    // Wrap with flashlight effect in spooky mode
+    // Wrap with flashlight effect in spooky mode (only if darkStudyMode is enabled)
+    const isDarkModeActive = isSpooky && settings.darkStudyMode;
+    
     return (
-        <DarkStudyMode enabled={isSpooky}>
+        <DarkStudyMode enabled={isDarkModeActive}>
             {content}
         </DarkStudyMode>
     );
