@@ -1,61 +1,93 @@
-# DeepTerm - Tech Stack
+---
+inclusion: always
+---
 
-## Framework & Runtime
-- **Next.js 16** with App Router
-- **React 19** with React Compiler enabled
-- **TypeScript 5** (strict mode)
+# Tech Stack Reference
 
-## Styling
-- **Tailwind CSS 4** for utility-first styling
-- Mobile-first responsive design
+## Core Technologies
+- Next.js 16 (App Router) + React 19 (React Compiler enabled)
+- TypeScript 5 (strict mode) - always use strict typing
+- Tailwind CSS 4 - mobile-first, utility classes only
+- Zustand 5 - client state in `src/lib/stores/`
+- Zod 4 - validate all external data at boundaries
 
 ## Database & Auth
-- **Supabase** (PostgreSQL) with Row Level Security (RLS)
-- **Supabase Auth** with Google OAuth
-
-## State Management
-- **Zustand 5** for client-side state (stores in `src/lib/stores/`)
+- Supabase PostgreSQL with Row Level Security (RLS)
+- Supabase Auth with Google OAuth
+- Always respect RLS policies; never bypass security
 
 ## AI Integration
-- **Google Gemini 2.5 Flash-Lite** via `@google/genai`
-- Multi-key rotation for API resilience
+- Google Gemini 2.5 Flash-Lite via `@google/genai`
+- Multi-key rotation (`GEMINI_API_KEY_1` through `GEMINI_API_KEY_5`)
+- Always check rate limits before AI operations
 
-## Validation
-- **Zod 4** for runtime schema validation
-
-## Animations
-- **Framer Motion** for React animations
-- **GSAP** for complex animations
-- **Three.js** with React Three Fiber for 3D effects
+## Animation Libraries
+- Framer Motion - React component animations
+- GSAP - complex timeline animations
+- Three.js + React Three Fiber - 3D effects
 
 ## Testing
-- **Vitest 4** for unit testing
-- **fast-check** for property-based testing
+- Vitest 4 for unit tests
+- fast-check for property-based testing
+- Run `npm run test` (single run) or `npm run test:watch`
 
-## Deployment
-- **Vercel** for hosting
+## Development Guidelines
 
-## Common Commands
+### TypeScript
+- Prefer `interface` over `type` for object shapes
+- Use `unknown` over `any`; narrow types explicitly
+- Export types alongside implementations
 
+### React Patterns
+- Favor Server Components; use `"use client"` only when required
+- Dynamic import heavy components: `dynamic(() => import('./X'), { ssr: false })`
+- Wrap client components in Suspense with fallback
+
+### Styling
+- Use Tailwind utilities; avoid custom CSS
+- Mobile-first breakpoints: `sm:`, `md:`, `lg:`, `xl:`
+- No inline styles
+
+### State Management
+- One Zustand store per domain
+- Keep stores in `src/lib/stores/{domain}Store.ts`
+- Validate store inputs with Zod schemas
+
+### Path Alias
+- Use `@/*` for all imports from `src/`
+
+## Commands
 ```bash
-# Development
-npm run dev          # Start dev server (localhost:3000)
-
-# Build & Production
-npm run build        # Production build
-npm run start        # Start production server
-
-# Quality
-npm run lint         # Run ESLint
-npm run test         # Run tests (single run)
-npm run test:watch   # Run tests in watch mode
+npm run dev      # Dev server (localhost:3000)
+npm run build    # Production build
+npm run lint     # ESLint
+npm run test     # Run tests
 ```
-
-## Path Aliases
-- `@/*` maps to `./src/*` (configured in tsconfig.json)
 
 ## Environment Variables
 Required in `.env.local`:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `GEMINI_API_KEY_1` through `GEMINI_API_KEY_5` (supports rotation)
+- `GEMINI_API_KEY_1` through `GEMINI_API_KEY_5`
+
+## API Endpoints
+
+### POST /api/generate-cards
+Generate flashcards from PDF or text content.
+
+- **Input**: FormData with `file` (PDF) or `textContent` (string)
+- **Output**: `{ cards: [{term, definition}], remaining: number }`
+- **Rate Limited**: Yes (10/day)
+
+### POST /api/generate-reviewer
+Generate categorized reviewer content from PDF or text.
+
+- **Input**: FormData with `file`, `textContent`, and `extractionMode` (full/sentence/keywords)
+- **Output**: `{ title, extractionMode, categories: [{name, color, terms}], remaining }`
+- **Rate Limited**: Yes (10/day)
+
+### Share API (/api/share)
+- **GET**: Get share info for a material
+- **POST**: Create or update share link
+- **PATCH**: Toggle active status or change code
+- **DELETE**: Remove share

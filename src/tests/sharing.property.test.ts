@@ -13,12 +13,12 @@ import {
 
 // Arbitraries
 const uuidArb = fc.uuid()
-const isoDateArb = fc.date().map(d => d.toISOString())
+// Generate ISO date strings from timestamps to avoid invalid date issues
+const isoDateArb = fc.integer({ min: 1577836800000, max: 1924905600000 }).map(ts => new Date(ts).toISOString())
 
 // Valid share code: 3-30 chars, lowercase letters, numbers, hyphens only
-const validShareCodeArb = fc
-  .string({ minLength: 3, maxLength: 30 })
-  .filter((s: string) => /^[a-z0-9-]+$/.test(s))
+// Using stringMatching for efficient generation instead of filter
+const validShareCodeArb = fc.stringMatching(/^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/)
 
 const shareMaterialTypeArb = fc.constantFrom('flashcard_set', 'reviewer')
 
@@ -72,8 +72,8 @@ describe('Sharing Schema Property Tests', () => {
     })
 
     it('Property: Share codes shorter than 3 chars always fail', () => {
-      const shortCodes = fc.string({ minLength: 0, maxLength: 2 })
-        .filter((s: string) => /^[a-z0-9-]*$/.test(s))
+      // Generate short codes efficiently using stringMatching
+      const shortCodes = fc.stringMatching(/^[a-z0-9-]{0,2}$/)
       fc.assert(
         fc.property(shortCodes, (code) => {
           const result = ShareCodeSchema.safeParse(code)
@@ -84,8 +84,8 @@ describe('Sharing Schema Property Tests', () => {
     })
 
     it('Property: Share codes longer than 30 chars always fail', () => {
-      const longCodes = fc.string({ minLength: 31, maxLength: 100 })
-        .filter((s: string) => /^[a-z0-9-]+$/.test(s))
+      // Generate long codes by concatenating valid patterns
+      const longCodes = fc.stringMatching(/^[a-z0-9][a-z0-9-]{30,50}[a-z0-9]$/)
       fc.assert(
         fc.property(longCodes, (code) => {
           const result = ShareCodeSchema.safeParse(code)
@@ -96,9 +96,8 @@ describe('Sharing Schema Property Tests', () => {
     })
 
     it('Property: Share codes with uppercase letters always fail', () => {
-      const upperCaseCodes = fc
-        .string({ minLength: 3, maxLength: 30 })
-        .filter(s => /[A-Z]/.test(s))
+      // Mix lowercase and uppercase to ensure at least one uppercase
+      const upperCaseCodes = fc.stringMatching(/^[a-z0-9]{1,10}[A-Z][a-z0-9]{1,10}$/)
       fc.assert(
         fc.property(upperCaseCodes, (code) => {
           const result = ShareCodeSchema.safeParse(code)
@@ -109,9 +108,8 @@ describe('Sharing Schema Property Tests', () => {
     })
 
     it('Property: Share codes with special characters (except hyphen) always fail', () => {
-      const specialCharCodes = fc
-        .string({ minLength: 3, maxLength: 30 })
-        .filter(s => /[^a-z0-9-]/.test(s) && !/[A-Z]/.test(s))
+      // Include special chars like underscore, space, etc.
+      const specialCharCodes = fc.stringMatching(/^[a-z0-9]{1,10}[_@!#$%^&*()]{1}[a-z0-9]{1,10}$/)
       fc.assert(
         fc.property(specialCharCodes, (code) => {
           const result = ShareCodeSchema.safeParse(code)

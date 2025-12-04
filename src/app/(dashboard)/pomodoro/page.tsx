@@ -68,14 +68,17 @@ export default function PomodoroPage() {
   const [showReminderInput, setShowReminderInput] = useState(false);
   const [showFullscreenTasks, setShowFullscreenTasks] = useState(false);
 
-  // Background image state
-  const [customBgImage, setCustomBgImage] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem(POMODORO_BG_KEY);
-  });
+  // Background image state - initialize as null to avoid hydration mismatch
+  const [customBgImage, setCustomBgImage] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fullscreenRef = useRef<HTMLDivElement>(null);
+
+  // Hydrate background image from localStorage after mount
+  useEffect(() => {
+    const stored = localStorage.getItem(POMODORO_BG_KEY);
+    if (stored) setCustomBgImage(stored);
+  }, []);
 
   // Handle background image upload with compression to avoid localStorage quota
   const handleBgUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {

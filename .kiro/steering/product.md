@@ -1,22 +1,36 @@
-# DeepTerm - Product Overview
+---
+inclusion: always
+---
 
-DeepTerm is an AI-powered study platform that transforms PDFs and text content into interactive learning materials.
+# DeepTerm - Product Context
 
-## Core Value Proposition
-- Upload study materials (PDF/text) and automatically generate flashcards and reviewers using Google Gemini AI
-- Multiple study modes: Flashcards, Learn, Match Game, Practice Tests
-- Gamified learning with XP, achievements, and level progression
+AI-powered study platform transforming PDFs/text into interactive learning materials.
 
-## Key Features
-- **AI Generation**: Flashcard and reviewer creation from uploaded content (10/day rate limit)
-- **Study Modes**: Interactive flashcards, adaptive learning, memory matching, practice tests
+## Product Domain
+
+- **Primary Function**: Convert uploaded content (PDF/text) into flashcards and reviewers via Google Gemini AI
+- **Study Modes**: Flashcards, Learn, Match Game, Practice Tests
+- **Gamification**: XP system, achievements, level progression
 - **Productivity**: Pomodoro timer with task integration
-- **Sharing**: Generate shareable links for materials
-- **Export**: PDF and DOCX export for reviewers/flashcards
+- **Sharing**: Shareable links for materials
+- **Export**: PDF/DOCX export capability
 
-## Target Users
-Students and learners who want to efficiently convert study materials into active learning tools.
+## Business Rules
 
-## Business Model
-- Free tier with daily AI generation limits (10/day)
-- Unlimited users whitelist for premium access
+- AI generation rate limit: 10 requests/day per user
+- Unlimited users maintained via whitelist for premium access
+- All AI operations must check rate limits before processing
+
+## User Context
+
+Target: Students and learners converting study materials into active learning tools.
+
+## AI Assistant Guidelines
+
+When working on this codebase:
+- Preserve rate limiting logic in AI generation endpoints
+- Maintain XP/achievement triggers when modifying study flows
+- Keep study mode interfaces consistent across Flashcards, Learn, Match, Practice
+- Respect the gamification hooks (XP awards, achievement unlocks)
+- Ensure sharing functionality generates valid, accessible links
+- Export features must produce properly formatted PDF/DOCX output

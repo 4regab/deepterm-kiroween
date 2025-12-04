@@ -61,7 +61,7 @@ export default function StudyingProgress({ items, className = "" }: StudyingProg
                     }`}>
                         <div className="w-2 h-2 rounded-full border-2 border-current" />
                     </div>
-                    <span className={`w-28 text-xs font-bold ${isSpooky ? "text-purple-300/60" : "text-gray-600"}`}>
+                    <span className={`w-28 text-xs font-bold ${isSpooky ? "text-purple-100" : "text-gray-600"}`}>
                         {isSpooky ? "Unlearned" : "New cards"}
                     </span>
                     <ProgressBar value={stats.new} max={stats.total} colorClass={isSpooky ? "bg-purple-500" : "bg-[#171d2b]/80"} isSpooky={isSpooky} />
@@ -74,7 +74,7 @@ export default function StudyingProgress({ items, className = "" }: StudyingProg
                     }`}>
                         <div className="w-2 h-2 rounded-full border-2 border-current" />
                     </div>
-                    <span className={`w-28 text-xs font-bold ${isSpooky ? "text-purple-300/60" : "text-gray-600"}`}>
+                    <span className={`w-28 text-xs font-bold ${isSpooky ? "text-purple-100" : "text-gray-600"}`}>
                         {isSpooky ? "Channeling" : "Still learning"}
                     </span>
                     <ProgressBar value={stats.learning} max={stats.total} colorClass="bg-[#8B5CF6]" isSpooky={isSpooky} />
@@ -87,7 +87,7 @@ export default function StudyingProgress({ items, className = "" }: StudyingProg
                     }`}>
                         <div className="w-2 h-2 rounded-full border-2 border-current" />
                     </div>
-                    <span className={`w-28 text-xs font-bold ${isSpooky ? "text-purple-300/60" : "text-gray-600"}`}>
+                    <span className={`w-28 text-xs font-bold ${isSpooky ? "text-purple-100" : "text-gray-600"}`}>
                         {isSpooky ? "Nearly bound" : "Almost done"}
                     </span>
                     <ProgressBar value={stats.almost_done} max={stats.total} colorClass="bg-[#60A5FA]" isSpooky={isSpooky} />
@@ -100,7 +100,7 @@ export default function StudyingProgress({ items, className = "" }: StudyingProg
                     }`}>
                         <div className="w-2 h-2 rounded-full border-2 border-current" />
                     </div>
-                    <span className={`w-28 text-xs font-bold ${isSpooky ? "text-purple-300/60" : "text-gray-600"}`}>
+                    <span className={`w-28 text-xs font-bold ${isSpooky ? "text-purple-100" : "text-gray-600"}`}>
                         {isSpooky ? "Mastered" : "Mastered"}
                     </span>
                     <ProgressBar value={stats.mastered} max={stats.total} colorClass="bg-[#10B981]" isSpooky={isSpooky} />

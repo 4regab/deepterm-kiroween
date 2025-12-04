@@ -1,12 +1,20 @@
-# DeepTerm
 
-Stop grinding through notes the hard way. DeepTerm uses AI to turn your PDFs and study material into flashcards, reviewers, and practice tests in seconds. Study smarter, not harder.
+# Deepterm
+
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+
+
+A free, open-source alternative to Quizlet and Gizmo. It transforms PDFs and study materials into flashcards and reviewer notes. Built with spaced repetition at its core, cards progress through stages (new, learning, review, mastered) to optimize long-term retention. Unlike paid alternatives, DeepTerm combines powerful AI generation with rich productivity features including an integrated Pomodoro timer, task reminders, ambient sounds, and gamified learning through XP progression, achievements, and study streaks - all completely free.
+
+**[Live Demo](https://deepterm.me)**
 
 ## Features
 
-### AI-Powered Study Tools
+### Materials Creation
 
-- **Flashcard Maker** - Upload PDF or paste text to automatically extract key terms and definitions using Google Gemini AI. Supports spaced repetition with card status tracking (new, learning, review, mastered).
+- **Flashcard Maker** - Upload PDF or paste text to automatically extract key terms and definitions using AI. Supports spaced repetition with card status tracking (new, learning, review, mastered).
 
 - **Reviewer Maker** - Transform dense content into organized, categorized study materials with three extraction modes:
   - Full Mode: Complete definitions with examples and context
@@ -27,6 +35,15 @@ Stop grinding through notes the hard way. DeepTerm uses AI to turn your PDFs and
 - **Delete Categories** - Remove entire categories with all associated terms
 - **Drag & Drop Reorder** - Reorder flashcard terms with drag and drop
 
+### Theme System
+
+
+
+- **Normal Mode** - Clean, light interface with warm tones
+- **Spooky Mode** - Dark purple Halloween theme featuring:
+  - **Flashlight Effect** - Immersive dark study mode where the screen is pitch black and only the area around your cursor/finger is illuminated, like studying with a flashlight in the dark
+  - **Halloween** inspired UI text throughout the app
+
 ### Export & Sharing
 
 - **PDF Export** - Export reviewers and flashcards to compact two-column PDF format
@@ -39,7 +56,10 @@ Stop grinding through notes the hard way. DeepTerm uses AI to turn your PDFs and
 - **Pomodoro Timer** - Customizable focus timer with:
   - Configurable work/break durations (25/5/15 min defaults)
   - Session tracking and streak counting
-  - Task list integration
+  - Task list with reminder notifications
+  - Background ambient sounds (rain, cafe, nature)
+  - Custom background image upload
+  - Fullscreen focus mode
   - Global notification system for phase transitions
 
 
@@ -56,11 +76,11 @@ Stop grinding through notes the hard way. DeepTerm uses AI to turn your PDFs and
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router) with React 19
-- **Language**: TypeScript 5
-- **Styling**: Tailwind CSS 4
+- **Language**: TypeScript 
+- **Styling**: Tailwind CSS 
 - **Database**: Supabase (PostgreSQL) with Row Level Security
 - **Authentication**: Supabase Auth (Google OAuth)
-- **AI**: Google Gemini 2.5 Flash-Lite (with multi-key rotation)
+- **LLM**: Google Gemini 2.5 Flash-Lite
 - **State Management**: Zustand 5
 - **Animations**: Framer Motion, GSAP
 - **PDF Generation**: jsPDF
@@ -68,75 +88,6 @@ Stop grinding through notes the hard way. DeepTerm uses AI to turn your PDFs and
 - **Validation**: Zod 4
 - **Testing**: Vitest 4 with fast-check for property-based testing
 - **Deployment**: Vercel
-
-## Architecture
-
-### Project Structure
-
-```
-src/
-├── app/                    # Next.js App Router pages
-│   ├── (dashboard)/        # Protected dashboard routes
-│   │   ├── account/        # Account settings
-│   │   ├── achievements/   # Achievements page
-│   │   ├── dashboard/      # Main dashboard
-│   │   ├── materials/      # Materials management
-│   │   ├── pomodoro/       # Pomodoro timer
-│   │   ├── practice/       # Practice mode
-│   │   └── reviewer/       # Reviewer view
-│   ├── api/                # API routes
-│   │   ├── generate-cards/ # Flashcard generation endpoint
-│   │   ├── generate-reviewer/ # Reviewer generation endpoint
-│   │   ├── materials/      # Materials CRUD
-│   │   └── share/          # Sharing endpoints
-│   ├── auth/               # Auth callback
-│   ├── help/               # Help center
-│   ├── share/              # Public share pages
-│   └── ...                 # Static pages
-├── components/             # React components
-│   ├── Dashboard/          # Dashboard widgets
-│   ├── Header/             # Header component
-│   └── Sidebar/            # Navigation sidebar
-├── config/                 # Configuration
-│   └── supabase/           # Supabase client setup
-├── lib/                    # Core libraries
-│   ├── schemas/            # Zod validation schemas
-│   ├── stores/             # Zustand state stores
-│   └── supabase/           # Database schema
-├── services/               # Business logic
-│   ├── activity.ts         # Activity tracking
-│   ├── geminiClient.ts     # AI client with key rotation
-│   └── rateLimit.ts        # Rate limiting
-├── styles/                 # Global styles
-├── tests/                  # Test files
-└── utils/                  # Utility functions
-```
-
-### State Management
-
-The application uses Zustand stores for client-side state:
-
-- **profileStore** - User profile data
-- **uiStore** - UI state (sidebar, menus)
-- **materialsStore** - Study materials with filtering
-- **achievementsStore** - Achievement progress
-- **activityStore** - Study activity calendar
-- **pomodoroStore** - Timer state and settings
-- **xpStore** - XP and leveling system
-
-### Database Schema
-
-Key tables in Supabase:
-
-- `profiles` - User profiles
-- `flashcard_sets` / `flashcards` - Flashcard data
-- `reviewers` / `reviewer_categories` / `reviewer_terms` - Reviewer data
-- `quizzes` / `quiz_questions` / `quiz_attempts` - Quiz system
-- `study_activity` / `user_stats` - Activity tracking
-- `pomodoro_sessions` - Pomodoro history
-- `achievement_definitions` / `user_achievements` - Achievements
-- `material_shares` - Sharing system
-- `ai_usage` / `unlimited_users` - Rate limiting
 
 ### Security Features
 
@@ -215,35 +166,11 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
 | `npm run test` | Run tests with Vitest |
-| `npm run test:watch` | Run tests in watch mode |
 
 ## Rate Limiting
 
-AI generation is rate-limited to 10 requests per user per day to manage API costs. The limit resets at midnight UTC. Users in the `unlimited_users` table bypass this limit.
+AI generation is rate-limited to 10 requests per user per day to manage API costs. The limit resets at midnight UTC. Users in the `unlimited_users` table bypass this limit. The system uses atomic check-and-increment operations to prevent race conditions.
 
-The system uses atomic check-and-increment operations to prevent race conditions.
-
-## API Endpoints
-
-### POST /api/generate-cards
-Generate flashcards from PDF or text content.
-
-- **Input**: FormData with `file` (PDF) or `textContent` (string)
-- **Output**: `{ cards: [{term, definition}], remaining: number }`
-- **Rate Limited**: Yes (10/day)
-
-### POST /api/generate-reviewer
-Generate categorized reviewer content from PDF or text.
-
-- **Input**: FormData with `file`, `textContent`, and `extractionMode` (full/sentence/keywords)
-- **Output**: `{ title, extractionMode, categories: [{name, color, terms}], remaining }`
-- **Rate Limited**: Yes (10/day)
-
-### Share API (/api/share)
-- **GET**: Get share info for a material
-- **POST**: Create or update share link
-- **PATCH**: Toggle active status or change code
-- **DELETE**: Remove share
 
 ## Contributing
 
@@ -253,3 +180,5 @@ Generate categorized reviewer content from PDF or text.
 4. Run tests: `npm run test`, `npm run build`, `npx eslint src/`
 5. Submit a pull request
 
+#
+Submitted for the [Kiroween Hackathon](https://kiroween.devpost.com/) by [Kiro](https://kiro.dev/).

@@ -1,80 +1,72 @@
-# DeepTerm - Project Structure
+---
+inclusion: always
+---
 
-Primary project location: `deepterm-kiroween/`
+# Project Structure
+
+## Directory Layout
 
 ```
 src/
-├── app/                      # Next.js App Router
-│   ├── (dashboard)/          # Protected routes (requires auth)
-│   │   ├── account/          # User account settings
-│   │   ├── achievements/     # Achievements page
-│   │   ├── dashboard/        # Main dashboard
-│   │   ├── materials/        # Materials CRUD & study modes
-│   │   │   ├── create/       # Create new material
-│   │   │   └── [id]/         # Material detail & study modes
-│   │   │       ├── flashcards/
-│   │   │       ├── learn/
-│   │   │       ├── match/
-│   │   │       └── practice/
-│   │   ├── pomodoro/         # Pomodoro timer
-│   │   └── layout.tsx        # Dashboard layout with sidebar
-│   ├── api/                  # API routes
-│   │   ├── generate-cards/   # AI flashcard generation
-│   │   ├── generate-reviewer/# AI reviewer generation
-│   │   └── share/            # Sharing endpoints
-│   ├── auth/callback/        # OAuth callback handler
-│   ├── share/[code]/         # Public share pages
-│   └── page.tsx              # Landing page
-│
-├── components/               # React components
-│   ├── Dashboard/            # Dashboard widgets (StatsBar, Calendar, etc.)
-│   ├── Header/               # Header component
-│   ├── Sidebar/              # Navigation sidebar
-│   └── SpookyTheme/          # Theme system (normal/spooky modes)
-│
-├── config/                   # Configuration
-│   ├── supabase/             # Supabase client setup (client.ts, server.ts)
-│   └── gemini.ts             # Gemini AI config
-│
-├── lib/                      # Core libraries
-│   ├── schemas/              # Zod validation schemas
-│   ├── stores/               # Zustand state stores
-│   └── supabase/             # Database schema SQL files
-│
-├── services/                 # Business logic
-│   ├── geminiClient.ts       # AI client with key rotation
-│   ├── rateLimit.ts          # Rate limiting logic
-│   └── activity.ts           # Activity tracking
-│
-├── tests/                    # Vitest test files
-│   └── api/                  # API route tests
-│
-├── utils/                    # Utility functions
-└── styles/                   # Global CSS (globals.css)
+├── app/                      # Next.js App Router (routes & API)
+│   ├── (dashboard)/          # Protected routes (auth required)
+│   │   ├── materials/[id]/   # Study modes: flashcards, learn, match, practice
+│   │   └── layout.tsx        # Dashboard layout with Sidebar
+│   ├── api/                  # API routes (generate-cards, generate-reviewer, share)
+│   ├── auth/callback/        # OAuth callback
+│   └── share/[code]/         # Public share pages
+├── components/               # React components (organized by feature)
+├── config/                   # Configuration (supabase/, gemini.ts)
+├── lib/
+│   ├── schemas/              # Zod validation schemas (one per domain)
+│   ├── stores/               # Zustand stores (one per domain)
+│   └── supabase/             # SQL schema files
+├── services/                 # Business logic (geminiClient, rateLimit, activity)
+├── tests/                    # Vitest tests
+├── utils/                    # Pure utility functions
+└── styles/                   # Global CSS
 ```
 
-## Key Patterns
+## Architecture Conventions
 
-### Stores (Zustand)
-Located in `src/lib/stores/` - each store manages a domain:
-- `materialsStore` - Study materials
-- `profileStore` - User profile
-- `achievementsStore` - Achievements
+### File Placement
+- Routes: `src/app/` following Next.js App Router conventions
+- Reusable components: `src/components/{FeatureName}/`
+- Domain stores: `src/lib/stores/{domain}Store.ts`
+- Validation schemas: `src/lib/schemas/{domain}.ts`
+- Business logic: `src/services/`
+- Pure utilities: `src/utils/`
+
+### Zustand Stores
+Each store in `src/lib/stores/` manages one domain:
+- `materialsStore` - Study materials CRUD
+- `profileStore` - User profile data
+- `achievementsStore` - Achievement tracking
 - `pomodoroStore` - Timer state
-- `xpStore` - XP/leveling
-- `themeStore` - Theme (normal/spooky)
-- `uiStore` - UI state (sidebar, menus)
+- `xpStore` - XP and leveling
+- `themeStore` - Theme toggle (normal/spooky)
+- `uiStore` - UI state (sidebar, modals)
 
-### Schemas (Zod)
-Located in `src/lib/schemas/` - validation schemas for each domain
+### API Route Pattern
+```typescript
+// src/app/api/{feature}/route.ts
+export async function POST(request: NextRequest) {
+  // 1. Parse and validate with Zod schema
+  // 2. Check rate limits for AI operations
+  // 3. Execute business logic
+  // 4. Return NextResponse (sanitize errors)
+}
+```
 
-### API Routes
-- Use `NextRequest`/`NextResponse`
-- Validate input with Zod
-- Check rate limits before AI operations
-- Return sanitized errors (no internal details)
+### Component Pattern
+- Use `"use client"` only when necessary (interactivity, hooks)
+- Prefer Server Components for data fetching
+- Dynamic import heavy components: `dynamic(() => import('./Heavy'), { ssr: false })`
+- Access theme via `useThemeStore()`
 
-### Components
-- Client components use `"use client"` directive
-- Dynamic imports for heavy components (Sidebar)
-- Theme-aware styling via `useThemeStore`
+### Import Aliases
+Use `@/*` for all imports from `src/`:
+```typescript
+import { useProfileStore } from '@/lib/stores/profileStore'
+import { MaterialSchema } from '@/lib/schemas/materials'
+```

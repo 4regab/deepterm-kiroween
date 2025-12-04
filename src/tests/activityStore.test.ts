@@ -4,6 +4,9 @@ import type { ActivityDay, UserStats } from '../lib/schemas/activity'
 
 vi.mock('../config/supabase/client', () => ({
   createClient: vi.fn(() => ({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+    },
     rpc: vi.fn(),
     from: vi.fn(),
   })),
@@ -108,6 +111,9 @@ describe('activityStore', () => {
     it('should set loading to true when fetching', async () => {
       const { createClient } = await import('../config/supabase/client')
       vi.mocked(createClient).mockReturnValue({
+        auth: {
+          getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+        },
         rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
         from: vi.fn().mockReturnValue({
           select: vi.fn().mockReturnValue({
@@ -124,6 +130,9 @@ describe('activityStore', () => {
     it('should set activity and stats on successful fetch', async () => {
       const { createClient } = await import('../config/supabase/client')
       vi.mocked(createClient).mockReturnValue({
+        auth: {
+          getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+        },
         rpc: vi.fn().mockResolvedValue({ data: mockActivity, error: null }),
         from: vi.fn().mockReturnValue({
           select: vi.fn().mockReturnValue({
@@ -142,6 +151,9 @@ describe('activityStore', () => {
       const { createClient } = await import('../config/supabase/client')
       const mockError = new Error('Fetch failed')
       vi.mocked(createClient).mockReturnValue({
+        auth: {
+          getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+        },
         rpc: vi.fn().mockResolvedValue({ data: null, error: mockError }),
         from: vi.fn().mockReturnValue({
           select: vi.fn().mockReturnValue({
@@ -158,6 +170,9 @@ describe('activityStore', () => {
     it('should handle null calendar data', async () => {
       const { createClient } = await import('../config/supabase/client')
       vi.mocked(createClient).mockReturnValue({
+        auth: {
+          getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+        },
         rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
         from: vi.fn().mockReturnValue({
           select: vi.fn().mockReturnValue({
@@ -173,6 +188,9 @@ describe('activityStore', () => {
     it('should handle stats fetch error independently', async () => {
       const { createClient } = await import('../config/supabase/client')
       vi.mocked(createClient).mockReturnValue({
+        auth: {
+          getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+        },
         rpc: vi.fn().mockResolvedValue({ data: mockActivity, error: null }),
         from: vi.fn().mockReturnValue({
           select: vi.fn().mockReturnValue({
@@ -190,6 +208,9 @@ describe('activityStore', () => {
       const { createClient } = await import('../config/supabase/client')
       const timeoutError = new Error('Network timeout')
       vi.mocked(createClient).mockReturnValue({
+        auth: {
+          getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+        },
         rpc: vi.fn().mockRejectedValue(timeoutError),
         from: vi.fn().mockReturnValue({
           select: vi.fn().mockReturnValue({
@@ -207,6 +228,9 @@ describe('activityStore', () => {
       
       const { createClient } = await import('../config/supabase/client')
       vi.mocked(createClient).mockReturnValue({
+        auth: {
+          getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+        },
         rpc: vi.fn().mockResolvedValue({ data: mockActivity, error: null }),
         from: vi.fn().mockReturnValue({
           select: vi.fn().mockReturnValue({
@@ -222,6 +246,9 @@ describe('activityStore', () => {
     it('should handle concurrent fetch calls', async () => {
       const { createClient } = await import('../config/supabase/client')
       vi.mocked(createClient).mockReturnValue({
+        auth: {
+          getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+        },
         rpc: vi.fn().mockResolvedValue({ data: mockActivity, error: null }),
         from: vi.fn().mockReturnValue({
           select: vi.fn().mockReturnValue({

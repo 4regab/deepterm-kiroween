@@ -5,7 +5,7 @@ vi.mock('@google/genai', () => ({
   FileState: { PROCESSING: 'PROCESSING', FAILED: 'FAILED', ACTIVE: 'ACTIVE' },
 }))
 
-vi.mock('../../services/rateLimit', () => ({
+vi.mock('../services/rateLimit', () => ({
   checkAIRateLimit: vi.fn(),
   incrementAIUsage: vi.fn(),
 }))
@@ -191,7 +191,7 @@ describe('generate-reviewer API route', () => {
   // ==================== RATE LIMITING ====================
   describe('Rate Limiting', () => {
     it('should check rate limit before processing', async () => {
-      const { checkAIRateLimit } = await import('../../services/rateLimit')
+      const { checkAIRateLimit } = await import('../services/rateLimit')
       vi.mocked(checkAIRateLimit).mockResolvedValue({
         allowed: true,
         remaining: 8,
@@ -203,7 +203,7 @@ describe('generate-reviewer API route', () => {
     })
 
     it('should block when rate limit exceeded', async () => {
-      const { checkAIRateLimit } = await import('../../services/rateLimit')
+      const { checkAIRateLimit } = await import('../services/rateLimit')
       vi.mocked(checkAIRateLimit).mockResolvedValue({
         allowed: false,
         remaining: 0,
@@ -215,7 +215,7 @@ describe('generate-reviewer API route', () => {
     })
 
     it('should increment usage after success', async () => {
-      const { incrementAIUsage } = await import('../../services/rateLimit')
+      const { incrementAIUsage } = await import('../services/rateLimit')
       vi.mocked(incrementAIUsage).mockResolvedValue(undefined)
 
       await incrementAIUsage()
@@ -307,7 +307,7 @@ describe('generate-reviewer API route', () => {
     })
 
     it('should handle concurrent requests', async () => {
-      const { checkAIRateLimit } = await import('../../services/rateLimit')
+      const { checkAIRateLimit } = await import('../services/rateLimit')
       vi.mocked(checkAIRateLimit).mockResolvedValue({
         allowed: true,
         remaining: 5,

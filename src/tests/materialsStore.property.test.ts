@@ -6,8 +6,10 @@ import type { MaterialItem, MaterialFilter } from '@/lib/schemas/materials'
 // Arbitraries
 const uuidArb = fc.uuid()
 const materialTypeArb = fc.constantFrom<'Note' | 'Flashcards' | 'Reviewer'>('Note', 'Flashcards', 'Reviewer')
-const materialFilterArb = fc.constantFrom<MaterialFilter>('All', 'Note', 'Flashcards', 'Reviewer', 'Cards')
-const isoDateArb = fc.date().map(d => d.toISOString())
+// Note: 'Cards' filter is excluded because no MaterialItem has type 'Cards' - it's a UI-only filter
+const materialFilterArb = fc.constantFrom<MaterialFilter>('All', 'Note', 'Flashcards', 'Reviewer')
+// Generate ISO date strings from timestamps to avoid invalid date issues
+const isoDateArb = fc.integer({ min: 1577836800000, max: 1924905600000 }).map(ts => new Date(ts).toISOString())
 
 const materialItemArb: fc.Arbitrary<MaterialItem> = fc.record({
   id: uuidArb,

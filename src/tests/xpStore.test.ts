@@ -2,7 +2,12 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { useXPStore } from '../lib/stores/xpStore'
 
 vi.mock('../config/supabase/client', () => ({
-  createClient: vi.fn(() => ({ rpc: vi.fn() })),
+  createClient: vi.fn(() => ({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+    },
+    rpc: vi.fn(),
+  })),
 }))
 
 const mockXPStats = { total_xp: 500, current_level: 3, xp_in_level: 50, xp_for_next: 150 }
@@ -38,7 +43,12 @@ describe('xpStore', () => {
   describe('fetchXPStats', () => {
     it('should set loading to true when fetching', async () => {
       const { createClient } = await import('../config/supabase/client')
-      vi.mocked(createClient).mockReturnValue({ rpc: vi.fn().mockResolvedValue({ data: [], error: null }) } as never)
+      vi.mocked(createClient).mockReturnValue({
+        auth: {
+          getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+        },
+        rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+      } as never)
       const fetchPromise = useXPStore.getState().fetchXPStats()
       expect(useXPStore.getState().loading).toBe(true)
       await fetchPromise
@@ -46,7 +56,12 @@ describe('xpStore', () => {
 
     it('should set stats on successful fetch', async () => {
       const { createClient } = await import('../config/supabase/client')
-      vi.mocked(createClient).mockReturnValue({ rpc: vi.fn().mockResolvedValue({ data: [mockXPStats], error: null }) } as never)
+      vi.mocked(createClient).mockReturnValue({
+        auth: {
+          getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+        },
+        rpc: vi.fn().mockResolvedValue({ data: [mockXPStats], error: null }),
+      } as never)
       await useXPStore.getState().fetchXPStats()
       expect(useXPStore.getState().stats?.totalXp).toBe(500)
     })

@@ -135,7 +135,7 @@ const TermItem = ({ term, onEdit, onDelete, isEditing, onSave, onCancel, editDat
         }`}>
             <div className={`flex-shrink-0 transition-colors ${isSpooky ? "text-purple-500/30 hover:text-purple-400" : "text-[#171d2b]/30 hover:text-[#171d2b]/60"}`}><GripVertical size={16} /></div>
             <div className="flex-1 min-w-0"><p className={`font-medium text-sm truncate ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>{term.front}</p></div>
-            <div className={`hidden md:block flex-[2] min-w-0 border-l pl-4 ${isSpooky ? "border-purple-500/10" : "border-[#171d2b]/5"}`}><p className={`text-sm truncate ${isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60"}`}>{term.back}</p></div>
+            <div className={`hidden md:block flex-[2] min-w-0 border-l pl-4 ${isSpooky ? "border-purple-500/10" : "border-[#171d2b]/5"}`}><p className={`text-sm truncate ${isSpooky ? "text-purple-100" : "text-[#171d2b]/60"}`}>{term.back}</p></div>
             <div className="flex gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0">
                 <button onClick={onEdit} className={`p-1.5 rounded-lg ${isSpooky ? "hover:bg-purple-500/10 text-purple-400/50 hover:text-purple-300" : "hover:bg-[#171d2b]/5 text-[#171d2b]/50 hover:text-[#171d2b]"}`}><Edit size={14} /></button>
                 <button onClick={onDelete} className={`p-1.5 rounded-lg ${isSpooky ? "hover:bg-red-900/20 text-purple-400/50 hover:text-red-400" : "hover:bg-red-50 text-[#171d2b]/50 hover:text-red-500"}`}><Trash2 size={14} /></button>
@@ -404,7 +404,7 @@ const ReviewerDisplay = ({ categories, expandedCategories, toggleCategory, filte
                                                                 </button>
                                                             </div>
                                                         </div>
-                                                        <p className={`text-sm leading-relaxed ${isSpooky ? "text-purple-300/80" : "text-[#171d2b]/80"}`}>{term.definition}</p>
+                                                        <p className={`text-sm leading-relaxed ${isSpooky ? "text-purple-100" : "text-[#171d2b]/80"}`}>{term.definition}</p>
                                                     </>
                                                 )}
                                             </div>

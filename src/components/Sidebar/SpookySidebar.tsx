@@ -77,7 +77,7 @@ export default function SpookySidebar() {
     const bgColor = isSpooky ? "bg-[#0d0f14]" : "bg-[#f0f0ea]";
     const borderColor = isSpooky ? "border-purple-500/20" : "border-[#171d2b]/10";
     const textColor = isSpooky ? "text-purple-100" : "text-[#171d2b]";
-    const textMuted = isSpooky ? "text-purple-300/60" : "text-[#171d2b]/60";
+    const textMuted = isSpooky ? "text-purple-200" : "text-[#171d2b]/60";
     const hoverBg = isSpooky ? "hover:bg-purple-500/10" : "hover:bg-[#171d2b]/5";
     const activeBg = isSpooky ? "bg-purple-600" : "bg-[#171d2b]";
     const activeText = "text-white";

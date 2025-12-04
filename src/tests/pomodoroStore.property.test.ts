@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { describe, it, beforeEach, vi, afterEach } from 'vitest'
 import * as fc from 'fast-check'
 import { usePomodoroStore } from '@/lib/stores/pomodoroStore'
 import type { TimerPhase, PomodoroSettings } from '@/lib/schemas/pomodoro'
@@ -19,7 +19,6 @@ vi.mock('@/lib/stores/activityStore', () => ({
 
 // Arbitraries
 const timerPhaseArb = fc.constantFrom<TimerPhase>('work', 'shortBreak', 'longBreak')
-const durationArb = fc.integer({ min: 1, max: 120 })
 const timeLeftArb = fc.integer({ min: 0, max: 7200 })
 
 const settingsArb: fc.Arbitrary<PomodoroSettings> = fc.record({
@@ -29,10 +28,6 @@ const settingsArb: fc.Arbitrary<PomodoroSettings> = fc.record({
 })
 
 const taskTextArb = fc.string({ minLength: 1, maxLength: 200 })
-const reminderTimeArb = fc.option(
-  fc.date({ min: new Date(), max: new Date(Date.now() + 86400000) }).map(d => d.toISOString()),
-  { nil: null }
-)
 
 describe('Pomodoro Store Property Tests', () => {
   beforeEach(() => {
@@ -62,7 +57,6 @@ describe('Pomodoro Store Property Tests', () => {
     it('Property: setSettings merges partial settings correctly', () => {
       fc.assert(
         fc.property(settingsArb, (newSettings) => {
-          const initialSettings = usePomodoroStore.getState().settings
           usePomodoroStore.getState().setSettings(newSettings)
           const updated = usePomodoroStore.getState().settings
           
@@ -188,7 +182,8 @@ describe('Pomodoro Store Property Tests', () => {
       fc.assert(
         fc.property(
           taskTextArb,
-          fc.date({ min: new Date() }).map(d => d.toISOString()),
+          // Generate future timestamps (now + 1 hour to now + 1 year)
+          fc.integer({ min: Date.now() + 3600000, max: Date.now() + 31536000000 }).map(ts => new Date(ts).toISOString()),
           (text, reminderTime) => {
             usePomodoroStore.setState({ tasks: [] })
             usePomodoroStore.getState().addTask(text, reminderTime)
@@ -272,7 +267,8 @@ describe('Pomodoro Store Property Tests', () => {
       fc.assert(
         fc.property(
           taskTextArb,
-          fc.date({ min: new Date() }).map(d => d.toISOString()),
+          // Generate future timestamps (now + 1 hour to now + 1 year)
+          fc.integer({ min: Date.now() + 3600000, max: Date.now() + 31536000000 }).map(ts => new Date(ts).toISOString()),
           (text, reminderTime) => {
             usePomodoroStore.setState({ tasks: [] })
             usePomodoroStore.getState().addTask(text, reminderTime)

@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, vi, expect } from 'vitest'
+import { describe, it, beforeEach, vi } from 'vitest'
 import * as fc from 'fast-check'
 
 // Mock localStorage before importing the store

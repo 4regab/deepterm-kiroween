@@ -18,7 +18,7 @@ const achievementArb = fc.record({
   progress: fc.integer({ min: 0, max: 10000 }),
   requirement_value: fc.integer({ min: 1, max: 10000 }),
   unlocked: fc.boolean(),
-  unlocked_at: fc.option(fc.date().map(d => d.toISOString()), { nil: null }),
+  unlocked_at: fc.option(fc.integer({ min: 1577836800000, max: 1924905600000 }).map(ts => new Date(ts).toISOString()), { nil: null }),
 })
 
 describe('Achievements Schema Property Tests', () => {
