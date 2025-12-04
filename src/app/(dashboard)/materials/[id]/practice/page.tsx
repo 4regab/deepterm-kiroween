@@ -209,21 +209,6 @@ export default function PracticePage() {
         setStage("results");
     }, [questions]);
 
-    // Reset survival timer when question changes
-    const resetSurvivalTimerForNewQuestion = useCallback(() => {
-        if (settings.survivalMode.enabled && stage === "take" && !showAnswer) {
-            startSurvivalTimer();
-        }
-    }, [settings.survivalMode.enabled, stage, showAnswer, startSurvivalTimer]);
-
-    // Stop survival timer when answer is shown
-    const stopSurvivalTimer = useCallback(() => {
-        if (survivalTimerRef.current) {
-            clearInterval(survivalTimerRef.current);
-            survivalTimerRef.current = null;
-        }
-    }, []);
-
     // Start survival timer when entering take stage
     // Using a ref to track if we've started the timer for this session
     const survivalStartedRef = useRef(false);
