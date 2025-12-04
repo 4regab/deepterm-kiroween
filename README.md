@@ -5,8 +5,8 @@
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
 
-
-A free, open-source alternative to Quizlet and Gizmo. It transforms PDFs and study materials into flashcards and reviewer notes. Built with spaced repetition at its core, cards progress through stages (new, learning, review, mastered) to optimize long-term retention. Unlike paid alternatives, DeepTerm combines powerful AI generation with rich productivity features including an integrated Pomodoro timer, task reminders, ambient sounds, and gamified learning through XP progression, achievements, and study streaks - all completely free.
+A free, open-source alternative to Quizlet and Gizmo. It transforms PDFs and study materials into flashcards and reviewer notes. Built with spaced repetition at its core, cards progress through stages (new, learning, review, mastered) to optimize long-term retention. Unlike paid alternatives, DeepTerm combines AI generation with rich productivity features including an integrated Pomodoro timer, task reminders, ambient sounds, and gamified learning through XP progression, achievements, and study streaks - all completely free.
+<img width="1797" height="947" alt="image" src="https://github.com/user-attachments/assets/61fbd873-a6d0-43c8-9c54-fd01190dc8a8" />
 
 **[Live Demo](https://deepterm.me)**
 
@@ -141,7 +141,7 @@ GEMINI_API_KEY_5=your_gemini_api_key_5
 ### Database Setup
 
 1. Create a new Supabase project at [supabase.com](https://supabase.com)
-2. Run `src/lib/supabase/schema.sql` and `supabase-rls-policies.sql` in the SQL Editor (Dashboard > SQL Editor)
+2. Run `schema.sql` and `supabase-rls-policies.sql` in the SQL Editor (Dashboard > SQL Editor)
 3. Configure Google OAuth:
    - Go to **Authentication > Providers > Google**
    - Enable Google provider
