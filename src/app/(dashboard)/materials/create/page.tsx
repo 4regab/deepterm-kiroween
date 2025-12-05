@@ -847,13 +847,13 @@ export default function CreatePage() {
 
                             {/* Search Filter */}
                             <div className="relative">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#171d2b]/40" size={18} />
+                                <Search className={`absolute left-4 top-1/2 -translate-y-1/2 ${isSpooky ? "text-purple-400/40" : "text-[#171d2b]/40"}`} size={18} />
                                 <input
                                     type="text"
                                     value={filterText}
                                     onChange={(e) => setFilterText(e.target.value)}
-                                    placeholder="Filter terms..."
-                                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-[#171d2b]/10 focus:border-[#171d2b] outline-none bg-white transition-all focus:shadow-sm text-sm"
+                                    placeholder={isSpooky ? "Search the grimoire..." : "Filter terms..."}
+                                    className={`w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all focus:shadow-sm text-sm ${isSpooky ? "bg-[#0d0e14] border-purple-500/30 text-purple-100 placeholder:text-purple-400/40 focus:border-purple-400" : "border-[#171d2b]/10 focus:border-[#171d2b] bg-white"}`}
                                 />
                             </div>
 
@@ -864,20 +864,20 @@ export default function CreatePage() {
                                         key={category.id}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className="bg-white rounded-xl border border-[#171d2b]/10 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                                        className={`rounded-xl border overflow-hidden shadow-sm hover:shadow-md transition-shadow ${isSpooky ? "bg-[#1a1b26] border-purple-500/20" : "bg-white border-[#171d2b]/10"}`}
                                     >
                                         <div
                                             onClick={() => toggleCategory(category.id)}
-                                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
-                                            style={{ borderLeft: `4px solid ${category.color}` }}
+                                            className={`p-4 flex items-center justify-between cursor-pointer transition-colors ${isSpooky ? "hover:bg-purple-900/20" : "hover:bg-gray-50"}`}
+                                            style={{ borderLeft: `4px solid ${isSpooky ? "#a855f7" : category.color}` }}
                                         >
                                             <div className="flex items-center gap-4">
-                                                <h3 className="font-sora font-semibold text-[#171d2b]">{category.name}</h3>
-                                                <span className="px-2 py-0.5 rounded-full bg-[#171d2b]/5 text-xs font-medium text-[#171d2b]/60">
+                                                <h3 className={`font-sora font-semibold ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>{category.name}</h3>
+                                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${isSpooky ? "bg-purple-500/20 text-purple-300/60" : "bg-[#171d2b]/5 text-[#171d2b]/60"}`}>
                                                     {category.terms.length} terms
                                                 </span>
                                             </div>
-                                            {expandedCategories.includes(category.id) ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                                            {expandedCategories.includes(category.id) ? <ChevronUp size={18} className={isSpooky ? "text-purple-400" : ""} /> : <ChevronDown size={18} className={isSpooky ? "text-purple-400" : ""} />}
                                         </div>
                                         <AnimatePresence>
                                             {expandedCategories.includes(category.id) && (
@@ -885,31 +885,31 @@ export default function CreatePage() {
                                                     initial={{ height: 0, opacity: 0 }}
                                                     animate={{ height: "auto", opacity: 1 }}
                                                     exit={{ height: 0, opacity: 0 }}
-                                                    className="border-t border-[#171d2b]/5"
+                                                    className={`border-t ${isSpooky ? "border-purple-500/10" : "border-[#171d2b]/5"}`}
                                                 >
                                                     <div className="p-4 grid gap-4 grid-cols-1 lg:grid-cols-2">
                                                         {category.terms.map(term => (
-                                                            <div key={term.id} className="p-4 rounded-xl bg-[#f8f9fa] border border-[#171d2b]/5 hover:border-[#171d2b]/20 transition-colors group relative">
+                                                            <div key={term.id} className={`p-4 rounded-xl border transition-colors group relative ${isSpooky ? "bg-[#0d0e14] border-purple-500/20 hover:border-purple-500/40" : "bg-[#f8f9fa] border-[#171d2b]/5 hover:border-[#171d2b]/20"}`}>
                                                                 <div className="flex justify-between items-start mb-2">
-                                                                    <h4 className="font-bold text-[#171d2b] pr-8">{term.term}</h4>
+                                                                    <h4 className={`font-bold pr-8 ${isSpooky ? "text-purple-100" : "text-[#171d2b]"}`}>{term.term}</h4>
                                                                     <button
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
                                                                             navigator.clipboard.writeText(`${term.term}: ${term.definition}`);
                                                                         }}
-                                                                        className="absolute top-4 right-4 p-1.5 hover:bg-[#171d2b]/10 rounded-lg text-[#171d2b]/40 opacity-0 group-hover:opacity-100 transition-all"
+                                                                        className={`absolute top-4 right-4 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all ${isSpooky ? "hover:bg-purple-500/20 text-purple-400/40" : "hover:bg-[#171d2b]/10 text-[#171d2b]/40"}`}
                                                                         title="Copy"
                                                                     >
                                                                         <Copy size={14} />
                                                                     </button>
                                                                 </div>
-                                                                <p className="text-[#171d2b]/80 text-sm leading-relaxed mb-3">{term.definition}</p>
+                                                                <p className={`text-sm leading-relaxed mb-3 ${isSpooky ? "text-purple-200/80" : "text-[#171d2b]/80"}`}>{term.definition}</p>
 
                                                                 {term.examples && term.examples.length > 0 && (
                                                                     <div className="flex flex-wrap gap-2">
-                                                                        <span className="text-[10px] font-semibold text-[#171d2b]/40 uppercase tracking-wider py-1">Examples:</span>
+                                                                        <span className={`text-[10px] font-semibold uppercase tracking-wider py-1 ${isSpooky ? "text-purple-400/40" : "text-[#171d2b]/40"}`}>Examples:</span>
                                                                         {term.examples.map((ex, i) => (
-                                                                            <span key={i} className="px-2 py-0.5 rounded-md bg-white border border-[#171d2b]/10 text-xs text-[#171d2b]/70">
+                                                                            <span key={i} className={`px-2 py-0.5 rounded-md border text-xs ${isSpooky ? "bg-purple-900/30 border-purple-500/20 text-purple-300/70" : "bg-white border-[#171d2b]/10 text-[#171d2b]/70"}`}>
                                                                                 {ex}
                                                                             </span>
                                                                         ))}
@@ -918,12 +918,12 @@ export default function CreatePage() {
 
                                                                 {term.subcategories && term.subcategories.length > 0 && (
                                                                     <div className="mt-2">
-                                                                        <span className="text-[10px] font-semibold text-[#171d2b]/40 uppercase tracking-wider">
+                                                                        <span className={`text-[10px] font-semibold uppercase tracking-wider ${isSpooky ? "text-purple-400/40" : "text-[#171d2b]/40"}`}>
                                                                             {term.subcategoryTitle || 'Subcategories'}:
                                                                         </span>
                                                                         <ul className="mt-1 space-y-1">
                                                                             {term.subcategories.map((sub, i) => (
-                                                                                <li key={i} className="text-xs text-[#171d2b]/70 pl-3 border-l-2 border-[#171d2b]/10">
+                                                                                <li key={i} className={`text-xs pl-3 border-l-2 ${isSpooky ? "text-purple-300/70 border-purple-500/20" : "text-[#171d2b]/70 border-[#171d2b]/10"}`}>
                                                                                     {sub}
                                                                                 </li>
                                                                             ))}
