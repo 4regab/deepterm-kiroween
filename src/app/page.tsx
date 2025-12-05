@@ -104,7 +104,7 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4 mb-6 sm:mb-6 w-full">
               <a
-                href="/auth/callback"
+                href="/login"
                 className={`group relative h-[48px] sm:h-[56px] w-full sm:w-auto rounded-full px-6 sm:px-10 font-sora text-[14px] sm:text-[16px] font-medium transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02] ${isSpooky ? "bg-purple-600 text-white hover:bg-purple-500" : "bg-[#171d2b] text-white hover:bg-[#2a3347]"}`}
               >
                 Start Learning Free
@@ -172,7 +172,7 @@ export default function Home() {
               {isSpooky ? "Study smarter, not harder. No cap." : "Start studying smarter, not harder."}
             </p>
             <a
-              href="/auth/callback"
+              href="/login"
               className={`inline-block h-[44px] sm:h-[50px] lg:h-[54px] rounded-[100px] px-6 sm:px-8 lg:px-10 font-sora text-[14px] sm:text-[16px] lg:text-[18px] transition-colors shadow-lg leading-[44px] sm:leading-[50px] lg:leading-[54px] ${isSpooky ? "bg-purple-100 text-purple-900 hover:bg-white" : "bg-white text-[#171d2b] hover:bg-[#f0f0ea]"}`}
             >
               {isSpooky ? "Start Free" : "Start Learning Free"}

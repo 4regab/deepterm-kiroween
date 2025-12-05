@@ -12,7 +12,11 @@ import {
 const uuidArb = fc.uuid()
 const materialTypeArb = fc.constantFrom('Note', 'Flashcards', 'Reviewer')
 const materialFilterArb = fc.constantFrom('All', 'Note', 'Flashcards', 'Reviewer', 'Cards')
-const isoDateArb = fc.date().map(d => d.toISOString())
+const isoDateArb = fc.date({ 
+  min: new Date('1970-01-01'), 
+  max: new Date('2100-12-31'),
+  noInvalidDate: true 
+}).map(d => d.toISOString())
 
 const materialItemArb = fc.record({
   id: uuidArb,
